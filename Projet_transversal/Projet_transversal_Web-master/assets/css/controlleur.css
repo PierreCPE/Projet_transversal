@@ -1,0 +1,12 @@
+.selection{
+  display: flex;
+  align-items: center;
+  background-color: red;
+}
+.choix{
+  background-color: green;
+  border-radius: 10%;
+  width: 40vh;
+  height: 40vh;
+  padding: 5%;
+}
