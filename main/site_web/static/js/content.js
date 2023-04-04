@@ -7,19 +7,19 @@ function updateContent(contentDiv, href=null){
   url = "";
   switch (hash) {
     case "#Accueil":
-      url = "../../templates/accueil.html"
+      url = "static/accueil.html"
       break;
     case "#Camera":
-      url = "camera.html"
+      url = "/camera.html"
       break;
     case "#Mode":
-      url = "mode.html"
+      url = "static/mode.html"
       break;
     case "#Controlleur":
-      url = "controlleur.html"
+      url = "static/controlleur.html"
       break;
     default:
-      url = "../../templates/accueil.html"
+      url = "static/accueil.html"
   }
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.open( "GET", url, true );

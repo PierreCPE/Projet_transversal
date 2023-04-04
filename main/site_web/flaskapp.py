@@ -15,14 +15,17 @@ def gen_frames():
     #largeur=int(cam.get(cv2.CAP_PROP_FRAME_WIDTH))
     #hauteur=int(cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
     #cv2.namedWindow(nom, cv2.WND_PROP_FULLSCREEN)
-
+    detection = False
     while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-        ret,buffer = cv2.imencode('.jpg', frame)
-        frame = buffer.tobytes()
-        yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        if detection:
+            pass
+        else:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            ret,buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
     #cap.release()
 
 
@@ -31,6 +34,10 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
+    return render_template('index.html')
+
+@app.route('/camera.html')
+def camera_page():
     return render_template('camera.html')
 
 @app.route('/videofeed')
