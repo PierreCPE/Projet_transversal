@@ -80,7 +80,8 @@ while True:
             #si x est positif, le robot doit tourner à droite
             
             # print('')
-            
+            # print(x)
+            # print('')
             
 
     cpt += 1
