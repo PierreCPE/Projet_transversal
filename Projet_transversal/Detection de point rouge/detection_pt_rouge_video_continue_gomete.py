@@ -21,7 +21,12 @@ video = cv2.VideoCapture(0) #1 pour la caméra externe relié au port usb
 # Obtenir les propriétés de la vidéo
 largeur = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
 hauteur = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+centreX_video = largeur // 2
+centreY_video = hauteur // 2
+
 freq = int(video.get(cv2.CAP_PROP_FPS)) #fréquence des images par secondes 
+
 
 # Créer un objet VideoWriter pour écrire la nouvelle vidéo avec les contours
 # format = cv2.VideoWriter_fourcc(*'mp4v') # Format de la nouvelle vidéo
@@ -48,6 +53,13 @@ while True:
     for contour in contours:
         cv2.drawContours(image, [contour], 0, (255, 255, 0), 2)
 
+    # Dessiner la croix au centre de la vidéo
+    epaisseur_ligne = 2 # l'épaisseur des lignes de la croix
+    couleur_ligne = (255, 255, 255) # la couleur de la croix 
+    cv2.line(image, (centreX_video, centreY_video - 10), (centreX_video, centreY_video + 10), couleur_ligne, epaisseur_ligne)
+    cv2.line(image, (centreX_video - 10, centreY_video), (centreX_video + 10, centreY_video), couleur_ligne, epaisseur_ligne)
+
+
     # Afficher la trame courante avec les contours dans une fenêtre de sortie
     cv2.imshow("Video", image)
 
@@ -69,19 +81,17 @@ while True:
             x, y, l, h = cv2.boundingRect(surface_max) #x et y sont les coordonnée en haut a gauche du rectangle. l et h sont la longueur et la hauteur du rectangle
 
             # Calculer la position de l'objet par rapport au centre de l'image
-
-            centreX_video = largeur / 2
-            centreY_video = hauteur / 2
             centreX_rect = x + l / 2
             centreY_rect = y + h / 2
 
             x= centreX_rect -centreX_video
-            y=  centreY_rect -centreY_video
-            #si x est positif, le robot doit tourner à droite
-            
-            # print('')
-            # print(x)
-            # print('')
+            y= centreY_rect -centreY_video  
+            #si x est positif, le robot doit tourner à droite. Plus x est grand, plus le centre de la video est loin de l'objet au sens de l'horizontale
+            #si y est positif, le robot doit baisser la tete. Plus y est grand, plus le centre de la video est loin de l'objet au sens de la verticale
+
+            print('')
+            print(x, y)
+            print('')
             
 
     cpt += 1
