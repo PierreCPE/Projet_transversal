@@ -6,5 +6,5 @@
 
 ### * Fichier d'aide : Informations regroupés par les membres pour le projet
 
-## * Les autres fichiers correspondent au fichier code des différentes parties du Robot Nervobot
+## * Les autres fichiers correspondent aux fichiers code des différentes parties du Robot Nervobot
 
