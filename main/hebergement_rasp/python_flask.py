@@ -2,6 +2,34 @@ import os
 import RPi.GPIO as GPIO
 from flask import Flask, render_template, Response
 import datetime
+from flask_httpauth import HTTPBasicAuth
+from flask import Flask, request, abort
+
+import datetime
+
+auth = HTTPBasicAuth()
+
+allowed_ips = ['134.214.51.114', '192.168.56.1', '192.168.202.1']
+
+users = {
+    "user1": "12341",
+    "user2": "56789"
+}
+
+@auth.verify_password
+def verify_password(username, password):
+    if username in users and users[username] == password:
+        return username
+
+def check_ip(f):
+    def wrapped(*args, **kwargs):
+        client_ip = request.remote_addr
+        if client_ip not in allowed_ips:
+            abort(403)  # Forbidden
+        return f(*args, **kwargs)
+    return wrapped
+
+
 
 GPIO.setmode(GPIO.BCM)
 dataPin=[i for i in range(2,28)]
@@ -42,9 +70,22 @@ def index():
 def handleRequest(actionid):
     print("Button pressed : {}".format(actionid))
     return "OK 200"   
-                              
+
+
+@app.route('/protected')
+@auth.login_required
+@check_ip
+def protected_route():
+    return "Vous êtes connecté en tant que : {} et votre adresse IP est autorisée.".format(auth.current_user())
+
+
+
 if __name__=='__main__':
     os.system("sudo rm -r  ~/.cache/chromium/Default/Cache/*")
     app.run(debug=True, port=5000, host='172.20.10.2',threaded=True)
     #local web server http://192.168.1.200:5000/
     #after Port forwarding Manipulation http://xx.xx.xx.xx:5000/
+    
+    
+    
+   
