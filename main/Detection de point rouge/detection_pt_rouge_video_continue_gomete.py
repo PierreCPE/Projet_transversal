@@ -10,13 +10,12 @@ min_h, max_h, _, _ = cv2.minMaxLoc(hsv_gomete[:,:,0])
 min_s, max_s, _, _ = cv2.minMaxLoc(hsv_gomete[:,:,1])
 min_v, max_v, _, _ = cv2.minMaxLoc(hsv_gomete[:,:,2])
 
-# Définir les couleurs de la plage de couleurs à détecter à partir de l'image "gomete"
+# Définir les couleurs de la plage de couleurs à détecter à partir de l'image "test"
 rouge_clair = np.array([min_h, min_s, min_v])
 rouge_fonce = np.array([max_h, max_v, max_v])
 
 # Chargement de la vidéo
-# video = cv2.VideoCapture(0) #0 pour la cémra de l'ordi
-video = cv2.VideoCapture(0) #1 pour la caméra externe relié au port usb
+video = cv2.VideoCapture(0)
 
 # Obtenir les propriétés de la vidéo
 largeur = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -27,10 +26,6 @@ centreY_video = hauteur // 2
 
 freq = int(video.get(cv2.CAP_PROP_FPS)) #fréquence des images par secondes 
 
-
-# Créer un objet VideoWriter pour écrire la nouvelle vidéo avec les contours
-# format = cv2.VideoWriter_fourcc(*'mp4v') # Format de la nouvelle vidéo
-# video_finale = cv2.VideoWriter('video_finale.mp4', format, freq, (largeur, hauteur))
 cpt = 0
 
 # Boucle sur chaque trame de la vidéo
@@ -58,7 +53,6 @@ while True:
     couleur_ligne = (255, 255, 255) # la couleur de la croix 
     cv2.line(image, (centreX_video, centreY_video - 10), (centreX_video, centreY_video + 10), couleur_ligne, epaisseur_ligne)
     cv2.line(image, (centreX_video - 10, centreY_video), (centreX_video + 10, centreY_video), couleur_ligne, epaisseur_ligne)
-
 
     # Afficher la trame courante avec les contours dans une fenêtre de sortie
     cv2.imshow("Video", image)
@@ -104,20 +98,10 @@ while True:
         break
 
 
-
-
-
 # Fermer la fenêtre de sortie et l'objet VideoCapture
 cv2.destroyAllWindows()
 video.release()
 # video_finale.release()
-
-
-
-
-
-
-
 
 
 # https://towardsdatascience.com/computer-vision-for-beginners-part-4-64a8d9856208#:~:text=around%20the%20object.-,The%20function%20cv2.,bounding%20box%20as%20shown%20below.&text=Note%20that%20this%20straight%20rectangle,area%20with%20the%20function%20cv2.
