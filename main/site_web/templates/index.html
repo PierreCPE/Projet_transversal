@@ -4,15 +4,16 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css')}}">
     <script src="/static/js/content.js" type="text/JavaScript"></script>
+    <script src="/static/js/control.js" type="text/JavaScript"></script>
     <title>Kawaii</title>
   </head>
 
   <body>
-    <nav class="menu" id="menu" autohide="true">
+    <nav class="sticky_top menu" id="menu" autohide="true">
       <ul>
         <li><a href="#Accueil">Accueil</a></li>
         <li><a href="#Mode">Mode</a></li>
-        <li><a href="#Controlleur">Controlleur</a></li>
+        <!-- <li><a href="#Controlleur">Controlleur</a></li> -->
         <li><a href="#Camera">Camera</a></li>
       </ul>
     </nav>
@@ -29,17 +30,14 @@
         padding-top: 5%;"></div>
       </div>
       <div class="left_panel">
-        <nav class="menu_left" id="menu_left" autohide="false"  mode="0">
+        <nav class="sticky_top menu_left" id="menu_left" autohide="false"  mode="0">
             <ul>
-              <div class="menu_left_icon" id="clavier_left_mode">
+              <!-- <div class="menu_left_icon" id="clavier_left_mode">
                 <img src="static/img/clavier.png"/>
-                <!-- <div class="vertical_separator"> -->
-                <!-- </div> -->
-              </div>
+              </div> -->
               <div class="menu_left_icon" id="manette_left_mode">
-                <img src="static/img/manette.png"/>
+                <img src="static/img/manette_xbox.png"/>
               </div>
-              <div class="menu_left_languette"></div>
             </ul>
         </nav>
       </div>

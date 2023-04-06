@@ -41,13 +41,14 @@ div.content h1{
 }
 
 .content{
-  z-index: index 1;
+  z-index: 1;
   border-radius: 20% 20% 20% 20%;
   background-color: #e8e8e8;
   grid-column: 2;
   grid-row: 1;
   /* padding: 6%; */
   font-size: 1.5vw;
+  min-height: 100vh;
   box-shadow: 0em 0em 0.5em 1em rgba(255, 255, 255, 0.185);
 }
 .right_panel{
@@ -143,34 +144,19 @@ nav.menu li a:hover {
   /* transform: scaleY(0.8); */
 }
 
-:root {
-  --menu_left_width: 300px;
-  --menu_left_height: 70px;
-}
 
 nav.menu_left {
-  border-radius: 0% 20% 20% 00%;
-  background-color: #FFFFFF63;
-  width: var(--menu_left_width);
-  height: var(--menu_left_height);
+  top: 10%;
+  display: flex;
+  width: 200%;
+  height: 10vh;
   margin-right: -5%;
-  z-index: 10;
 }
 
-nav.menu_left[autohide="true"]:hover {
-  transform: translateX(0);
-  transition-delay: 0s;
-  transition-property: transform;
-  z-index: 10;
-}
-
-nav.menu_left[autohide="true"] {
-  transition-duration: 1s;
-  transition-timing-function: ease;
-  transform: translateX(-80%);
-  transition-delay: 0s;
-  transition-property: transform;
-  z-index: 10;
+.sticky_top{
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
 }
 
 nav.menu_left ul {
@@ -178,224 +164,80 @@ nav.menu_left ul {
   justify-content: center; /* Centre les éléments horizontalement */
   align-items: center; /* Centre les éléments verticalement */
   list-style: none;
-  height: var(--menu_left_height);
+  max-width: 50%;
+  height: 100%;
   margin: 0;
+  margin-left: 50%;
   padding: 0;
 }
 
 nav.menu_left_icon{
-  width: 70%;
+  /* width: 100%; */
   /* vertical-align: top; */
   display: block;
   /* align-items: flex-end; */
-  /* height: 100%; */
-  /* width: 100%; */
-  height: var(--menu_left_height);
+  /* height: var(--menu_left_height); */
   background-color: red;
-  margin-right: 0;
-  margin-left: auto;
+  /* margin-right: 0; */
+  /* margin-left: auto; */
 }
 
 .menu_left_icon img{
+  border-radius: 0% 20% 20% 00%;
+  background-color: #FFFFFF63;
   /* background-color: red; */
-  width: var(--menu_left_height);
-  height: var(--menu_left_height);
+  max-width: 50%;
+  display: flex;
+  width: 100%;
 }
 
-#menu_left[mode="0"] #manette_left_mode{
+#menu_left[mode="0"]{
+  animation: gamepad_disconnect 1s cubic-bezier(0.37, 0, 0.63, 1) 0s 1  normal forwards;
+
+}
+
+#menu_left[mode="1"]{
+  animation: gamepad_connect 1s cubic-bezier(0.37, 0, 0.63, 1) 0s 1  normal forwards;
   /* visibility: collapse; */
-  display: none;
+  display: block;
 }
 
-#menu_left[mode="1"] #clavier_left_mode{
-  /* visibility: collapse; */
-  display: none;
+@keyframes gamepad_disconnect {
+	0% {
+		transform: translateX(-50%);
+	}
+	100% {
+    transform: translateX(-100%);
+    display: none;
+	}
 }
 
-.menu_left_languette{
-  min-width: 30%;
-  min-height: 100%;
+@keyframes gamepad_connect {
+	0% {
+		transform: translateX(-100%);
+	}
+	100% {
+		transform: translateX(-50%);
+	}
 }
 
-/* .vertical_separator{
-  height: 10vw;
-  width: 10%;
-  border-left: 6px solid green;
-} */
-
-/*
-nav.selection[mode="1"] #clavier{
-  visibility: hidden;
-} */
-
-
-.site-footer
-{
-  border-color: green;
-  /* border-width: 1%; */
-  padding-top: 0;
-  /* background-color:#26272b; */
-  background: linear-gradient(to bottom, #fb9b01, #f96c00);
-  font-size:15px;
-  line-height:24px;
-  color:#737373;
-}
-.site-footer hr
-{
-  border-top-color:#bbb;
-  opacity:0.5
-}
-.site-footer hr.small
-{
-  /* margin:20px 0 */
-}
-.site-footer h6
-{
-  color:#fff;
-  font-size:16px;
-  text-transform:uppercase;
-  margin-top:0px;
-  letter-spacing:2px
-}
-.site-footer a
-{
-  color:#737373;
-}
-.site-footer a:hover
-{
-  color:#3366cc;
-  text-decoration:none;
-}
-.footer-links
-{
-  padding-left:0;
-  list-style:none
-}
-.footer-links li
-{
-  display:block
-}
-.footer-links a
-{
-  color:#737373
-}
-.footer-links a:active,.footer-links a:focus,.footer-links a:hover
-{
-  color:#3366cc;
-  text-decoration:none;
-}
-.footer-links.inline li
-{
-  display:inline-block
-}
-.site-footer .social-icons
-{
-  text-align:right
-}
-.site-footer .social-icons a
-{
-  width:40px;
-  height:40px;
-  line-height:40px;
-  margin-left:6px;
-  margin-right:0;
-  border-radius:100%;
-  background-color:#33353d
-}
-.copyright-text
-{
-  margin:0
-}
-@media (max-width:991px)
-{
-  .site-footer [class^=col-]
-  {
-    margin-bottom:30px
-  }
-}
-@media (max-width:767px)
-{
-  .site-footer
-  {
-    padding-bottom:0
-  }
-  .site-footer .copyright-text,.site-footer .social-icons
-  {
-    text-align:center
-  }
-}
-.social-icons
-{
-  padding-left:0;
-  margin-bottom:0;
-  list-style:none
-}
-.social-icons li
-{
-  display:inline-block;
-  margin-bottom:4px
-}
-.social-icons li.title
-{
-  margin-right:15px;
-  text-transform:uppercase;
-  color:#96a2b2;
-  font-weight:700;
-  font-size:13px
-}
-.social-icons a{
-  background-color:#eceeef;
-  color:#818a91;
-  font-size:16px;
-  display:inline-block;
-  line-height:44px;
-  width:44px;
-  height:44px;
-  text-align:center;
-  margin-right:8px;
-  border-radius:100%;
-  -webkit-transition:all .2s linear;
-  -o-transition:all .2s linear;
-  transition:all .2s linear
-}
-.social-icons a:active,.social-icons a:focus,.social-icons a:hover
-{
-  color:#fff;
-  background-color:#29aafe
-}
-.social-icons.size-sm a
-{
-  line-height:34px;
-  height:34px;
-  width:34px;
-  font-size:14px
-}
-.social-icons a.facebook:hover
-{
-  background-color:#3b5998
-}
-.social-icons a.twitter:hover
-{
-  background-color:#00aced
-}
-.social-icons a.linkedin:hover
-{
-  background-color:#007bb6
-}
-.social-icons a.dribbble:hover
-{
-  background-color:#ea4c89
-}
-@media (max-width:767px)
-{
-  .social-icons li.title
-  {
-    display:block;
-    margin-right:0;
-    font-weight:600
-  }
+.camera_div{
+  background: url(/videofeed); height: 100%; width: 100%;
+  display: flex;
+  background-repeat: no-repeat;
+  background-position: 50% 0;
+  background-size: cover;
+  min-width: 50%;
+  min-height: 50%;
 }
 
+.camera_video{
+  /* background: url(../img/loadinggif.gif); */
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
+  align-items: center;
+}
 /* test pour resize l'image du mode de fonctionnement dans l'onglet*/
 /* camera */
 
