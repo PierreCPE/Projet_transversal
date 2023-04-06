@@ -3,8 +3,8 @@
 
 #pip install opencv-contrib-python
 
-
-from flask import Flask, render_template, Response
+import serial
+from flask import Flask, render_template, Response, request
 import cv2
 import numpy as np
 
@@ -73,10 +73,29 @@ def camera_page():
 def videofeed():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-if __name__=="__main__" :
-    # Chargement de l'image "gomete"
-    gomete = cv2.imread('C:\\Users\\hugue\\Documents\\Projet_transversal\\main\\site_web\\gomete.jpg')
 
+@app.route('/commandes', methods=['POST'])
+def controlCommandes():
+    json_data = request.get_json()
+    # print(json_data)
+    if 'JoystickLeft' in json_data:
+        x_left = json_data["JoystickLeft"][0]
+        y_left = json_data["JoystickLeft"][1]
+        speed = 100
+        cmd = f'mogo 1:{-speed*y_left} 2:{-speed*y_left}\n\r'
+        print(f"Send {cmd}")
+        ser.write(cmd.encode())
+        # print("Move")
+    else:
+        ser.write("stop\n\r".encode())
+    return 'OK'
+
+if __name__=="__main__" :
+    ser = serial.Serial("COM8")
+    ser.baudrate = 115200
+    # Chargement de l'image "gomete"
+    gomete = cv2.imread('C:\\Users\\hugue\\Documents\\projet_transversal\\Projet_transversal\\main\\site_web\\gomete.jpg')
+    
     # Extraire les valeurs minimale et maximale de rouge dans l'image "gomete"
     hsv_gomete = cv2.cvtColor(gomete, cv2.COLOR_BGR2HSV)
     min_h, max_h, _, _ = cv2.minMaxLoc(hsv_gomete[:,:,0])
@@ -86,4 +105,5 @@ if __name__=="__main__" :
     # Définir les couleurs de la plage de couleurs à détecter à partir de l'image "test"
     rouge_clair = np.array([min_h, min_s, min_v])
     rouge_fonce = np.array([max_h, max_v, max_v])
-    app.run(debug=True)
+    app.run(debug=False)
+    ser.close()
