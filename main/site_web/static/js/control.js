@@ -53,18 +53,17 @@ function gamepadHandler(event, connecting) {
                     }
                 }
             }
-            if(true || JSON.stringify(lastJson) !== '{}'){
+            if(JSON.stringify(jsonData) !== '{}' || JSON.stringify(lastJson) !== '{}'){
                 var xhr = new XMLHttpRequest();                
                 var url = "/commandes";
                 xhr.open("POST", url, true);
                 xhr.setRequestHeader('Content-Type', 'application/json');
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4 && xhr.status === 200) {
-                        // Le serveur a répondu avec succès
-                    }
-                };
+                // xhr.onreadystatechange = function () {
+                //     if (xhr.readyState === 4 && xhr.status === 200) {
+                //         // Le serveur a répondu avec succès
+                //     }
+                // };
                 xhr.send(JSON.stringify(jsonData));
-                console.log(jsonData)
             }
             lastJson = jsonData
         }
