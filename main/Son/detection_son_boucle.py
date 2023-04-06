@@ -59,3 +59,5 @@ print("Le valeur max des 5 bruit sont : ", max_spectres_moyen)
 
 if max_spectres_moyen[0] >max_spectres_moyen[1] and max_bruit > seuil:
     print("Le bruit augmente")
+
+#Je veux que mon code garde le meme seuil a chaque eregistrement et que ma boucle me permette de voir si le bruit detecte est de plus en plus fort ou pas 
