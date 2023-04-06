@@ -5,6 +5,11 @@
 <!--<video src="/videofeed" autoplay>
     <!--<source src="{{url_for('videofeed')}}" type="video/mp4">  
 </video> -->
-
-<img style="width:100%" src="{{url_for('videofeed')}}">
+<div>
+    <input type="checkbox" id="scales" name="scales" checked>
+    <label for="gomete">Activer la détection de couleur</label>
+</div>
+<div class="camera_div" src="{{url_for('videofeed')}}">
+    <img class="camera_video" style="width:80%; height:80%" src="{{url_for('videofeed')}}">
+</div>
 
