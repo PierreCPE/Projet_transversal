@@ -1,13 +1,14 @@
 .selection{
   display: flex;
   align-items: center;
-  background-color: red;
+  background-color: #e8e8e8;
+  height: 80vh;
 }
 .choix{
-  background-color: green;
+  background-color: rgb(201, 112, 56);
   border-radius: 10%;
   width: 40vh;
-  height: 40vh;
+  height: 60vh;
   padding: 5%;
   margin: 2.5%;
   max-width: 30%;

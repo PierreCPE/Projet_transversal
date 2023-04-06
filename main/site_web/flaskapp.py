@@ -75,7 +75,8 @@ def videofeed():
 
 if __name__=="__main__" :
     # Chargement de l'image "gomete"
-    gomete = cv2.imread('C:\\Users\\hugue\\Documents\\Projet_transversal\\main\\site_web\\gomete.jpg')
+    gomete = cv2.imread('C:\\Users\\Gosson Pierre\\Documents\\GitHub\\Projet_transversal\\main\\site_web\\gomete.jpg')
+    
 
     # Extraire les valeurs minimale et maximale de rouge dans l'image "gomete"
     hsv_gomete = cv2.cvtColor(gomete, cv2.COLOR_BGR2HSV)
