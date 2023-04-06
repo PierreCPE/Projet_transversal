@@ -81,7 +81,7 @@ def controlCommandes():
     if 'JoystickLeft' in json_data:
         x_left = json_data["JoystickLeft"][0]
         y_left = json_data["JoystickLeft"][1]
-        speed = 40
+        speed = 30
         cmd = f'mogo 1:{-speed*y_left} 2:{-speed*y_left}\n\r'
         print(f"Send {cmd}")
         ser.write(cmd.encode())
@@ -94,7 +94,7 @@ if __name__=="__main__" :
     ser = serial.Serial("COM8")
     ser.baudrate = 115200
     # Chargement de l'image "gomete"
-    gomete = cv2.imread('C:\\Users\\hugue\\Documents\\projet_transversal\\Projet_transversal\\main\\site_web\\gomete.jpg')
+    gomete = cv2.imread('gomete.jpg')
     
     # Extraire les valeurs minimale et maximale de rouge dans l'image "gomete"
     hsv_gomete = cv2.cvtColor(gomete, cv2.COLOR_BGR2HSV)
