@@ -18,6 +18,8 @@ var buttonMap = {
     15: "RIGHT"
 };
 
+lastJson = {}
+
 function gamepadHandler(event, connecting) {
     var gamepad = event.gamepad;
 
@@ -27,9 +29,9 @@ function gamepadHandler(event, connecting) {
     } else {
         console.log("Manette déconnectée");
     }
-
     setInterval(function() {
         var gamepad = navigator.getGamepads()[gamepadIndex];
+        
         if (gamepad) {
             var jsonData = {};
             // Détecter les mouvements des deux joysticks
@@ -37,11 +39,11 @@ function gamepadHandler(event, connecting) {
             var y_left = round(gamepad.axes[1],1);
             var x_right = round(gamepad.axes[2],1);
             var y_right = round(gamepad.axes[3],1);
-            if (Math.abs(x_left) > 0 || Math.abs(y_left) > 0){
-                jsonData['JoystickLeft'] =  x_left +';' + y_left
-            } 
-            if (Math.abs(x_right) > 0 || Math.abs(y_right) > 0){
-                jsonData['JoystickRight'] =  x_right +';' + x_right
+            if (Math.abs(x_left) > 0.1 || Math.abs(y_left) > 0.1){
+                jsonData['JoystickLeft'] =  [x_left, y_left]
+            }
+            if (Math.abs(x_right) > 0.1 || Math.abs(y_right) > 0.1){
+                jsonData['JoystickRight'] =  [x_right, y_right]
             }
             for (var i = 0; i < gamepad.buttons.length; i++) {
                 if (gamepad.buttons[i].pressed) {
@@ -51,9 +53,20 @@ function gamepadHandler(event, connecting) {
                     }
                 }
             }
-            if(JSON.stringify(jsonData) !== '{}'){
+            if(true || JSON.stringify(lastJson) !== '{}'){
+                var xhr = new XMLHttpRequest();                
+                var url = "/commandes";
+                xhr.open("POST", url, true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        // Le serveur a répondu avec succès
+                    }
+                };
+                xhr.send(JSON.stringify(jsonData));
                 console.log(jsonData)
             }
+            lastJson = jsonData
         }
     }, 100);
 }
