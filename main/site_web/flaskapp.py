@@ -94,7 +94,7 @@ if __name__=="__main__" :
     ser = serial.Serial("COM8")
     ser.baudrate = 115200
     # Chargement de l'image "gomete"
-    gomete = cv2.imread('C:\\Users\\Gosson Pierre\\Documents\\GitHub\\projet_transversal\\Projet_transversal\\main\\site_web\\gomete.jpg')
+    gomete = cv2.imread('gomete.jpg')
     
     
     # Extraire les valeurs minimale et maximale de rouge dans l'image "gomete"
