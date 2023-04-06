@@ -27,40 +27,35 @@ taille_fft = 512
 Fs = 44100 
 
 # Durée de l'enregistrement en secondes
-duree = 3
+duree = 1
 
+max_spectres_moyen=[]
 
 #ENREGISTREMENT
-spectres_moyen = []
+
 for i in range(5):
     print("Enregistrement en cours")
     signal = sd.rec(int(duree * Fs), samplerate=Fs, channels=1)
     sd.wait()
-    print("Enregistrement terminé")
-
 
     f, t, S = sig.spectrogram(signal[:,0], fs=Fs, window='hann', nperseg=taille_fenetre, noverlap=taille_fenetre-pas, nfft=taille_fft, detrend=False)
 
-
     freq_bin = np.logical_and(f > freq_min, f <= freq_max)
 
-
-
     spectre_moyen = np.mean(np.abs(S[freq_bin, :]), axis=0)
-    spectres_moyen.append(spectre_moyen)
 
     seuil = 10 * np.std(spectre_moyen)
-    if np.max(spectre_moyen) > seuil:
+    max_bruit= np.max(spectre_moyen)
+    if max_bruit > seuil:
         print('Bruit détecté, fuyons!')
-
-        if i>0:
-
-            seuil = 10 * np.std(spectre_moyen)
-            if np.max(spectre_moyen) > seuil:
-                print('Bruit de plus en plus fort!')
-                
-        else:
-            print('Le bruit se calme!')
-    
     else:
         print('Aucun bruit bizarre, restons bien caché!')
+
+    max_spectres_moyen.append(max_bruit)
+    print("La valeur seuil est : ", seuil)
+    print("La valeur maximale du bruit est : ", max_bruit)
+
+print("Le valeur max des 5 bruit sont : ", max_spectres_moyen)
+
+if max_spectres_moyen[0] >max_spectres_moyen[1] and max_bruit > seuil:
+    print("Le bruit augmente")
