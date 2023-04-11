@@ -77,10 +77,13 @@ def videofeed():
 def controlCommandes():
     json_data = request.get_json()
     # print(json_data)
+    speed = 30
+    if config['speed_variable'] and 'LT' in json_data:
+        speed *= json_data['LT']
+        print("Speed",speed)
     if 'JoystickLeft' in json_data:
         x_left = json_data["JoystickLeft"][0]
         y_left = json_data["JoystickLeft"][1]
-        speed = 30
         cmd = f"mogo 1:{-speed*y_left} 2:{-speed*y_left}\n\r"
         print(f"Send {cmd}")
         if config['serial']:
@@ -99,6 +102,7 @@ if __name__=="__main__" :
     config['serial_port'] = 'COM8' # Port série
     config['serial_baudrate'] = 115200 # Baudrate du port série
     config['gomete_path'] = 'gomete.jpg'
+    config['speed_variable'] = True # Fixe ou non la vitesse du robot (si non dépendente de la touche LT)
     ###########################################
 
 
@@ -119,4 +123,5 @@ if __name__=="__main__" :
     rouge_clair = np.array([min_h, min_s, min_v])
     rouge_fonce = np.array([max_h, max_v, max_v])
     app.run(host="0.0.0.0", debug=False)
-    ser.close()
+    if config['serial']:
+        ser.close()
