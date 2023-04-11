@@ -7,10 +7,6 @@ import serial
 from flask import Flask, render_template, Response, request
 import cv2
 import numpy as np
-import subprocess
-
-subprocess.check_call(["pip", "install", "-r", "requirements.txt"])
-
 
 def gen_frames():
     cap = cv2.VideoCapture(0) # Replace 0 with your camera index if you have multiple cameras
