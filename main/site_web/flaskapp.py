@@ -77,14 +77,19 @@ def videofeed():
 def controlCommandes():
     json_data = request.get_json()
     # print(json_data)
-    speed = 30
+    max_speed = 30
+    speed = 0
     if config['speed_variable'] and 'LT' in json_data:
-        speed *= json_data['LT']
+        speed = max_speed*json_data['LT']
         print("Speed",speed)
+    else:
+        speed = max_speed
     if 'JoystickLeft' in json_data:
         x_left = json_data["JoystickLeft"][0]
         y_left = json_data["JoystickLeft"][1]
-        cmd = f"mogo 1:{-speed*y_left} 2:{-speed*y_left}\n\r"
+        right_power = -speed*y_left
+        left_power = -speed*y_left
+        cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
         print(f"Send {cmd}")
         if config['serial']:
             ser.write(cmd.encode())
