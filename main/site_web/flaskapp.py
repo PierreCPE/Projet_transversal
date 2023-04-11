@@ -7,6 +7,9 @@ import serial
 from flask import Flask, render_template, Response, request
 import cv2
 import numpy as np
+import subprocess
+
+subprocess.check_call(["pip", "install", "-r", "requirements.txt"])
 
 
 def gen_frames():
@@ -91,10 +94,22 @@ def controlCommandes():
     return 'OK'
 
 if __name__=="__main__" :
-    ser = serial.Serial("COM8")
-    ser.baudrate = 115200
+    # Configuration
+    ###########################################
+    config = {}
+    config['serial'] = False # Activer ou non le port serial
+    config['serial_port'] = 'COM8' # Port série
+    config['serial_baudrate'] = 115200 # Baudrate du port série
+    config['gomete_path'] = 'goemte.jpg'
+    ###########################################
+
+
+    if config['serial']:
+        ser = serial.Serial(config['serial_port'])
+        ser.baudrate = config['serial_baudrate']
+
     # Chargement de l'image "gomete"
-    gomete = cv2.imread('gomete.jpg')
+    gomete = cv2.imread(config['gomete_path'])
     
     # Extraire les valeurs minimale et maximale de rouge dans l'image "gomete"
     hsv_gomete = cv2.cvtColor(gomete, cv2.COLOR_BGR2HSV)
