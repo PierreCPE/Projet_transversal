@@ -30,10 +30,14 @@ Fs = 44100
 duree = 1
 
 max_spectres_moyen=[]
-
+nb_bruits_consecutifs = 0
+bruit_detecte = False
+premiere_detection = True
+seuil = None
+# max_bruit = None
 #ENREGISTREMENT
 
-for i in range(5):
+while nb_bruits_consecutifs < 2 and  not bruit_detecte:
     print("Enregistrement en cours")
     signal = sd.rec(int(duree * Fs), samplerate=Fs, channels=1)
     sd.wait()
@@ -44,20 +48,38 @@ for i in range(5):
 
     spectre_moyen = np.mean(np.abs(S[freq_bin, :]), axis=0)
 
-    seuil = 10 * np.std(spectre_moyen)
+    if seuil is None:
+        seuil = 10 * np.std(spectre_moyen)
+
     max_bruit= np.max(spectre_moyen)
+
     if max_bruit > seuil:
+        
         print('Bruit détecté, fuyons!')
+        if premiere_detection:
+            premiere_detection = False
+        else:
+            nb_bruits_consecutifs += 1
+        if nb_bruits_consecutifs == 2:
+            print('Trop de bruits détectés, arrêt du programme.')
+
+        max_spectres_moyen.append(max_bruit)
+       
     else:
         print('Aucun bruit bizarre, restons bien caché!')
+        if not premiere_detection:
+            bruit_detecte = True
 
-    max_spectres_moyen.append(max_bruit)
+
     print("La valeur seuil est : ", seuil)
     print("La valeur maximale du bruit est : ", max_bruit)
+    print("    ")
 
 print("Le valeur max des 5 bruit sont : ", max_spectres_moyen)
 
-if max_spectres_moyen[0] >max_spectres_moyen[1] and max_bruit > seuil:
-    print("Le bruit augmente")
-
-#Je veux que mon code garde le meme seuil a chaque eregistrement et que ma boucle me permette de voir si le bruit detecte est de plus en plus fort ou pas 
+if max_spectres_moyen[0] < max_spectres_moyen[1]:
+    print("Le bruit augmente.")
+elif max_spectres_moyen[0] > max_spectres_moyen[1]:
+    print("Le bruit diminue.")
+else:
+    print("Le bruit est constant.")
