@@ -118,5 +118,5 @@ if __name__=="__main__" :
     # Définir les couleurs de la plage de couleurs à détecter à partir de l'image "test"
     rouge_clair = np.array([min_h, min_s, min_v])
     rouge_fonce = np.array([max_h, max_v, max_v])
-    app.run(debug=False)
+    app.run(host="0.0.0.0", debug=False)
     ser.close()

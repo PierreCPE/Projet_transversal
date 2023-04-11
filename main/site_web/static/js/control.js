@@ -22,7 +22,7 @@ lastJson = {}
 
 function gamepadHandler(event, connecting) {
     var gamepad = event.gamepad;
-    print(gamepad.mapping)
+    console.log(gamepad.mapping)
 
     if (connecting) {
         gamepadIndex = gamepad.index;
