@@ -81,12 +81,14 @@ def controlCommandes():
         x_left = json_data["JoystickLeft"][0]
         y_left = json_data["JoystickLeft"][1]
         speed = 30
-        cmd = f'mogo 1:{-speed*y_left} 2:{-speed*y_left}\n\r'
+        cmd = f"mogo 1:{-speed*y_left} 2:{-speed*y_left}\n\r"
         print(f"Send {cmd}")
-        ser.write(cmd.encode())
+        if config['serial']:
+            ser.write(cmd.encode())
         # print("Move")
     else:
-        ser.write("stop\n\r".encode())
+        if config['serial']:
+            ser.write("stop\n\r".encode())
     return 'OK'
 
 if __name__=="__main__" :
