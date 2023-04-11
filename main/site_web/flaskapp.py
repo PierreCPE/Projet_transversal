@@ -98,7 +98,7 @@ if __name__=="__main__" :
     config['serial'] = False # Activer ou non le port serial
     config['serial_port'] = 'COM8' # Port série
     config['serial_baudrate'] = 115200 # Baudrate du port série
-    config['gomete_path'] = 'goemte.jpg'
+    config['gomete_path'] = 'gomete.jpg'
     ###########################################
 
 
