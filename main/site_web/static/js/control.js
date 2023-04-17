@@ -55,6 +55,10 @@ function gamepadHandler(event, connecting) {
                 if(left_element_zoom != null){
                     left_element_zoom.setAttribute("cx",78.5*x_left+"")
                     left_element_zoom.setAttribute("cy",78.5*y_left+"")
+                    document.getElementById("left_x").setAttribute("x",78.5*x_left+"")
+                    document.getElementById("left_x").innerHTML = round(x_left,2)+""
+                    document.getElementById("left_y").setAttribute("y",78.5*y_left+"")
+                    document.getElementById("left_y").innerHTML = round(y_left,2)+""
                 }
                 if(right_element_zoom != null){
                     right_element_zoom.setAttribute("cx",78.5*x_right+"")

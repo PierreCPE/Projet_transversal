@@ -7,6 +7,10 @@ import serial
 from flask import Flask, render_template, Response, request
 import cv2
 import numpy as np
+import os
+import logging
+import math
+
 
 def gen_frames():
     cap = cv2.VideoCapture(0) # Replace 0 with your camera index if you have multiple cameras
@@ -79,21 +83,22 @@ def controlCommandes():
     # print(json_data)
     max_speed = 30
     speed = 0
-    if config['speed_variable'] and 'LT' in json_data:
-        speed = max_speed*json_data['LT']
-        print("Speed",speed)
+    if config['speed_variable']:
+        if 'LT' in json_data:
+            speed = max_speed*json_data['LT']
+            print("Speed",speed)
     else:
         speed = max_speed
     if 'JoystickLeft' in json_data:
         x_left = json_data["JoystickLeft"][0]
         y_left = json_data["JoystickLeft"][1]
-        right_power = -speed*y_left
-        left_power = -speed*y_left
+        rotation_coef = (x_left / 2)
+        right_power = -speed*(y_left + rotation_coef)
+        left_power = -speed*(y_left - rotation_coef)
         cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
         print(f"Send {cmd}")
         if config['serial']:
             ser.write(cmd.encode())
-        # print("Move")
     else:
         if config['serial']:
             ser.write("stop\n\r".encode())
@@ -106,7 +111,7 @@ if __name__=="__main__" :
     config['serial'] = False # Activer ou non le port serial
     config['serial_port'] = 'COM8' # Port série
     config['serial_baudrate'] = 115200 # Baudrate du port série
-    config['gomete_path'] = 'gomete.jpg'
+    config['gomete_path'] = "./gomete.jpg"
     config['speed_variable'] = True # Fixe ou non la vitesse du robot (si non dépendente de la touche LT)
     ###########################################
 
@@ -127,6 +132,9 @@ if __name__=="__main__" :
     # Définir les couleurs de la plage de couleurs à détecter à partir de l'image "test"
     rouge_clair = np.array([min_h, min_s, min_v])
     rouge_fonce = np.array([max_h, max_v, max_v])
+    log = logging.getLogger('werkzeug')
+    log.disabled = True
+    app.logger.disabled = True
     app.run(host="0.0.0.0", debug=False)
     if config['serial']:
         ser.close()
