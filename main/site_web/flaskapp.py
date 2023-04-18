@@ -22,11 +22,11 @@ def gen_frames():
     centreX_video = largeur // 2
     centreY_video = hauteur // 2
     cpt=0
-    detection = True
+    detection = config['detection_contour']
     while True:
         if detection:
             res, image = cap.read() #res est un bollean qui verifie si la video a pu etre lu est image est une "capture de video"
-            if res == False:  
+            if res == False:
                 break
 
             # Convertir la trame vidéo en HSV
@@ -143,8 +143,10 @@ if __name__=="__main__" :
     # Configuration
     ###########################################
     config = {}
-    config['serial'] = False # Activer ou non le port serial
-    config['serial_port'] = 'COM8' # Port série
+    config['detection_contour'] = True
+    config['serial'] = True # Activer ou non le port serial
+    # config['serial_port'] = 'COM8' # Port série
+    config['serial_port'] = 'ttyAMA0' # Port série
     config['serial_baudrate'] = 115200 # Baudrate du port série
     config['gomete_path'] = "gomete.jpg"
     config['speed_variable'] = True # Fixe ou non la vitesse du robot (si non dépendente de la touche LT)
