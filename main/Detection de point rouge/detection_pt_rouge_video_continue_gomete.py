@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 # Chargement de l'image "gomete"
-gomete = cv2.imread('test.jpg')
+gomete = cv2.imread('img.jpg')
 
 # Extraire les valeurs minimale et maximale de rouge dans l'image "gomete"
 hsv_gomete = cv2.cvtColor(gomete, cv2.COLOR_BGR2HSV)
