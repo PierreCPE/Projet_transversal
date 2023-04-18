@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 # Chargement de l'image "gomete"
-gomete = cv2.imread('test.jpg')
+gomete = cv2.imread('img.jpg')
 
 # Extraire les valeurs minimale et maximale de rouge dans l'image "gomete"
 hsv_gomete = cv2.cvtColor(gomete, cv2.COLOR_BGR2HSV)
@@ -80,8 +80,7 @@ while True:
 
             x= centreX_rect -centreX_video
             y= centreY_rect -centreY_video  
-            #x_norm = x/ largeur
-            #y_norm = y / hauteur   
+            
             #si x est positif, le robot doit tourner à droite. Plus x est grand, plus le centre de la video est loin de l'objet au sens de l'horizontale
             #si y est positif, le robot doit baisser la tete. Plus y est grand, plus le centre de la video est loin de l'objet au sens de la verticale
 
