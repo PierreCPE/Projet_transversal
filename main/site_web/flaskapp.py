@@ -111,8 +111,9 @@ if __name__=="__main__" :
     config['serial'] = False # Activer ou non le port serial
     config['serial_port'] = 'COM8' # Port série
     config['serial_baudrate'] = 115200 # Baudrate du port série
-    config['gomete_path'] = "./gomete.jpg"
+    config['gomete_path'] = "gomete.jpg"
     config['speed_variable'] = True # Fixe ou non la vitesse du robot (si non dépendente de la touche LT)
+    config['log_all_requests'] = False
     ###########################################
 
 
@@ -132,9 +133,10 @@ if __name__=="__main__" :
     # Définir les couleurs de la plage de couleurs à détecter à partir de l'image "test"
     rouge_clair = np.array([min_h, min_s, min_v])
     rouge_fonce = np.array([max_h, max_v, max_v])
-    log = logging.getLogger('werkzeug')
-    log.disabled = True
-    app.logger.disabled = True
+    if config['log_all_requests']:
+    # log = logging.getLogger('werkzeug')
+    # log.disabled = True
+        app.logger.disabled = True
     app.run(host="0.0.0.0", debug=False)
     if config['serial']:
         ser.close()
