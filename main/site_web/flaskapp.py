@@ -45,6 +45,7 @@ def gen_frames():
             cv2.line(image, (centreX_video, centreY_video - 10), (centreX_video, centreY_video + 10), couleur_ligne, epaisseur_ligne)
             cv2.line(image, (centreX_video - 10, centreY_video), (centreX_video + 10, centreY_video), couleur_ligne, epaisseur_ligne)
             ret,buffer = cv2.imencode('.jpg', image)
+
             frame = buffer.tobytes()
             # Afficher la trame courante avec les contours dans une fenêtre de sortie
             yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame  + b'\r\n')
