@@ -7,6 +7,9 @@ import serial
 from flask import Flask, render_template, Response, request
 import cv2
 import numpy as np
+import os
+import logging
+import math
 
 
 def gen_frames():
@@ -79,23 +82,48 @@ def videofeed():
 def controlCommandes():
     json_data = request.get_json()
     # print(json_data)
+    max_speed = 30
+    speed = 0
+    if config['speed_variable']:
+        if 'LT' in json_data:
+            speed = max_speed*json_data['LT']
+            print("Speed",speed)
+    else:
+        speed = max_speed
     if 'JoystickLeft' in json_data:
         x_left = json_data["JoystickLeft"][0]
         y_left = json_data["JoystickLeft"][1]
-        speed = 30
-        cmd = f'mogo 1:{-speed*y_left} 2:{-speed*y_left}\n\r'
+        rotation_coef = (x_left / 2)
+        right_power = -speed*(y_left + rotation_coef)
+        left_power = -speed*(y_left - rotation_coef)
+        cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
         print(f"Send {cmd}")
-        ser.write(cmd.encode())
-        # print("Move")
+        if config['serial']:
+            ser.write(cmd.encode())
     else:
-        ser.write("stop\n\r".encode())
+        if config['serial']:
+            ser.write("stop\n\r".encode())
     return 'OK'
 
 if __name__=="__main__" :
-    ser = serial.Serial("COM8")
-    ser.baudrate = 115200
+    # Configuration
+    ###########################################
+    config = {}
+    config['serial'] = False # Activer ou non le port serial
+    config['serial_port'] = 'COM8' # Port série
+    config['serial_baudrate'] = 115200 # Baudrate du port série
+    config['gomete_path'] = "gomete.jpg"
+    config['speed_variable'] = True # Fixe ou non la vitesse du robot (si non dépendente de la touche LT)
+    config['log_all_requests'] = False
+    ###########################################
+
+
+    if config['serial']:
+        ser = serial.Serial(config['serial_port'])
+        ser.baudrate = config['serial_baudrate']
+
     # Chargement de l'image "gomete"
-    gomete = cv2.imread('gomete.jpg')
+    gomete = cv2.imread(config['gomete_path'])
     
     # Extraire les valeurs minimale et maximale de rouge dans l'image "gomete"
     hsv_gomete = cv2.cvtColor(gomete, cv2.COLOR_BGR2HSV)
@@ -106,5 +134,10 @@ if __name__=="__main__" :
     # Définir les couleurs de la plage de couleurs à détecter à partir de l'image "test"
     rouge_clair = np.array([min_h, min_s, min_v])
     rouge_fonce = np.array([max_h, max_v, max_v])
-    app.run(debug=False)
-    ser.close()
+    if config['log_all_requests']:
+    # log = logging.getLogger('werkzeug')
+    # log.disabled = True
+        app.logger.disabled = True
+    app.run(host="0.0.0.0", debug=False)
+    if config['serial']:
+        ser.close()

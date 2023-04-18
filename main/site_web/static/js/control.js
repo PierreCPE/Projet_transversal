@@ -31,7 +31,6 @@ function gamepadHandler(event, connecting) {
     }
     setInterval(function() {
         var gamepad = navigator.getGamepads()[gamepadIndex];
-        
         if (gamepad) {
             var jsonData = {};
             // Détecter les mouvements des deux joysticks
@@ -39,6 +38,34 @@ function gamepadHandler(event, connecting) {
             var y_left = round(gamepad.axes[1],1);
             var x_right = round(gamepad.axes[2],1);
             var y_right = round(gamepad.axes[3],1);
+            if(window.location.hash=='#Controlleur'){
+                left_element = document.getElementById("GP_LeftStick")
+                right_element = document.getElementById("GP_RightStick")
+                if(left_element != null){
+                    left_element.setAttribute("cx",113+10*x_left+"")
+                    left_element.setAttribute("cy",160+10*y_left+"")
+                }
+                if(right_element != null){
+                    right_element.setAttribute("cx",278+10*x_right+"")
+                    right_element.setAttribute("cy",238+10*y_right+"")
+                }
+
+                left_element_zoom = document.getElementById("GP_LeftStick_Zoom")
+                right_element_zoom = document.getElementById("GP_RightStick_Zoom")
+                if(left_element_zoom != null){
+                    left_element_zoom.setAttribute("cx",78.5*x_left+"")
+                    left_element_zoom.setAttribute("cy",78.5*y_left+"")
+                    document.getElementById("left_x").setAttribute("x",78.5*x_left+"")
+                    document.getElementById("left_x").innerHTML = round(x_left,2)+""
+                    document.getElementById("left_y").setAttribute("y",78.5*y_left+"")
+                    document.getElementById("left_y").innerHTML = round(y_left,2)+""
+                }
+                if(right_element_zoom != null){
+                    right_element_zoom.setAttribute("cx",78.5*x_right+"")
+                    right_element_zoom.setAttribute("cy",78.5*y_right+"")
+                }
+
+            }
             if (Math.abs(x_left) > 0.1 || Math.abs(y_left) > 0.1){
                 jsonData['JoystickLeft'] =  [x_left, y_left]
             }
@@ -46,8 +73,16 @@ function gamepadHandler(event, connecting) {
                 jsonData['JoystickRight'] =  [x_right, y_right]
             }
             for (var i = 0; i < gamepad.buttons.length; i++) {
+                var buttonName = buttonMap[i];
+                
+                if(window.location.hash=='#Controlleur'){
+                    path_element = document.getElementById("GP_"+buttonName)
+                    if(path_element != null){
+                        path_element.setAttribute('fill',"rgba(0,0,0,"+gamepad.buttons[i].value+")")
+                
+                    }
+                }
                 if (gamepad.buttons[i].pressed) {
-                    var buttonName = buttonMap[i];
                     if(gamepad.buttons[i].value > 0){
                         jsonData[buttonName] = gamepad.buttons[i].value
                     }
@@ -63,6 +98,7 @@ function gamepadHandler(event, connecting) {
                 //         // Le serveur a répondu avec succès
                 //     }
                 // };
+                console.log(jsonData)
                 xhr.send(JSON.stringify(jsonData));
             }
             lastJson = jsonData

@@ -50,6 +50,7 @@ div.content h1{
   font-size: 1.5vw;
   min-height: 100vh;
   box-shadow: 0em 0em 0.5em 1em rgba(255, 255, 255, 0.185);
+  margin-bottom: 15%
 }
 .right_panel{
   grid-column: 3;
@@ -247,3 +248,12 @@ nav.menu_left_icon{
   height : 150px;
 
 } */
+
+.gamepad-div{
+  margin: auto;
+  justify-content: center;
+  align-items: center;
+}
+.gamepad-div * {
+  transition: all 0.3s ease;
+}
