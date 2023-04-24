@@ -80,10 +80,10 @@ while True:
 
             x= centreX_rect -centreX_video
             y= centreY_rect -centreY_video  
-            
+        
             #si x est positif, le robot doit tourner à droite. Plus x est grand, plus le centre de la video est loin de l'objet au sens de l'horizontale
             #si y est positif, le robot doit baisser la tete. Plus y est grand, plus le centre de la video est loin de l'objet au sens de la verticale
-
+        
             print('')
             print(x, y)
             print('')
