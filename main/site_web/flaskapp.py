@@ -49,7 +49,6 @@ def gen_frames():
             cv2.line(image, (centreX_video - 10, centreY_video), (centreX_video + 10, centreY_video), couleur_ligne, epaisseur_ligne)
             ret,buffer = cv2.imencode('.jpg', image)
 
-
             if cpt % 100 == 0: #Si cpt est un multiple de 100 alors on rentre dans la boucle. 
                 # Trouver le plus grand contour (l'objet rouge entouré de bleu)
                 surface_max=None #le contour ayant la plus grande surface dans l'image
@@ -59,7 +58,7 @@ def gen_frames():
                     if surface_contour > val_surface_max:
                         surface_max = contour #contiends le contour avec la plus grande surface
                         val_surface_max = surface_contour #contiends la valeur de cette surface maximale
-            
+            cpt = cpt + 1
             #Si aucun contour n'a été détecté dans l'image, surface_max restera à None.
 
             # Si un objet rouge entouré de bleu a été détecté, récupérer sa position et la comparer avec le centre de l'image
@@ -146,7 +145,7 @@ if __name__=="__main__" :
     config['detection_contour'] = True
     config['serial'] = True # Activer ou non le port serial
     # config['serial_port'] = 'COM8' # Port série
-    config['serial_port'] = 'ttyAMA0' # Port série
+    config['serial_port'] = '/dev/ttyUSB0' # Port série
     config['serial_baudrate'] = 115200 # Baudrate du port série
     config['gomete_path'] = "gomete.jpg"
     config['speed_variable'] = True # Fixe ou non la vitesse du robot (si non dépendente de la touche LT)
