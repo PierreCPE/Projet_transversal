@@ -81,7 +81,7 @@ def protected_route():
 
 
 if __name__=='__main__':
-    os.system("sudo rm -r  ~/.cache/chromium/Default/Cache/*")
+    #os.system("sudo rm -r  ~/.cache/chromium/Default/Cache/*")
     app.run(debug=True, port=5000, host='172.20.10.2',threaded=True)
     #local web server http://192.168.1.200:5000/
     #after Port forwarding Manipulation http://xx.xx.xx.xx:5000/

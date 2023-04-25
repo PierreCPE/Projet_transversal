@@ -5,12 +5,34 @@
 
 import serial
 from flask_httpauth import HTTPBasicAuth
-from flask import Flask, render_template, Response, request
+from flask import Flask, render_template, Response, request,  abort
 import cv2
 import numpy as np
 import os
 import logging
 import math
+
+auth = HTTPBasicAuth()
+app = Flask(__name__)
+
+
+@auth.verify_password
+def verify_password(username, password):
+    if username in users and users[username] == password:
+        return username
+
+def check_ip(f):
+    def wrapped(*args, **kwargs):
+        client_ip = request.remote_addr
+        if client_ip not in allowed_ips:
+            abort(403)  # Forbidden
+        return f(*args, **kwargs)
+    return wrapped
+
+@app.route('/protected')
+@auth.login_required
+def protected_route():
+    return "Vous êtes connecté en tant que : {} et votre adresse IP est autorisée.".format(auth.current_user())
 
 
 def gen_frames():
@@ -95,24 +117,24 @@ def gen_frames():
             yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
     #cap.release()
 
-
-app = Flask(__name__)
-
-
 @app.route('/')
+@auth.login_required
+@check_ip
 def index():
     return render_template('index.html')
 
 @app.route('/camera.html')
+@auth.login_required
 def camera_page():
     return render_template('camera.html')
 
 @app.route('/videofeed')
+@auth.login_required
 def videofeed():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-
 @app.route('/commandes', methods=['POST'])
+@auth.login_required
 def controlCommandes():
     json_data = request.get_json()
     # print(json_data)
@@ -139,12 +161,13 @@ def controlCommandes():
             ser.write("stop\n\r".encode())
     return 'OK'
 
+
 if __name__=="__main__" :
     # Configuration
     ###########################################
     config = {}
     config['detection_contour'] = True
-    config['serial'] = True # Activer ou non le port serial
+    config['serial'] = False # Activer ou non le port serial
     config['serial_port'] = 'COM8' # Port série
     # config['serial_port'] = '/dev/ttyUSB0' # Port série
     config['serial_baudrate'] = 115200 # Baudrate du port série
@@ -173,9 +196,7 @@ if __name__=="__main__" :
     if config['log_all_requests']:
         app.logger.disabled = True
 
-    auth = HTTPBasicAuth()
-
-    allowed_ips = ['134.214.51.114', '192.168.56.1', '192.168.202.1']
+    allowed_ips = ['134.214.51.114', '192.168.56.1', '192.168.202.1', '192.168.99.33','127.0.0.1']
 
     users = {
         "user1": "1234",

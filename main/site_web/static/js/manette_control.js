@@ -93,11 +93,11 @@ function gamepadHandler(event, connecting) {
                 var url = "/commandes";
                 xhr.open("POST", url, true);
                 xhr.setRequestHeader('Content-Type', 'application/json');
-                // xhr.onreadystatechange = function () {
-                //     if (xhr.readyState === 4 && xhr.status === 200) {
-                //         // Le serveur a répondu avec succès
-                //     }
-                // };
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        // Le serveur a répondu avec succès
+                    }
+                };
                 console.log(jsonData)
                 xhr.send(JSON.stringify(jsonData));
             }
