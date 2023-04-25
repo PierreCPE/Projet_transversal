@@ -11,10 +11,12 @@ import numpy as np
 import os
 import logging
 import math
+import sched, time, threading
+
 
 auth = HTTPBasicAuth()
 app = Flask(__name__)
-
+ip_list = set()
 
 @auth.verify_password
 def verify_password(username, password):
@@ -29,9 +31,12 @@ def check_ip(f):
         return f(*args, **kwargs)
     return wrapped
 
+
 @app.route('/protected')
 @auth.login_required
 def protected_route():
+    ip_address = request.remote_addr
+    ip_list.add(ip_address)
     return "Vous êtes connecté en tant que : {} et votre adresse IP est autorisée.".format(auth.current_user())
 
 
@@ -119,23 +124,45 @@ def gen_frames():
 
 @app.route('/')
 @auth.login_required
-# @check_ip
-def index():
+#@check_ip
+def index(): 
+    ip_address = request.remote_addr
+    ip_list.add(ip_address)
     return render_template('index.html')
+
+def print_ip_list():
+    print("IPs ayant tenté de se connecter au site :")
+    for ip in ip_list:
+        print(ip)
+
+def schedule_ip_display():
+    s = sched.scheduler(time.time, time.sleep)
+    while True:
+        s.enter(5, 1, print_ip_list, ()) # 600 secondes = 10 minutes
+        s.run()
+
+    
 
 @app.route('/camera.html')
 @auth.login_required
 def camera_page():
+    ip_address = request.remote_addr
+    ip_list.add(ip_address)
     return render_template('camera.html')
+
 
 @app.route('/videofeed')
 @auth.login_required
 def videofeed():
+    ip_address = request.remote_addr
+    ip_list.add(ip_address)
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/commandes', methods=['POST'])
 @auth.login_required
 def controlCommandes():
+    ip_address = request.remote_addr
+    ip_list.add(ip_address)
     json_data = request.get_json()
     # print(json_data)
     max_speed = 30
@@ -168,8 +195,8 @@ if __name__=="__main__" :
     config = {}
     config['detection_contour'] = True
     config['serial'] = False # Activer ou non le port serial
-    # config['serial_port'] = 'COM8' # Port série
-    config['serial_port'] = '/dev/ttyUSB0' # Port série
+    config['serial_port'] = 'COM8' # Port série
+    # config['serial_port'] = '/dev/ttyUSB0' # Port série
     config['serial_baudrate'] = 115200 # Baudrate du port série
     config['gomete_path'] = "gomete.jpg"
     config['speed_variable'] = True # Fixe ou non la vitesse du robot (si non dépendente de la touche LT)
@@ -202,6 +229,10 @@ if __name__=="__main__" :
         "user1": "1234",
         "user2": "5678"
     }
+    #lancement regulier de la lecture des IPs
+    ip_display_thread = threading.Thread(target=schedule_ip_display)
+    ip_display_thread.daemon = True
+    ip_display_thread.start()
 
     app.run(host="0.0.0.0", debug=False)
     if config['serial']:

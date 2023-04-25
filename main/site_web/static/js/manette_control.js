@@ -93,11 +93,11 @@ function gamepadHandler(event, connecting) {
                 var url = "/commandes";
                 xhr.open("POST", url, true);
                 xhr.setRequestHeader('Content-Type', 'application/json');
-                // xhr.onreadystatechange = function () {
-                //     if (xhr.readyState === 4 && xhr.status === 200) {
-                //         // Le serveur a répondu avec succès
-                //     }
-                // };
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        // Le serveur a répondu avec succès
+                    }
+                };
                 console.log(jsonData)
                 xhr.send(JSON.stringify(jsonData));
             }
@@ -115,8 +115,3 @@ window.addEventListener("gamepaddisconnected", function(event) {
     document.getElementById('menu_left').setAttribute("mode",0)   
     gamepadHandler(event, false);
 });
-
-function round(value, precision) {
-    var multiplier = Math.pow(10, precision || 0);
-    return Math.round(value * multiplier) / multiplier;
-}
