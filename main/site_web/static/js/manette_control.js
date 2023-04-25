@@ -115,8 +115,3 @@ window.addEventListener("gamepaddisconnected", function(event) {
     document.getElementById('menu_left').setAttribute("mode",0)   
     gamepadHandler(event, false);
 });
-
-function round(value, precision) {
-    var multiplier = Math.pow(10, precision || 0);
-    return Math.round(value * multiplier) / multiplier;
-}
