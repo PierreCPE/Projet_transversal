@@ -119,7 +119,7 @@ def gen_frames():
 
 @app.route('/')
 @auth.login_required
-@check_ip
+# @check_ip
 def index():
     return render_template('index.html')
 
