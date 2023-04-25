@@ -4,6 +4,7 @@
 #pip install opencv-contrib-python
 
 import serial
+from flask_httpauth import HTTPBasicAuth
 from flask import Flask, render_template, Response, request
 import cv2
 import numpy as np
@@ -170,9 +171,17 @@ if __name__=="__main__" :
     rouge_clair = np.array([min_h, min_s, min_v])
     rouge_fonce = np.array([max_h, max_v, max_v])
     if config['log_all_requests']:
-    # log = logging.getLogger('werkzeug')
-    # log.disabled = True
         app.logger.disabled = True
+
+    auth = HTTPBasicAuth()
+
+    allowed_ips = ['134.214.51.114', '192.168.56.1', '192.168.202.1']
+
+    users = {
+        "user1": "1234",
+        "user2": "5678"
+    }
+
     app.run(host="0.0.0.0", debug=False)
     if config['serial']:
         ser.close()

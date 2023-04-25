@@ -12,8 +12,8 @@ auth = HTTPBasicAuth()
 allowed_ips = ['134.214.51.114', '192.168.56.1', '192.168.202.1']
 
 users = {
-    "user1": "12341",
-    "user2": "56789"
+    "user1": "1234",
+    "user2": "5678"
 }
 
 @auth.verify_password
