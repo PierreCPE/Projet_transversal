@@ -124,7 +124,7 @@ def gen_frames():
 
 @app.route('/')
 @auth.login_required
-@check_ip
+#@check_ip
 def index(): 
     ip_address = request.remote_addr
     ip_list.add(ip_address)
