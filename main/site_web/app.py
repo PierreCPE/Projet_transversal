@@ -5,6 +5,7 @@ import multiprocessing
 from threadutils import ThreadSafeFrame, ThreadSafeDict
 from flaskserver import FlaskServer
 from cameraserver import CameraServer
+from robotserver import RobotServer
 
 class App:
     def __init__(self, config = None):
@@ -16,7 +17,9 @@ class App:
 
         # Create shared variables dictionary
         self.sharedVariables = ThreadSafeDict()
-
+        self.sharedVariables['point_simulation_data'] = [0,0,12] # [x,y,rayon]
+        self.sharedVariables['mode'] = 0 # 0: manuel, 1: mode 1, 2: mode 2, 3: mode 3
+        
         cap = cv2.VideoCapture(0) # Replace 0 with your camera index if you have multiple cameras
         # Définir la qualité maximale pour la compression JPEG
         quality = self.config['video_quality']
@@ -43,6 +46,7 @@ class App:
         config['speed_variable'] = True # Fixe ou non la vitesse du robot (si non dépendente de la touche LT)
         config['log_all_requests'] = False
         config['video_quality'] = 50
+        config['point_simulation'] = True # Simule un point rouge à la place de la détection. Les coordonnées sont définies dans sharedVariables à la clé 'point_simulation_data' ([x,y,rayon])
         ###########################################
         return config
 
@@ -52,9 +56,12 @@ class App:
         self.cameraProcess.start()
         self.flaskProcess = multiprocessing.Process(target=runFlaskServer, args=(self.config, self.sharedVariables, self.sharedFrame))
         self.flaskProcess.start()
+        self.robotProcess = multiprocessing.Process(target=runRobotServer, args=(self.config, self.sharedVariables, self.sharedFrame))
+        self.robotProcess.start()
         input("Press enter to stop\n")
         self.cameraProcess.terminate()
         self.flaskProcess.terminate()
+        self.robotProcess.terminate()
         print("Threads stopped")
 
     
@@ -66,8 +73,10 @@ def runCameraServer(config, sharedVariables, sharedFrame):
     cameraServer = CameraServer(config, sharedVariables, sharedFrame)
     cameraServer.run()
 
+def runRobotServer(config, sharedVariables, sharedFrame):
+    robotServer = RobotServer(config, sharedVariables, sharedFrame)
+    robotServer.run()
+
 if __name__ == '__main__':
-    global config
-    global sharedFrame
     app = App()
     app.run()

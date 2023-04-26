@@ -1,15 +1,47 @@
-
 <h1>Camera</h1>
 <h2>A travers les yeux de Nervo !</h2>
-
 <!--<video src="/videofeed" autoplay>
     <!--<source src="{{url_for('videofeed')}}" type="video/mp4">  
 </video> -->
 <div>
-    <input type="checkbox" id="scales" name="scales" checked>
-    <label for="gomete">Activer la détection de couleur</label>
+  <input type="checkbox" id="detection_color_flag" name="detection_contour"
+  {{"checked" if detection_contour else ""}} />
+  <label for="detection_contour">Activer la détection de couleur</label>
+  <input type="checkbox" id="point_simulation_flag" name="point_simulation"
+  {{"checked" if point_simulation else ""}} />
+  <label for="point_simulation_flag">Activer le point rouge de test</label>
+  <div id="point_simulation_data_inputs">
+    <label for="point_simulation_data_x">X:</label>
+    <input
+      type="number"
+      step="0.01"
+      id="point_simulation_data_x"
+      name="point_simulation_data_x"
+      value="{{point_simulation_data[0]}}"
+    />
+    <label for="point_simulation_data_y">Y:</label>
+    <input
+      type="number"
+      step="0.01"
+      id="point_simulation_data_y"
+      name="point_simulation_data_y"
+      value="{{point_simulation_data[1]}}"
+    />
+    <label for="point_simulation_data_size">Size:</label>
+    <input
+      type="number"
+      id="point_simulation_data_size"
+      name="point_simulation_data_size"
+      value="{{point_simulation_data[2]}}"
+    />
+  </div>
 </div>
 <div class="camera_div" src="{{url_for('videofeed')}}">
-    <img class="camera_video" style="width:80%; height:80%" src="{{url_for('videofeed')}}">
+  <img
+    class="camera_video"
+    style="width: 80%; height: 80%"
+    1
+    src="{{url_for('videofeed')}}"
+  />
 </div>
-
+<script src="static/js/camera.js"></script>

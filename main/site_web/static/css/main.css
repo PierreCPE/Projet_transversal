@@ -192,33 +192,49 @@ nav.menu_left_icon{
   width: 100%;
 }
 
-#menu_left[mode="0"]{
-  animation: gamepad_disconnect 1s cubic-bezier(0.37, 0, 0.63, 1) 0s 1  normal forwards;
-
+/* set image src if mode='0' */
+#menu_left[mode="0"] .menu_left_icon img{
+  animation: gamepad_disconnect 1s linear 0s 1  normal forwards;
 }
 
-#menu_left[mode="1"]{
-  animation: gamepad_connect 1s cubic-bezier(0.37, 0, 0.63, 1) 0s 1  normal forwards;
-  /* visibility: collapse; */
-  display: block;
+/* set image src if mode='1' */
+#menu_left[mode="1"] .menu_left_icon img{
+  animation: gamepad_connect 1s linear 0s 1  normal forwards;
 }
 
 @keyframes gamepad_disconnect {
 	0% {
-		transform: translateX(-50%);
+    content: url("../img/manette_xbox.png");
+		transform: translateX(-200%);
 	}
-	100% {
-    transform: translateX(-100%);
-    display: none;
+  50% {
+    content: url("../img/manette_xbox.png");
+    transform: translateX(-300%);
+  }
+  60% {
+    content: url("../img/clavier.png");
+  }
+  100% {
+    content: url("../img/clavier.png");
+    transform: translateX(-200%);
 	}
 }
 
 @keyframes gamepad_connect {
 	0% {
-		transform: translateX(-100%);
+    content: url("../img/clavier.png");
+		transform: translateX(-200%);
 	}
+  60% {
+    content: url("../img/clavier.png");
+		transform: translateX(-300%);
+	}
+  70% {
+    content: url("../img/manette_xbox.png");
+  }
 	100% {
-		transform: translateX(-50%);
+    content: url("../img/manette_xbox.png");
+		transform: translateX(-200%);
 	}
 }
 
@@ -248,7 +264,9 @@ nav.menu_left_icon{
   height : 150px;
 
 } */
-
+input{
+  max-width: 10%;
+}
 .gamepad-div{
   margin: auto;
   justify-content: center;

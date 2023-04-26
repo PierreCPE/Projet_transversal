@@ -27,6 +27,16 @@ function updateContent(contentDiv, href=null){
     if (this.readyState!==4) return;
     if (this.status!==200) return; // or whatever error handling you want
     contentDiv.innerHTML = this.responseText;
+    // recharge les scripts
+    var scripts = contentDiv.getElementsByTagName("script");
+    for (var i = 0; i < scripts.length; i++) {
+      var script = scripts[i];
+      var scriptClone = document.createElement("script");
+      scriptClone.type = script.type;
+      if (script.innerHTML) scriptClone.innerHTML = script.innerHTML;
+      else if (script.src) scriptClone.src = script.src;
+      script.parentNode.replaceChild(scriptClone, script);
+    }
   };
   xmlHttp.send();
 }

@@ -88,13 +88,24 @@ class CameraServer:
         # Capture de la video
         cap = cv2.VideoCapture(0) # Replace 0 with your camera index if you have multiple cameras
         cpt=0
-        
+        self.last_detection = self.config['detection_contour']
         while True:
             detection = self.config['detection_contour']
+            if self.last_detection != detection:
+                print("detection changed to", detection)
+            self.last_detection = detection
             res, image = cap.read() #res est un bollean qui verifie si la video a pu etre lu est image est une "capture de video"
             image = cv2.flip(image, 1) #mirroir de l'image
             if res == False:
                 break
+            # verify if config is in simulation mode
+            if self.config['point_simulation']:
+                # draw fake red point with size at position in 'point_simulation_data' shared variable
+                x = int(self.sharedVariables['point_simulation_data'][0] * image.shape[1])
+                y = int(self.sharedVariables['point_simulation_data'][1] * image.shape[0])
+                size = int(self.sharedVariables['point_simulation_data'][2])
+                cv2.circle(image, (x, y), size, (0, 0, 255), -1)
+
             if detection:
                 image, surface_max, centreX_video, centreY_video = self.applyRedPointDetection(image)
                 # Définir la qualité maximale pour la compression JPEG
