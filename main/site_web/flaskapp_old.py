@@ -161,8 +161,14 @@ def controlCommandes():
             ser.write("stop\n\r".encode())
     return 'OK'
 
+def run_flask():
+    global config
+    global ser
+    global rouge_clair
+    global rouge_fonce
+    global users
+    global allowed_ips
 
-if __name__=="__main__" :
     # Configuration
     ###########################################
     config = {}
@@ -206,3 +212,6 @@ if __name__=="__main__" :
     app.run(host="0.0.0.0", debug=False)
     if config['serial']:
         ser.close()
+    
+if __name__=="__main__" :
+    run_flask()
