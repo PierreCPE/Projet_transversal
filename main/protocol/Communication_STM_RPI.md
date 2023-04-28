@@ -24,14 +24,13 @@ Une commande est structuré de la manière suivant:
 
 _Il est possible d'envoyer plusieurs commandes séparées par des virgules_
 
-Exemple:
-`cmd = 0&14.5&15.6` &Rightarrow; `cmd_id = 0` et `cmd_values = [14.5,15.6]`
+> Exemple: `cmd = 0&14&15` &Rightarrow; `cmd_id = 0` et `cmd_values = [14,15]`
 
 ## Tableau des commandes
 
 | ID | Value 1 | Value 2 | Description |
 | :-: | :-: | :-: | :-: |
-| 0 | float | - | Description de la commande 0 |
+| 0 | int | int | Permet de définir la vitesse de rotation des roues |
 | 1 | float | - | Description de la commande 1 |
 | 2 | float | - | Description de la commande 2 |
 | 3 | float | - | Description de la commande 3 |
