@@ -3,7 +3,7 @@ import numpy as np
 
 def detect_pt():
     # Chargement de l'image "gomete"
-    gomete = cv2.imread('img2.jpg')
+    gomete = cv2.imread('Detection de point rouge\gomete.jpg')
 
     # Extraire les valeurs minimale et maximale de rouge dans l'image "gomete"
     hsv_gomete = cv2.cvtColor(gomete, cv2.COLOR_BGR2HSV)
@@ -12,8 +12,8 @@ def detect_pt():
     min_v, max_v, _, _ = cv2.minMaxLoc(hsv_gomete[:,:,2])
 
     # Définir les couleurs de la plage de couleurs à détecter à partir de l'image "test"
-    rouge_clair = np.array([min_h, min_s, min_v])
-    rouge_fonce = np.array([max_h, max_v, max_v])
+    couleur_clair = np.array([min_h, min_s, min_v])
+    couleur_fonce = np.array([max_h, max_v, max_v])
 
     # Chargement de la vidéo
     video = cv2.VideoCapture(0)
@@ -36,21 +36,20 @@ def detect_pt():
         if res == False:  
             break
 
-
-        # FONCTION
-
         # Convertir la trame vidéo en HSV
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
         # Appliquer le masque pour détecter les pixels rouges
-        masque = cv2.inRange(hsv, rouge_clair, rouge_fonce)
+        masque = cv2.inRange(hsv, couleur_clair, couleur_fonce)
+        masque = cv2.morphologyEx(masque, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5)))
+
 
         # Trouver les contours des objets dans l'image
         contours, hierarchie = cv2.findContours(masque, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         # Dessiner des contours bleus autour des objets détectés
         for contour in contours:
-            cv2.drawContours(image, [contour], 0, (0, 255, 255), 2)
+            cv2.drawContours(image, [contour], 0, (255, 0, 0), 2)
 
         # Dessiner la croix au centre de la vidéo
         epaisseur_ligne = 2 # l'épaisseur des lignes de la croix
