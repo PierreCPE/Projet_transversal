@@ -32,8 +32,8 @@ def check_ip(f):
     return wrapped
 
 limiter = Limiter(
-    app=app,
     get_remote_address,
+    app=app,
     default_limits=["200 per day", "50 per hour"]
 )
 
