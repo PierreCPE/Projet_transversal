@@ -33,7 +33,7 @@ def check_ip(f):
 
 limiter = Limiter(
     app,
-    key_func=limiter.util.composite_key_func(get_remote_address),
+    key_func=Limiter.util.composite_key_func(get_remote_address),
     default_limits=["200 per day", "50 per hour"],
     headers_enabled=True
 )
