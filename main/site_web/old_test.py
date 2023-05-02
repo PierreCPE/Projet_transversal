@@ -38,7 +38,8 @@ limiter = Limiter(
     app,
     key_func=get_key_func,
     default_limits=["200 per day", "50 per hour"],
-    headers_enabled=True
+    headers_enabled=True 
+	)
 	
 
 @app.route('/protected')
