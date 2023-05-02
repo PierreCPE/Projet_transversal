@@ -29,7 +29,7 @@ class App:
         encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
         ret,buffer = cv2.imencode('.jpg', image, encode_param)
         # On définie un objet multiprocess safe pour stocker l'image
-        self.sharedFrame = ThreadSafeFrame(len(buffer.tobytes())*20)
+        self.sharedFrame = ThreadSafeFrame(len(buffer.tobytes())*5)
 
     # Generate default config
     def generateDefaultConfig(self):
