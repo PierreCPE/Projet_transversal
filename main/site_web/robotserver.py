@@ -35,6 +35,7 @@ class RobotServer:
     def manualControl(self):
         if 'manualControlJson' in self.sharedVariables:
             json_data = self.sharedVariables['manualControlJson']
+            print("Manual control")
             del self.sharedVariables['manualControlJson']
             self.speed = 0
             if self.config['speed_variable']:
