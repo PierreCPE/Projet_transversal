@@ -12,7 +12,7 @@ import os
 import logging
 import math
 from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address, get_ipaddr
+from flask_limiter.util import get_remote_address
 
 auth = HTTPBasicAuth()
 app = Flask(__name__)
@@ -33,7 +33,7 @@ def check_ip(f):
 
 limiter = Limiter(
     app,
-    key_func=limiter.util.composite_key_func(get_remote_address, get_ipaddr),
+    key_func=limiter.util.composite_key_func(get_remote_address),
     default_limits=["200 per day", "50 per hour"],
     headers_enabled=True
 )
