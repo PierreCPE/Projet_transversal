@@ -16,7 +16,7 @@ from flask_limiter.util import get_remote_address
 
 auth = HTTPBasicAuth()
 app = Flask(__name__)
-limit_connection_amount = 2
+limit_connection_amount = 200
 
 @auth.verify_password
 def verify_password(username, password):
