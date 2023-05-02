@@ -21,8 +21,8 @@ class RobotServer:
             x_left = self.direction[0]
             y_left = self.direction[1]
             rotation_coef = (x_left / 2)
-            right_power = -self.speed*(y_left + rotation_coef)
-            left_power = -self.speed*(y_left - rotation_coef)
+            right_power = round(-self.speed*(y_left + rotation_coef),2)
+            left_power = round(-self.speed*(y_left - rotation_coef),2)
             cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
             print(f"Send {cmd}")
             if self.config['serial']:
@@ -55,8 +55,8 @@ class RobotServer:
                 
         
     def mode1Control(self):
-        if "detected_object_xy_norm" in self.sharedVariables:
-            self.speed = self.max_speed
+        if self.sharedVariables['detected_object']:
+            self.speed = 10
             x = self.sharedVariables['detected_object_xy_norm'][0]
             y = self.sharedVariables['detected_object_xy_norm'][1]
             print(f"Need to go to {x},{y}")
