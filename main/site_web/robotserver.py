@@ -50,6 +50,8 @@ class RobotServer:
                 self.direction = [x_left, y_left]
             else:
                 self.direction = [0, 0]
+        else:
+            self.direction = [0, 0]
                 
         
     def mode1Control(self):
