@@ -18,8 +18,8 @@ class App:
         # Create shared variables dictionary
         self.sharedVariables = ThreadSafeDict()
         self.sharedVariables['point_simulation_data'] = [0,0,12] # [x,y,rayon]
-        self.sharedVariables['mode'] = 1 # 0: manuel, 1: mode 1, 2: mode 2, 3: mode 3
-
+        self.sharedVariables['mode'] = 0 # 0: manuel, 1: mode 1, 2: mode 2, 3: mode 3
+        
         self.sharedVariables['detected_object'] = False
         self.sharedVariables['detected_object_xy_norm'] = [0,0]
         
