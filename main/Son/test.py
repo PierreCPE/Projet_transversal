@@ -1,6 +1,7 @@
 import numpy as np
 import sounddevice as sd
 import scipy.signal as sig
+import matplotlib.pyplot as plt
 
 #PARAMETRES ANALYSE SPECTRALE
 
@@ -34,6 +35,9 @@ nb_bruits_consecutifs = 0
 bruit_detecte = False
 premiere_detection = True
 seuil = None
+
+
+fig, ax = plt.subplots()
 # max_bruit = None
 #ENREGISTREMENT
 
@@ -41,12 +45,14 @@ while nb_bruits_consecutifs < 2 and  not bruit_detecte:
     print("Enregistrement en cours")
     signal = sd.rec(int(duree * Fs), samplerate=Fs, channels=1)
     sd.wait()
-
+    
     f, t, S = sig.spectrogram(signal[:,0], fs=Fs, window='hann', nperseg=taille_fenetre, noverlap=taille_fenetre-pas, nfft=taille_fft, detrend=False)
 
     freq_bin = np.logical_and(f > freq_min, f <= freq_max)
 
     spectre_moyen = np.mean(np.abs(S[freq_bin, :]), axis=0)
+
+
 
     if seuil is None:
         seuil = 10 * np.std(spectre_moyen)
@@ -64,18 +70,29 @@ while nb_bruits_consecutifs < 2 and  not bruit_detecte:
             print('Trop de bruits détectés, arrêt du programme.')
 
         max_spectres_moyen.append(max_bruit)
-       
+    
+
     else:
         print('Aucun bruit bizarre, restons bien caché!')
         if not premiere_detection:
             bruit_detecte = True
 
-
+    
     print("La valeur seuil est : ", seuil)
     print("La valeur maximale du bruit est : ", max_bruit)
     print("    ")
 
 print("Le valeur max des 5 bruit sont : ", max_spectres_moyen)
+
+for i in range(len(max_spectres_moyen)):
+    ax.plot(t, np.abs(S[freq_bin, :][:, i]), color=f"C{i}", label=f"Spectre {i+1}")
+
+ax.set_xlabel('Temps (s)')
+ax.set_ylabel('Amplitude')
+ax.set_title('Spectres moyens')
+ax.legend()
+
+
 
 if max_spectres_moyen[0] < max_spectres_moyen[1]:
     print("Le bruit augmente.")
@@ -83,3 +100,6 @@ elif max_spectres_moyen[0] > max_spectres_moyen[1]:
     print("Le bruit diminue.")
 else:
     print("Le bruit est constant.")
+
+
+plt.show()

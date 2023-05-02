@@ -113,3 +113,6 @@ def detect_pt():
     # https://docs.opencv.org/3.4/dd/d49/tutorial_py_contour_features.html
 
     #creer de fonction pour separer le traitment de l'image et le reste du code pour que je puisse utiliser la fonction n'importe. cette fonction doit retourner les contours, x et y
+
+
+    # https://www.aranacorp.com/fr/reconnaissance-de-forme-et-de-couleur-avec-python/
