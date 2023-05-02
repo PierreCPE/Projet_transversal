@@ -34,12 +34,7 @@ def check_ip(f):
 def get_key_func():
     return get_remote_address()
 
-limiter = Limiter(
-    app,
-    key_func=get_key_func,
-    default_limits=["200 per day", "50 per hour"],
-    headers_enabled=True 
-	)
+limiter = Limiter(app,key_func=get_key_func,default_limits=["200 per day", "50 per hour"],headers_enabled=True)
 	
 
 @app.route('/protected')
