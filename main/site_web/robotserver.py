@@ -50,10 +50,14 @@ class RobotServer:
         
     def mode1Control(self):
         if "detected_object_xy_norm" in self.sharedVariables:
+            self.speed = self.max_speed
             x = self.sharedVariables['detected_object_xy_norm'][0]
             y = self.sharedVariables['detected_object_xy_norm'][1]
             print(f"Need to go to {x},{y}")
             self.direction = [x, 1]
+        else:
+            self.speed = 0
+            self.direction = [0, 0]
 
     def run(self):
         print("RobotServer running")
