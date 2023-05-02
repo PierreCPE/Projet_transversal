@@ -8,21 +8,25 @@ class RobotServer:
         self.max_speed = 30
         self.speed = 0
         self.direction = [0, 0]
+        self.lastDirection = [0, 0]
         self.require_update = False
     
     def updateRobot(self):
-        x_left = self.direction[0]
-        y_left = self.direction[1]
-        rotation_coef = (x_left / 2)
-        right_power = -self.speed*(y_left + rotation_coef)
-        left_power = -self.speed*(y_left - rotation_coef)
-        cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
-        print(f"Send {cmd}")
-        if self.config['serial']:
-            self.config['ser'].write(cmd.encode())
-        else:
+        # Direction
+        if self.lastDirection != self.direction:
+            x_left = self.direction[0]
+            y_left = self.direction[1]
+            rotation_coef = (x_left / 2)
+            right_power = -self.speed*(y_left + rotation_coef)
+            left_power = -self.speed*(y_left - rotation_coef)
+            cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
+            print(f"Send {cmd}")
             if self.config['serial']:
-                self.config['ser'].write("stop\n\r".encode())
+                self.config['ser'].write(cmd.encode())
+            else:
+                if self.config['serial']:
+                    self.config['ser'].write("stop\n\r".encode())
+        self.lastDirection = self.direction
 
     def manualControl(self):
         if 'manualControlJson' in self.sharedVariables:
