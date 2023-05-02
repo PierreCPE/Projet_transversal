@@ -1,4 +1,5 @@
 import numpy as np
+import serial
 
 class RobotServer:
     def __init__(self, config = {}, sharedVariables = None ,sharedFrame = None):
@@ -10,6 +11,9 @@ class RobotServer:
         self.direction = [0, 0]
         self.lastDirection = [0, 0]
         self.require_update = False
+        if config['serial']:
+            self.ser = serial.Serial(config['serial_port'])
+            self.ser.baudrate = config['serial_baudrate']
     
     def updateRobot(self):
         # Direction
@@ -22,10 +26,10 @@ class RobotServer:
             cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
             print(f"Send {cmd}")
             if self.config['serial']:
-                self.config['ser'].write(cmd.encode())
+                self.ser.write(cmd.encode())
             else:
                 if self.config['serial']:
-                    self.config['ser'].write("stop\n\r".encode())
+                    self.ser.write("stop\n\r".encode())
         self.lastDirection = self.direction
 
     def manualControl(self):
