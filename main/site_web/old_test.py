@@ -32,10 +32,9 @@ def check_ip(f):
     return wrapped
 
 limiter = Limiter(
-    app,
-    key_func=Limiter.util.composite_key_func(get_remote_address),
+    app=app,
+    get_remote_address,
     default_limits=["200 per day", "50 per hour"],
-    headers_enabled=True
 )
 
 @app.route('/protected')
@@ -129,11 +128,11 @@ def gen_frames():
 @app.route('/')
 @auth.login_required
 # @check_ip
-def index():
-    return render_template('index.html')
 @limiter.limit("1 per day")
 def index():
-    return "Hello, World!"
+    return render_template('index.html')
+
+
 
 
 
