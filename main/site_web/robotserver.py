@@ -8,6 +8,7 @@ class RobotServer:
         self.sharedFrame = sharedFrame
         self.max_speed = 30
         self.speed = 0
+        self.lastSpeed = 0
         self.direction = [0, 0]
         self.lastDirection = [0, 0]
         self.require_update = False
@@ -15,9 +16,13 @@ class RobotServer:
             self.ser = serial.Serial(config['serial_port'])
             self.ser.baudrate = config['serial_baudrate']
     
+    def stopRobot(self):
+        if self.config['serial']:
+                    self.ser.write("stop\n\r".encode())
+
     def updateRobot(self):
         # Direction
-        if self.lastDirection != self.direction:
+        if self.lastDirection != self.direction and self.direction != [0, 0]:
             x_left = self.direction[0]
             y_left = self.direction[1]
             rotation_coef = (x_left / 2)
@@ -28,8 +33,12 @@ class RobotServer:
             if self.config['serial']:
                 self.ser.write(cmd.encode())
             else:
-                if self.config['serial']:
-                    self.ser.write("stop\n\r".encode())
+                self.stopRobot()
+        else:
+            self.stopRobot()
+        
+        if self.speed == 0:
+            self.stopRobot()
         self.lastDirection = self.direction
 
     def manualControl(self):
@@ -52,6 +61,7 @@ class RobotServer:
             else:
                 self.direction = [0, 0]
         else:
+            self.speed = 0
             self.direction = [0, 0]
                 
         
