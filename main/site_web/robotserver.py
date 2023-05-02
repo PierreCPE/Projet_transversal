@@ -29,7 +29,7 @@ class RobotServer:
             right_power = round(-self.speed*(y_left + rotation_coef),2)
             left_power = round(-self.speed*(y_left - rotation_coef),2)
             cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
-            #print(f"Send {cmd}")
+            print(f"Send {cmd}")
             if self.config['serial'] and (right_power != 0 or left_power != 0):
                 self.ser.write(cmd.encode())
             else:
