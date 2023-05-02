@@ -128,5 +128,5 @@ class CameraServer:
                 ret,buffer = cv2.imencode('.jpg', image,encode_param)
                 frame = buffer.tobytes()
                 self.sharedFrame.setFrame(frame)
-            print("FPS: ", 1.0 / (time.time() - start_time))
+            #print("FPS: ", round(1.0 / (time.time() - start_time),2))
         cap.release()
