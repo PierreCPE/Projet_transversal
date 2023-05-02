@@ -11,8 +11,8 @@ class RobotServer:
         self.require_update = False
     
     def updateRobot(self):
-        x_left = self.direction
-        y_left = self.direction
+        x_left = self.direction[0]
+        y_left = self.direction[1]
         rotation_coef = (x_left / 2)
         right_power = -self.speed*(y_left + rotation_coef)
         left_power = -self.speed*(y_left - rotation_coef)
