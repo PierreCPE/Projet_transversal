@@ -18,7 +18,10 @@ class App:
         # Create shared variables dictionary
         self.sharedVariables = ThreadSafeDict()
         self.sharedVariables['point_simulation_data'] = [0,0,12] # [x,y,rayon]
-        self.sharedVariables['mode'] = 0 # 0: manuel, 1: mode 1, 2: mode 2, 3: mode 3
+        self.sharedVariables['mode'] = 1 # 0: manuel, 1: mode 1, 2: mode 2, 3: mode 3
+
+        self.sharedVariables['detected_object'] = False
+        self.sharedVariables['detected_object_xy_norm'] = [0,0]
         
         cap = cv2.VideoCapture(0) # Replace 0 with your camera index if you have multiple cameras
         # Définir la qualité maximale pour la compression JPEG
