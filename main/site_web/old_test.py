@@ -5,12 +5,14 @@
 
 import serial
 from flask_httpauth import HTTPBasicAuth
-from flask import Flask, render_template, Response, request,  abort
+from flask import Flask, render_template, Response, request,  abort, jsonify
 import cv2
 import numpy as np
 import os
 import logging
 import math
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 auth = HTTPBasicAuth()
 app = Flask(__name__)
