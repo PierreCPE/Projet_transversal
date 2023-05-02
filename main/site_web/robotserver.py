@@ -10,8 +10,7 @@ class RobotServer:
         self.direction = [0, 0]
         self.require_update = False
     
-    def updateRobot(self, cmd):
-        return 
+    def updateRobot(self):
         x_left = self.direction
         y_left = self.direction
         rotation_coef = (x_left / 2)
@@ -40,16 +39,10 @@ class RobotServer:
                 self.direction = json_data['JoystickLeft']
                 x_left = json_data["JoystickLeft"][0]
                 y_left = json_data["JoystickLeft"][1]
-                rotation_coef = (x_left / 2)
-                right_power = -self.speed*(y_left + rotation_coef)
-                left_power = -self.speed*(y_left - rotation_coef)
-                cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
-                print(f"Send {cmd}")
-                if self.config['serial']:
-                    self.config['ser'].write(cmd.encode())
+                self.direction = [x_left, y_left]
             else:
-                if self.config['serial']:
-                    self.config['ser'].write("stop\n\r".encode())
+                self.direction = [0, 0]
+                
         
     def mode1Control(self):
         if "detected_object_xy_norm" in self.sharedVariables:
@@ -70,4 +63,4 @@ class RobotServer:
             else:
                 print("WARNING: Mode not implemented. Default manual control")
                 self.manualControl()
-            self.updateRobot("")
+            self.updateRobot()
