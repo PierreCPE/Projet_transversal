@@ -128,7 +128,7 @@ def gen_frames():
 @app.route('/')
 @auth.login_required
 # @check_ip
-@limiter.limit("1 per day")
+@limiter.limit("2 per day")
 def index():
     return render_template('index.html')
 
