@@ -34,7 +34,7 @@ def check_ip(f):
 limiter = Limiter(
     app=app,
     get_remote_address,
-    default_limits=["200 per day", "50 per hour"],
+    default_limits=["200 per day", "50 per hour"]
 )
 
 @app.route('/protected')
