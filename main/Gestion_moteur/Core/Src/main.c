@@ -23,7 +23,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -48,13 +47,11 @@
 
 /* USER CODE BEGIN PV */
 uint8_t Rxuint4[1];
-uint8_t Txuint4[] = "0123\n\r";
-uint8_t debut[] = "prepa terminee\n\r";
-uint8_t erreur[] = "erreur\n\r";
-uint8_t RxData[25];
 char RxChar4[25];
-char Pierre[2];
-char test[] = "$";
+char CharData[1];
+char *ptrCharData = CharData ;
+char *ptrRxChar4 = RxChar4;
+int taille = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -67,21 +64,20 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-	sprintf(Pierre, "%s", Rxuint4); // on convertie Rxuint4 en char dans Pierre
-	if (strcmp(Pierre,test) != 0){ // on test si pierre est différent de test
-		strcat(RxChar4, Pierre); // on ajoute pierre a RxChar4
-		Pierre[0] = '\0'; // on reset Pierre
-		HAL_UART_Receive_IT(&huart4,Rxuint4,1); // on reenable le Receive
+	sprintf(CharData, "%s", Rxuint4); // on convertit Rxuint4 en char dans CharData
+	if (*ptrCharData != '$'){
+		*ptrRxChar4 = *ptrCharData;
+		*ptrRxChar4++;
+		taille++;
 	}
-	else if(strcmp(Pierre,test) == 0){ // on test si pierre est egale a test
-// on convertie la chaine de caractere RxChar4 en uint8_t RxData
-		HAL_UART_Transmit_IT(&huart4,RxChar4,sizeof(RxChar4)); // on renvoie le uint8_t RxData dans l'uart
-		for (int i; sizeof(RxChar4); i++){
-			RxChar4[i] = "\0";
-		}
-		HAL_UART_Receive_IT(&huart4,Rxuint4,1); // on reenable le Receive
+	else if (*ptrCharData == '$'){
+		HAL_UART_Transmit_IT(&huart4,RxChar4,taille);	// on envoie RxChar4 part l'huart4
+		ptrRxChar4 = RxChar4;				// on reinitialise le pointeur de RxChar4
+		taille = 0;							// on reinitialise le vecteur taille
 	}
+	HAL_UART_Receive_IT(&huart4,Rxuint4,1); // on reenable le Receive */
 }
+
 /* USER CODE END 0 */
 
 /**
