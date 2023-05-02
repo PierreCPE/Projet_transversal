@@ -53,6 +53,7 @@ class RobotServer:
             x = self.sharedVariables['detected_object_xy_norm'][0]
             y = self.sharedVariables['detected_object_xy_norm'][1]
             print(f"Need to go to {x},{y}")
+            self.direction = [x, 1]
 
     def run(self):
         print("RobotServer running")
