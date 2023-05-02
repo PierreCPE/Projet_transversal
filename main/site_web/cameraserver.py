@@ -113,7 +113,7 @@ class CameraServer:
                 start_app_time = time.time()
                 image, surface_max, centreX_video, centreY_video = self.applyRedPointDetection(image)
                 end_app_time = time.time()
-                print("PT RED", end_app_time - start_app_time)
+                #print("PT RED", end_app_time - start_app_time)
                 # Définir la qualité maximale pour la compression JPEG
                 quality = self.config['video_quality']
                 # Définir les paramètres pour l'encodage JPEG
@@ -131,5 +131,5 @@ class CameraServer:
                 ret,buffer = cv2.imencode('.jpg', image,encode_param)
                 frame = buffer.tobytes()
                 self.sharedFrame.setFrame(frame)
-            print("PT TOTAL", time.time() - start_time)
+            #print("PT TOTAL", time.time() - start_time)
         cap.release()
