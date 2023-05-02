@@ -23,7 +23,6 @@ class RobotServer:
     def updateRobot(self):
         # Direction
         if self.lastDirection != self.direction and self.direction != [0, 0]:
-            print("Direction changed")
             x_left = self.direction[0]
             y_left = self.direction[1]
             rotation_coef = (x_left / 2)
@@ -31,14 +30,11 @@ class RobotServer:
             left_power = round(-self.speed*(y_left - rotation_coef),2)
             cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
             #print(f"Send {cmd}")
-            if self.config['serial']:
+            if self.config['serial'] and (right_power != 0 or left_power != 0):
                 self.ser.write(cmd.encode())
             else:
                 self.stopRobot()
         else:
-            self.stopRobot()
-        
-        if self.speed == 0:
             self.stopRobot()
         self.lastDirection = self.direction
 
