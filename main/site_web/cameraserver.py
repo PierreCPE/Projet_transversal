@@ -91,8 +91,8 @@ class CameraServer:
         cap = cv2.VideoCapture(0) # Replace 0 with your camera index if you have multiple cameras
         cpt=0
         self.last_detection = self.config['detection_contour']
-        start_time = time.time()
         while True:
+            start_time = time.time()
             detection = self.config['detection_contour']
             if self.last_detection != detection:
                 print("detection changed to", detection)
