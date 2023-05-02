@@ -18,7 +18,10 @@ class App:
         # Create shared variables dictionary
         self.sharedVariables = ThreadSafeDict()
         self.sharedVariables['point_simulation_data'] = [0,0,12] # [x,y,rayon]
-        self.sharedVariables['mode'] = 0 # 0: manuel, 1: mode 1, 2: mode 2, 3: mode 3
+        self.sharedVariables['mode'] = 1 # 0: manuel, 1: mode 1, 2: mode 2, 3: mode 3
+
+        self.sharedVariables['detected_object'] = False
+        self.sharedVariables['detected_object_xy_norm'] = [0,0]
         
         cap = cv2.VideoCapture(0) # Replace 0 with your camera index if you have multiple cameras
         # Définir la qualité maximale pour la compression JPEG
@@ -29,7 +32,7 @@ class App:
         encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
         ret,buffer = cv2.imencode('.jpg', image, encode_param)
         # On définie un objet multiprocess safe pour stocker l'image
-        self.sharedFrame = ThreadSafeFrame(len(buffer.tobytes())*4)
+        self.sharedFrame = ThreadSafeFrame(len(buffer.tobytes())*5)
 
     # Generate default config
     def generateDefaultConfig(self):
@@ -38,7 +41,7 @@ class App:
         ###########################################
         config = ThreadSafeDict()
         config['detection_contour'] = True
-        config['serial'] = False # Activer ou non le port serial
+        config['serial'] = True # Activer ou non le port serial
         # config['serial_port'] = 'COM8' # Port série
         config['serial_port'] = '/dev/ttyUSB0' # Port série
         config['serial_baudrate'] = 115200 # Baudrate du port série

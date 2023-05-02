@@ -80,6 +80,8 @@ class CameraServer:
             #si y est positif, le robot doit baisser la tete. Plus y est grand, plus le centre de la video est loin de l'objet au sens de la verticale
             self.sharedVariables['detected_object'] = True
             self.sharedVariables['detected_object_xy_norm'] = [x_norm,y_norm]
+        else:
+            self.sharedVariables['detected_object'] = False
         return image, surface_max, centreX_video, centreY_video
 
 

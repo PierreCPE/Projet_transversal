@@ -24,7 +24,7 @@ Une commande est structuré de la manière suivant:
 
 _Il est possible d'envoyer plusieurs commandes séparées par des virgules_
 
-> Exemple: `cmd = 0&14&15` &Rightarrow; `cmd_id = 0` et `cmd_values = [14,15]`
+> Exemple: `cmd = 0&14&15$` &Rightarrow; `cmd_id = 0` et `cmd_values = [14,15]`
 
 ## Tableau des commandes
 

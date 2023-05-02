@@ -1,4 +1,5 @@
 import numpy as np
+import serial
 
 class RobotServer:
     def __init__(self, config = {}, sharedVariables = None ,sharedFrame = None):
@@ -8,21 +9,28 @@ class RobotServer:
         self.max_speed = 30
         self.speed = 0
         self.direction = [0, 0]
+        self.lastDirection = [0, 0]
         self.require_update = False
+        if config['serial']:
+            self.ser = serial.Serial(config['serial_port'])
+            self.ser.baudrate = config['serial_baudrate']
     
-    def updateRobot(self, cmd):
-        x_left = self.direction
-        y_left = self.direction
-        rotation_coef = (x_left / 2)
-        right_power = -self.speed*(y_left + rotation_coef)
-        left_power = -self.speed*(y_left - rotation_coef)
-        cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
-        print(f"Send {cmd}")
-        if self.config['serial']:
-            self.config['ser'].write(cmd.encode())
-        else:
+    def updateRobot(self):
+        # Direction
+        if self.lastDirection != self.direction:
+            x_left = self.direction[0]
+            y_left = self.direction[1]
+            rotation_coef = (x_left / 2)
+            right_power = round(-self.speed*(y_left + rotation_coef),2)
+            left_power = round(-self.speed*(y_left - rotation_coef),2)
+            cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
+            #print(f"Send {cmd}")
             if self.config['serial']:
-                self.config['ser'].write("stop\n\r".encode())
+                self.ser.write(cmd.encode())
+            else:
+                if self.config['serial']:
+                    self.ser.write("stop\n\r".encode())
+        self.lastDirection = self.direction
 
     def manualControl(self):
         if 'manualControlJson' in self.sharedVariables:
@@ -39,22 +47,23 @@ class RobotServer:
                 self.direction = json_data['JoystickLeft']
                 x_left = json_data["JoystickLeft"][0]
                 y_left = json_data["JoystickLeft"][1]
-                rotation_coef = (x_left / 2)
-                right_power = -self.speed*(y_left + rotation_coef)
-                left_power = -self.speed*(y_left - rotation_coef)
-                cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
-                print(f"Send {cmd}")
-                if self.config['serial']:
-                    self.config['ser'].write(cmd.encode())
+                self.direction = [x_left, y_left]
             else:
-                if self.config['serial']:
-                    self.config['ser'].write("stop\n\r".encode())
+                self.direction = [0, 0]
+        else:
+            self.direction = [0, 0]
+                
         
     def mode1Control(self):
-        if "detected_object_xy_norm" in self.sharedVariables:
-            x = self.sharedVariables['detected_object_xy_norm'][0]
+        if self.sharedVariables['detected_object'] and 'detected_object_xy_norm' in self.sharedVariables:
+            self.speed = 10
+            x = -self.sharedVariables['detected_object_xy_norm'][0]
             y = self.sharedVariables['detected_object_xy_norm'][1]
-            print(f"Need to go to {x},{y}")
+            #print(f"Need to go to {x},{y}")
+            self.direction = [x, 0.7]
+        else:
+            self.speed = 0
+            self.direction = [0, 0]
 
     def run(self):
         print("RobotServer running")
