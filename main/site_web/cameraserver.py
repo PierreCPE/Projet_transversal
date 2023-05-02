@@ -91,6 +91,7 @@ class CameraServer:
         cap = cv2.VideoCapture(0) # Replace 0 with your camera index if you have multiple cameras
         cpt=0
         self.last_detection = self.config['detection_contour']
+        start_time = time.time()
         while True:
             detection = self.config['detection_contour']
             if self.last_detection != detection:
@@ -127,5 +128,5 @@ class CameraServer:
                 ret,buffer = cv2.imencode('.jpg', image,encode_param)
                 frame = buffer.tobytes()
                 self.sharedFrame.setFrame(frame)
-            time.sleep(0.05)
+            print("FPS: ", 1.0 / (time.time() - start_time))
         cap.release()
