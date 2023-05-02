@@ -23,6 +23,7 @@ class RobotServer:
     def updateRobot(self):
         # Direction
         if self.lastDirection != self.direction and self.direction != [0, 0]:
+            print("Direction changed")
             x_left = self.direction[0]
             y_left = self.direction[1]
             rotation_coef = (x_left / 2)
