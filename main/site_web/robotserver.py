@@ -11,6 +11,7 @@ class RobotServer:
         self.require_update = False
     
     def updateRobot(self, cmd):
+        return 
         x_left = self.direction
         y_left = self.direction
         rotation_coef = (x_left / 2)
@@ -69,4 +70,4 @@ class RobotServer:
             else:
                 print("WARNING: Mode not implemented. Default manual control")
                 self.manualControl()
-            self.updateRobot()
+            self.updateRobot("")
