@@ -60,7 +60,7 @@ class RobotServer:
             x = -self.sharedVariables['detected_object_xy_norm'][0]
             y = self.sharedVariables['detected_object_xy_norm'][1]
             #print(f"Need to go to {x},{y}")
-            self.direction = [x, 0.5]
+            self.direction = [x, 0.7]
         else:
             self.speed = 0
             self.direction = [0, 0]

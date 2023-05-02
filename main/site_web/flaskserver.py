@@ -26,7 +26,7 @@ class FlaskServer:
                               self.auth.login_required(self.commandes), methods=['POST'])
         # self.sharedFrame = self.config['shared_frame']
         self.allowed_ips = ['134.214.51.114', '192.168.56.1',
-                            '192.168.202.1', '192.168.99.33', '127.0.0.1']
+                            '192.168.202.1', '192.168.99.33', '127.0.0.1','192.168.99.192']
         self.users = {
             "user1": "1234",
             "user2": "5678"
