@@ -112,3 +112,5 @@ ax.legend()
 
 plt.show()
 
+
+#idee: detection temps reeel => affiche le son en temps reele et met des pt rouges sur les pics trop haut? 
