@@ -38,7 +38,7 @@ seuil = None
 
 
 fig, ax = plt.subplots()
-# max_bruit = None
+#max_bruit = None
 #ENREGISTREMENT
 
 while nb_bruits_consecutifs < 2 and  not bruit_detecte:
@@ -84,15 +84,6 @@ while nb_bruits_consecutifs < 2 and  not bruit_detecte:
 
 print("Le valeur max des 5 bruit sont : ", max_spectres_moyen)
 
-for i in range(len(max_spectres_moyen)):
-    ax.plot(t, np.abs(S[freq_bin, :][:, i]), color=f"C{i}", label=f"Spectre {i+1}")
-
-ax.set_xlabel('Temps (s)')
-ax.set_ylabel('Amplitude')
-ax.set_title('Spectres moyens')
-ax.legend()
-
-
 
 if max_spectres_moyen[0] < max_spectres_moyen[1]:
     print("Le bruit augmente.")
@@ -100,6 +91,15 @@ elif max_spectres_moyen[0] > max_spectres_moyen[1]:
     print("Le bruit diminue.")
 else:
     print("Le bruit est constant.")
+
+i=0
+for i in range(len(spectre_moyen)):
+    ax.plot(t, np.abs(S[freq_bin, :][:, i]), color=f"C{i}", label=f"Spectre {i+1}")
+
+ax.set_xlabel('Temps (s)')
+ax.set_ylabel('Amplitude')
+ax.set_title('Spectres moyens')
+ax.legend()
 
 
 plt.show()
