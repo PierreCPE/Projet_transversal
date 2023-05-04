@@ -15,10 +15,10 @@ while True: #on effectue une boucle infinie
     print("message envoyé : ")
     message = bytes(message,'utf8')
     print(message)
-    for character in message :
+    # for character in message :
 
-        print(character)
-        serial.write(character)
+    #     print(character)
+    serial.write(message)
     # serial.write(b"salut$")
     # recep = serial.read(serial.in_waiting)
     # print(recep)
