@@ -22,48 +22,7 @@ app.secret_key = "my_secret_key"
 
 #@auth.login
     
-def login():
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
 
-        # Vérifier si l'utilisateur est bloqué
-        if username in users and users[username]["blocked"]:
-            return "This account has been blocked. Please contact support.", 403
-
-        # Vérifier le nom d'utilisateur et le mot de passe
-        if username in users and users[username]["password"] == password:
-            # Réinitialiser le nombre de tentatives de connexion infructueuses pour cet utilisateur
-            users[username]["login_attempts"] = 0
-            # Enregistrer le nom d'utilisateur dans la session
-            session["username"] = username
-            # Rediriger vers la page d'accueil
-            return redirect(url_for("index"))
-        else:
-            # Augmenter le nombre de tentatives de connexion infructueuses pour cet utilisateur
-            if username in users:
-                users[username]["login_attempts"] += 1
-                # Vérifier si l'utilisateur a dépassé la limite de tentatives de connexion infructueuses
-                if users[username]["login_attempts"] >= MAX_LOGIN_ATTEMPTS:
-                    # Bloquer l'utilisateur sans supprimer son compte
-                    users[username]["blocked"] = True
-                    # Renvoyer une réponse d'erreur
-                    return "Too many login attempts. This account has been blocked. Please contact support.", 403
-            # Renvoyer une réponse d'erreur si le nom d'utilisateur ou le mot de passe est incorrect
-            return "Invalid username or password.", 401
-
-    # Afficher le formulaire de connexion
-    return """
-        <form method="POST">
-            <label>Username:</label>
-            <input type="text" name="username"><br>
-            <label>Password:</label>
-            <input type="password" name="password"><br>
-            <input type="submit" value="Log In">
-        </form>
-    """
-
-    
     
     
     
@@ -190,6 +149,46 @@ def index():
     return render_template('index.html')
 
 
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        # Vérifier si l'utilisateur est bloqué
+        if username in users and users[username]["blocked"]:
+            return "This account has been blocked. Please contact support.", 403
+
+        # Vérifier le nom d'utilisateur et le mot de passe
+        if username in users and users[username]["password"] == password:
+            # Réinitialiser le nombre de tentatives de connexion infructueuses pour cet utilisateur
+            users[username]["login_attempts"] = 0
+            # Enregistrer le nom d'utilisateur dans la session
+            session["username"] = username
+            # Rediriger vers la page d'accueil
+            return redirect(url_for("index"))
+        else:
+            # Augmenter le nombre de tentatives de connexion infructueuses pour cet utilisateur
+            if username in users:
+                users[username]["login_attempts"] += 1
+                # Vérifier si l'utilisateur a dépassé la limite de tentatives de connexion infructueuses
+                if users[username]["login_attempts"] >= MAX_LOGIN_ATTEMPTS:
+                    # Bloquer l'utilisateur sans supprimer son compte
+                    users[username]["blocked"] = True
+                    # Renvoyer une réponse d'erreur
+                    return "Too many login attempts. This account has been blocked. Please contact support.", 403
+            # Renvoyer une réponse d'erreur si le nom d'utilisateur ou le mot de passe est incorrect
+            return "Invalid username or password.", 401
+
+    # Afficher le formulaire de connexion
+    return """
+        <form method="POST">
+            <label>Username:</label>
+            <input type="text" name="username"><br>
+            <label>Password:</label>
+            <input type="password" name="password"><br>
+            <input type="submit" value="Log In">
+        </form>
+    """
 
 
 
