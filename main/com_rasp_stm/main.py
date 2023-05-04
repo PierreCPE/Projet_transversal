@@ -14,7 +14,7 @@ while True: #on effectue une boucle infinie
     print(message)
       #Encodage en byte.
     print("message envoyé : ")
-    message = bytes(message,'utf8')
+    message = message.encode()
     print(message)
     # for character in message :
 
