@@ -20,7 +20,7 @@ limit_connection_amount = 200
 
 app.secret_key = "my_secret_key"
 
-@auth.login
+#@auth.login
     
 def login():
     if request.method == "POST":
