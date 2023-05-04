@@ -9,7 +9,7 @@ print('com is open', ser.isOpen())
 
 while True: #on effectue une boucle infinie
     ser.flushInput()
-    ser.flushOutput() #On nettoie les buffers
+    #ser.flushOutput() #On nettoie les buffers
     message = "ceci est un test$"
     print(message)
       #Encodage en byte.
@@ -24,7 +24,7 @@ while True: #on effectue une boucle infinie
     # recep = serial.read(serial.in_waiting)
     # print(recep)
     print("avant message recu : ")
-    reception = (ser.readline()) #On lit sur le port serie et on affecte dans une variable #read().decode("utf8",errors="replace")
+    reception = (ser.read()) #On lit sur le port serie et on affecte dans une variable #read().decode("utf8",errors="replace")
     print("message recu : ")
     print(reception) #On imprime dans la console
     print ("fini")
