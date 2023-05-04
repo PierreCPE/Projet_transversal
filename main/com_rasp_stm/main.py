@@ -9,13 +9,21 @@ print('com is open', serial.isOpen())
 
 while True: #on effectue une boucle infinie
     serial.flushInput();serial.flushOutput() #On nettoie les buffers
-    message = "salut$"
-    b = message.encode('utf-8') #Encodage en byte.
+    message = "test$"
+    print(message)
+      #Encodage en byte.
     print("message envoyé : ")
-    print(b)
-    serial.write(b)
-    number = (serial.readline().decode("utf8",errors="replace")) #On lit sur le port serie et on affecte dans une variable
+    message = message.encode('utf8')
+    print(message)
+    for character in message :
+
+        print(character)
+        serial.write(character)
+    # serial.write(b"salut$")
+    # recep = serial.read(serial.in_waiting)
+    # print(recep)
+    reception = (serial.readline().decode("utf8",errors="replace")) #On lit sur le port serie et on affecte dans une variable
     print("message recu : ")
-    print(number) #On imprime dans la console
+    print(reception) #On imprime dans la console
     
 
