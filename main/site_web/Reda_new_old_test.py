@@ -81,14 +81,7 @@ limiter = Limiter(
     default_limits=["200 per day", "50 per hour"]
 )
 
-@app.route("/home")
-def home():
-    # Vérifier si l'utilisateur est connecté
-    if "username" in session:
-        return f"Welcome, {session['username']}!"
-    else:
-        # Rediriger vers la page de connexion
-        return redirect(url_for("login"))
+
 
 @app.route('/protected')
 @auth.login_required
@@ -182,6 +175,16 @@ def gen_frames():
 @auth.login_required
 # @check_ip
 @limiter.limit(f"{limit_connection_amount} per day")
+
+def home():
+    # Vérifier si l'utilisateur est connecté
+    if "username" in session:
+        return f"Welcome, {session['username']}!"
+    else:
+        # Rediriger vers la page de connexion
+        return redirect(url_for("login"))
+     return "Welcome to my website!"
+
 def index():
     return render_template('index.html')
 
