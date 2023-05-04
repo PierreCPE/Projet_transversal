@@ -22,8 +22,9 @@ class RobotServer:
         self.duration = self.config['mode3_duration']
     
     def stopRobot(self):
-        if self.config['serial']:
-                    self.ser.write("stop\n\r".encode())
+        
+        self.direction = [0, 0]
+        self.write("stop\n\r")
 
     def updateRobot(self):
         # Direction
@@ -35,13 +36,18 @@ class RobotServer:
             left_power = round(-self.speed*(y_left - rotation_coef),2)
             cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
             print(f"Send {cmd}")
-            if self.config['serial'] and (right_power != 0 or left_power != 0):
-                self.ser.write(cmd.encode())
+            if (right_power != 0 or left_power != 0):
+                self.write(cmd)
             else:
                 self.stopRobot()
         else:
             self.stopRobot()
         self.lastDirection = self.direction
+
+    def write(self, cmd):
+        print("write:",cmd)
+        if self.config['serial']:
+            self.ser.write(cmd.encode())
 
     def manualControl(self):
         if 'manualControlJson' in self.sharedVariables:
