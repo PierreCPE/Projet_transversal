@@ -175,7 +175,7 @@ def controlCommandes():
             ser.write("stop\n\r".encode())
     return 'OK'
 
-@app.route("/login", methods=["POST"])
+@app.route("/login")
 @limiter.limit("3 per minute")
 
 
