@@ -1,15 +1,21 @@
 #!/usr/bin/python3 #-*- coding: latin-1 -*-
 import serial
 import time
-
-ser=serial.Serial('/dev/ttyUSB0',115200) #On defini un objet serial avec l'adresse du port et la vitesse
+ser = serial.Serial(
+    port='/dev/ttyUSB0',
+    baudrate=115200,
+    parity=serial.PARITY_NONE,
+    stopbits=serial.STOPBITS_ONE,
+    bytesize=serial.EIGHTBITS
+)
+#ser=serial.Serial('/dev/ttyUSB0',115200) #On defini un objet serial avec l'adresse du port et la vitesse
 if not ser.isOpen(): #Est ce que le port est open si non alors on l'ouvre.
     ser.open()
 print('com is open', ser.isOpen())
 
 while True: #on effectue une boucle infinie
     ser.flushInput()
-    #ser.flushOutput() #On nettoie les buffers
+    ser.flushOutput() #On nettoie les buffers
     message = "ceci est un test$"
     print(message)
       #Encodage en byte.

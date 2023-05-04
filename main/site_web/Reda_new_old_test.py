@@ -81,10 +81,7 @@ limiter = Limiter(
     default_limits=["200 per day", "50 per hour"]
 )
 
-@app.route('/protected')
-@auth.login_required
-def protected_route():
-    return "Vous êtes connecté en tant que : {} et votre adresse IP est autorisée.".format(auth.current_user())
+@app.route("/home")
 def home():
     # Vérifier si l'utilisateur est connecté
     if "username" in session:
@@ -92,6 +89,11 @@ def home():
     else:
         # Rediriger vers la page de connexion
         return redirect(url_for("login"))
+
+@app.route('/protected')
+@auth.login_required
+def protected_route():
+    return "Vous êtes connecté en tant que : {} et votre adresse IP est autorisée.".format(auth.current_user())
 
 
 def gen_frames():
@@ -176,7 +178,7 @@ def gen_frames():
             yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
     #cap.release()
 
-@app.route("/", methods=["POST"])
+@app.route("/", methods=["GET", "POST"])
 @auth.login_required
 # @check_ip
 @limiter.limit(f"{limit_connection_amount} per day")
