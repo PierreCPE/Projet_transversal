@@ -17,7 +17,7 @@ print('com is open', ser.isOpen())
 while True: #on effectue une boucle infinie
     ser.flushInput()
     ser.flushOutput() #On nettoie les buffers
-    message = "1234567$"
+    message = "t"
     print(message)
       #Encodage en byte.
     print("message envoyé : ")
