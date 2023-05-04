@@ -28,7 +28,11 @@ class RobotServer:
 
     def updateRobot(self):
         # Direction
-        if self.lastDirection != self.direction and self.direction != [0, 0]:
+        if self.lastDirection != self.direction:
+            if self.direction == [0, 0]:
+                self.stopRobot()
+                return
+            
             x_left = self.direction[0]
             y_left = self.direction[1]
             rotation_coef = (x_left / 2)
@@ -40,8 +44,7 @@ class RobotServer:
                 self.write(cmd)
             else:
                 self.stopRobot()
-        else:
-            self.stopRobot()
+
         self.lastDirection = self.direction
 
     def write(self, cmd):
