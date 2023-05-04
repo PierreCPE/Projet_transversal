@@ -64,6 +64,7 @@ class RobotServer:
                     print("Speed", self.speed)
             else:
                 self.speed = self.max_speed
+                self.direction = [0, 0]
             if 'JoystickLeft' in json_data:
                 self.direction = json_data['JoystickLeft']
                 x_left = json_data["JoystickLeft"][0]
