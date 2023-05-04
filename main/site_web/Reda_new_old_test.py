@@ -183,7 +183,8 @@ def home():
     else:
         # Rediriger vers la page de connexion
         return redirect(url_for("login"))
-     return "Welcome to my website!"
+     
+        return "Welcome to my website!"
 
 def index():
     return render_template('index.html')
