@@ -1,11 +1,11 @@
-﻿#!/usr/local/bin/python
+#!/usr/local/bin/python
 # -*- coding: UTF-8 -*-
 
 #pip install opencv-contrib-python
 
 import serial
 from flask_httpauth import HTTPBasicAuth
-from flask import Flask, render_template, Response, request,  abort, jsonify
+from flask import Flask, render_template, Response, request,  abort, jsonify, session, redirect, url_for
 import cv2
 import numpy as np
 import os
@@ -17,6 +17,8 @@ from flask_limiter.util import get_remote_address
 auth = HTTPBasicAuth()
 app = Flask(__name__)
 limit_connection_amount = 200
+
+app.secret_key = "my_secret_key"
 
 @auth.verify_password
 def verify_password(username, password):
@@ -132,6 +134,39 @@ def gen_frames():
 def index():
     return render_template('index.html')
 
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        # Vérifier le nom d'utilisateur et le mot de passe
+        if username == "admin" and password == "password":
+            # Réinitialiser le nombre de tentatives de connexion infructueuses pour cet utilisateur
+            session.pop("login_attempts", None)
+            # Enregistrer le nom d'utilisateur dans la session
+            session["username"] = username
+            # Rediriger vers la page d'accueil
+            return redirect(url_for("home"))
+        else:
+            # Augmenter le nombre de tentatives de connexion infructueuses pour cet utilisateur
+            session["login_attempts"] = session.get("login_attempts", 0) + 1
+            # Vérifier si l'utilisateur a dépassé la limite de tentatives de connexion infructueuses
+            if session["login_attempts"] >= 3:
+                # Bloquer l'utilisateur en supprimant le nom d'utilisateur de la session
+                session.pop("username", None)
+                # Renvoyer une réponse d'erreur
+                return "Too many login attempts. Please try again later.", 429
+
+    # Afficher le formulaire de connexion
+    return """
+        <form method="POST">
+            <label>Username:</label>
+            <input type="text" name="username"><br>
+            <label>Password:</label>
+            <input type="password" name="password"><br>
+            <input type="submit" value="Log In">
+        </form>
+    """
 
 
 
@@ -174,6 +209,9 @@ def controlCommandes():
         if config['serial']:
             ser.write("stop\n\r".encode())
     return 'OK'
+
+
+
 
 def run_flask():
     global config
@@ -227,6 +265,8 @@ def run_flask():
     app.run(host="0.0.0.0", debug=False)
     if config['serial']:
         ser.close()
+        
+  
     
 if __name__=="__main__" :
     run_flask()
