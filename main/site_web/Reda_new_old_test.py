@@ -20,9 +20,9 @@ limit_connection_amount = 200
 
 app.secret_key = "my_secret_key"
 
-@auth.verify_password
+@auth.login
     
-def verify_password():
+def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
