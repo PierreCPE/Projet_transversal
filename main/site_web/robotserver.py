@@ -28,7 +28,11 @@ class RobotServer:
 
     def updateRobot(self):
         # Direction
-        if self.lastDirection != self.direction and self.direction != [0, 0]:
+        if self.lastDirection != self.direction:
+            if self.direction == [0, 0]:
+                self.stopRobot()
+                return
+            
             x_left = self.direction[0]
             y_left = self.direction[1]
             rotation_coef = (x_left / 2)
@@ -40,8 +44,7 @@ class RobotServer:
                 self.write(cmd)
             else:
                 self.stopRobot()
-        else:
-            self.stopRobot()
+
         self.lastDirection = self.direction
 
     def write(self, cmd):
@@ -61,6 +64,7 @@ class RobotServer:
                     print("Speed", self.speed)
             else:
                 self.speed = self.max_speed
+                self.direction = [0, 0]
             if 'JoystickLeft' in json_data:
                 self.direction = json_data['JoystickLeft']
                 x_left = json_data["JoystickLeft"][0]
