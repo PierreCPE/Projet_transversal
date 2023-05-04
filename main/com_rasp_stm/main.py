@@ -22,7 +22,7 @@ while True: #on effectue une boucle infinie
     # serial.write(b"salut$")
     # recep = serial.read(serial.in_waiting)
     # print(recep)
-    reception = (serial.readline().decode("utf8",errors="replace")) #On lit sur le port serie et on affecte dans une variable
+    reception = (serial.read()) #On lit sur le port serie et on affecte dans une variable #.decode("utf8",errors="replace")
     print("message recu : ")
     print(reception) #On imprime dans la console
     
