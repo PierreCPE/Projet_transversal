@@ -1,5 +1,6 @@
 import numpy as np
 import serial
+import sounddevice as sd
 
 class RobotServer:
     def __init__(self, config = {}, sharedVariables = None ,sharedFrame = None):
@@ -15,10 +16,15 @@ class RobotServer:
         if config['serial']:
             self.ser = serial.Serial(config['serial_port'])
             self.ser.baudrate = config['serial_baudrate']
+        # Sampling frequency
+        self.freq = self.config['mode3_freq']
+        # Recording duration
+        self.duration = self.config['mode3_duration']
     
     def stopRobot(self):
-        if self.config['serial']:
-                    self.ser.write("stop\n\r".encode())
+        if self.direction != [0, 0]:
+            self.direction = [0, 0]
+            self.write("stop\n\r")
 
     def updateRobot(self):
         # Direction
@@ -30,13 +36,18 @@ class RobotServer:
             left_power = round(-self.speed*(y_left - rotation_coef),2)
             cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
             print(f"Send {cmd}")
-            if self.config['serial'] and (right_power != 0 or left_power != 0):
-                self.ser.write(cmd.encode())
+            if (right_power != 0 or left_power != 0):
+                self.write(cmd)
             else:
                 self.stopRobot()
         else:
             self.stopRobot()
         self.lastDirection = self.direction
+
+    def write(self, cmd):
+        print("write:",cmd)
+        if self.config['serial']:
+            self.ser.write(cmd.encode())
 
     def manualControl(self):
         if 'manualControlJson' in self.sharedVariables:
@@ -73,6 +84,22 @@ class RobotServer:
             self.speed = 0
             self.direction = [0, 0]
 
+    def mode3Control(self):
+        # check if sharedvariable has mode3_record to true
+        if 'mode3_record' in self.sharedVariables and self.sharedVariables['mode3_record']:
+            self.mode3Record()
+        else:
+            self.mode3Play()
+
+    def mode3Record(self):
+        pass
+    
+    def mode3Play(self):
+        #play sound on linux
+        print()
+
+        
+
     def run(self):
         print("RobotServer running")
         while True:
@@ -81,6 +108,8 @@ class RobotServer:
                     self.manualControl()
                 elif self.sharedVariables['mode'] == 1:
                     self.mode1Control()
+                elif self.sharedVariables['mode'] == 3:
+                    self.mode3Control()
                 else:
                     print("WARNING: Mode not implemented. Default manual control")
             else:

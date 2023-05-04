@@ -1,21 +1,38 @@
 #!/usr/bin/python3 #-*- coding: latin-1 -*-
 import serial
 import time
-
-serial=serial.Serial('COM6',115200) #On defini un objet serial avec l'adresse du port et la vitesse
-if not serial.isOpen(): #Est ce que le port est open si non alors on l'ouvre.
-    serial.open()
-print('com is open', serial.isOpen())
+ser = serial.Serial(
+    port='/dev/ttyUSB0',
+    baudrate=115200,
+    parity=serial.PARITY_NONE,
+    stopbits=serial.STOPBITS_ONE,
+    bytesize=serial.EIGHTBITS
+)
+#ser=serial.Serial('/dev/ttyUSB0',115200) #On defini un objet serial avec l'adresse du port et la vitesse
+if not ser.isOpen(): #Est ce que le port est open si non alors on l'ouvre.
+    ser.open()
+print('com is open', ser.isOpen())
 
 while True: #on effectue une boucle infinie
-    serial.flushInput();serial.flushOutput() #On nettoie les buffers
-    message = "salut$"
-    b = message.encode('utf-8') #Encodage en byte.
+    ser.flushInput()
+    #ser.flushOutput() #On nettoie les buffers
+    message = "ceci est un test$"
+    print(message)
+      #Encodage en byte.
     print("message envoyé : ")
-    print(b)
-    serial.write(b)
-    number = (serial.readline().decode("utf8",errors="replace")) #On lit sur le port serie et on affecte dans une variable
+    message = message.encode()
+    print(message)
+    # for character in message :
+
+    #     print(character)
+    ser.write(message)
+    # serial.write(b"salut$")
+    # recep = serial.read(serial.in_waiting)
+    # print(recep)
+    print("avant message recu : ")
+    reception = (ser.read()) #On lit sur le port serie et on affecte dans une variable #read().decode("utf8",errors="replace")
     print("message recu : ")
-    print(number) #On imprime dans la console
+    print(reception) #On imprime dans la console
+    print ("fini")
     
 
