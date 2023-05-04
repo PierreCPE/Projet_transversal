@@ -175,6 +175,10 @@ def controlCommandes():
             ser.write("stop\n\r".encode())
     return 'OK'
 
+@app.route("/login", methods=["POST"])
+@limiter.limit("3 per minute")
+
+
 def run_flask():
     global config
     global ser
@@ -227,6 +231,8 @@ def run_flask():
     app.run(host="0.0.0.0", debug=False)
     if config['serial']:
         ser.close()
+        
+  
     
 if __name__=="__main__" :
     run_flask()
