@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
 #pip install opencv-contrib-python
@@ -19,6 +19,9 @@ app = Flask(__name__)
 limit_connection_amount = 200
 
 app.secret_key = "my_secret_key"
+
+users = {"user": "password"}
+allowed_ips = ["127.0.0.1"]
 
 @auth.verify_password
 def verify_password(username, password):
@@ -44,6 +47,7 @@ limiter = Limiter(
 def protected_route():
     return "Vous êtes connecté en tant que : {} et votre adresse IP est autorisée.".format(auth.current_user())
 
+
 def gen_frames():
     cap = cv2.VideoCapture(0) # Replace 0 with your camera index if you have multiple cameras
 
@@ -56,22 +60,26 @@ def gen_frames():
     cpt = 0
     detection = config['detection_contour']
     while True:
-        try:
-            res, image = cap.read() #res est un bollean qui verifie si la video a pu etre lu est image est une "capture de video"
-            if res == False:
+        if detection:
+            res, image = cap.read() #res est un bollean qui verifie si la video a pu etre lue et image est une "capture de video"
+            if not res:
                 break
-            
-            if cpt % 100 == 0:
-                if detection:
-                    # Convertir la trame vidéo en HSV
-                    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-                    # Appliquer le masque pour détecter les pixels rouges
-                    masque = cv2.inRange(hsv, rouge_clair, rouge_fonce)
+            # Convertir la trame vidéo en HSV
+            hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-                    # Trouver les contours des objets dans l'image
-                    contours, hierarchie = cv2.findContours(masque, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            # Appliquer le masque pour détecter les pixels rouges
+            masque = cv2.inRange(hsv, rouge_clair, rouge_fonce)
 
-                    # Trouver le plus grand contour (l'objet rouge entouré de bleu)
-                    surface_max=None #le contour ayant la plus grande surface dans l'image
-                    val_surface
+            # Trouver les contours des objets dans l'image
+            contours, hierarchie = cv2.findContours(masque, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+            # Dessiner des contours bleus autour des objets détectés
+            for contour in contours:
+                cv2.drawContours(image, [contour], 0, (255, 255, 0), 2)
+
+            # Dessiner la croix au centre de la vidéo
+            epaisseur_ligne = 2 # l'épaisseur des lignes de la croix
+            couleur_ligne = (255, 255, 255) # la couleur de la croix 
+            cv2.line(image, (centreX_video, centreY_video - 10), (centreX_video, centreY_video + 10), couleur_ligne, epaisseur_ligne)
+            cv2.line(image, (centreX_video - 10, centreY_video), (centreX_video + 10, centreY_video), couleur_l
