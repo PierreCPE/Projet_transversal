@@ -16,7 +16,7 @@ from flask_limiter.util import get_remote_address
 
 auth = HTTPBasicAuth()
 app = Flask(__name__)
-
+limit_connection_amount = 200
 
 @auth.verify_password
 def verify_password(username, password):
@@ -31,16 +31,11 @@ def check_ip(f):
         return f(*args, **kwargs)
     return wrapped
 
-def get_key_func():
-    return get_remote_address()
-
 limiter = Limiter(
-    app,
-    key_func=get_key_func,
-    default_limits=["200 per day", "50 per hour"],
-    headers_enabled=True 
-	)
-	
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"]
+)
 
 @app.route('/protected')
 @auth.login_required
@@ -133,11 +128,11 @@ def gen_frames():
 @app.route('/')
 @auth.login_required
 # @check_ip
+@limiter.limit(f"{limit_connection_amount} per day")
 def index():
     return render_template('index.html')
-@limiter.limit("1 per day")
-def index():
-    return "Hello, World!"
+
+
 
 
 
@@ -226,7 +221,7 @@ def run_flask():
     users = {
         "user1": "1234",
         "user2": "5678",
-	"user3": "91011",
+
     }
 
     app.run(host="0.0.0.0", debug=False)
