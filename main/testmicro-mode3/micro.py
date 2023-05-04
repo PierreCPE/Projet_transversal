@@ -7,7 +7,7 @@ import sounddevice as sd
 #import wavio as wv
 
 p = input("y pour lancer l'enregistrement")
-
+print(sd.default.samplerate)
 while p != "y":
     print("Mauvais caractère")
     p = input("y pour lancer l'enregistrement")
