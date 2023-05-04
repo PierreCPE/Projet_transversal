@@ -3,7 +3,7 @@
 
 # import required libraries
 import sounddevice as sd
-from scipy.io.wavfile import write
+# from scipy.io.wavfile import write
 import wavio as wv
 
 p = input("y pour lancer l'enregistrement")
@@ -27,10 +27,10 @@ if p =="y":
   
     # Record audio for the given number of seconds
     sd.wait()
-  
+    print(recording)
     # This will convert the NumPy array to an audio
     # file with the given sampling frequency
-    write("son.wav", freq, recording)
+    # write("son.wav", freq, recording)
 
     print("Enregistrement terminé")
 

@@ -50,6 +50,10 @@ class App:
         config['log_all_requests'] = False
         config['video_quality'] = 50
         config['point_simulation'] = True # Simule un point rouge à la place de la détection. Les coordonnées sont définies dans sharedVariables à la clé 'point_simulation_data' ([x,y,rayon])
+        # Sampling frequency
+        config['mode3_freq'] = 44100
+        # Recording duration
+        config['mode3_duration'] = 3
         ###########################################
         return config
 

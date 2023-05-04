@@ -1,5 +1,8 @@
 import numpy as np
 import serial
+import sounddevice as sd
+from scipy.io.wavfile import write
+import wavio as wv
 
 class RobotServer:
     def __init__(self, config = {}, sharedVariables = None ,sharedFrame = None):
@@ -15,6 +18,10 @@ class RobotServer:
         if config['serial']:
             self.ser = serial.Serial(config['serial_port'])
             self.ser.baudrate = config['serial_baudrate']
+        # Sampling frequency
+        self.freq = self.config['mode3_freq']
+        # Recording duration
+        self.duration = self.config['mode3_duration']
     
     def stopRobot(self):
         if self.config['serial']:
@@ -73,6 +80,22 @@ class RobotServer:
             self.speed = 0
             self.direction = [0, 0]
 
+    def mode3Control(self):
+        # check if sharedvariable has mode3_record to true
+        if 'mode3_record' in self.sharedVariables and self.sharedVariables['mode3_record']:
+            self.mode3Record()
+        else:
+            self.mode3Play()
+
+    def mode3Record(self):
+        pass
+    
+    def mode3Play(self):
+        #play sound on linux
+        print()
+
+        
+
     def run(self):
         print("RobotServer running")
         while True:
@@ -81,6 +104,8 @@ class RobotServer:
                     self.manualControl()
                 elif self.sharedVariables['mode'] == 1:
                     self.mode1Control()
+                elif self.sharedVariables['mode'] == 3:
+                    self.mode3Control()
                 else:
                     print("WARNING: Mode not implemented. Default manual control")
             else:
