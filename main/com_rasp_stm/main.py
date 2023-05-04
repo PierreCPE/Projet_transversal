@@ -24,6 +24,8 @@ while True: #on effectue une boucle infinie
     # print(recep)
     print("avant message recu : ")
     reception = (serial.readline()) #On lit sur le port serie et on affecte dans une variable #read().decode("utf8",errors="replace")
+    print("message recu : ")
     print(reception) #On imprime dans la console
+    print ("fini")
     
 
