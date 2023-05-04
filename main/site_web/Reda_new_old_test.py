@@ -20,9 +20,9 @@ limit_connection_amount = 200
 
 app.secret_key = "my_secret_key"
 
-@auth.verify_password
+@auth.login
     
-def verify_password():
+def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
@@ -81,14 +81,7 @@ limiter = Limiter(
     default_limits=["200 per day", "50 per hour"]
 )
 
-@app.route("/home")
-def home():
-    # Vérifier si l'utilisateur est connecté
-    if "username" in session:
-        return f"Welcome, {session['username']}!"
-    else:
-        # Rediriger vers la page de connexion
-        return redirect(url_for("login"))
+
 
 @app.route('/protected')
 @auth.login_required
@@ -178,10 +171,21 @@ def gen_frames():
             yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
     #cap.release()
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["POST"])
 @auth.login_required
 # @check_ip
 @limiter.limit(f"{limit_connection_amount} per day")
+
+def home():
+    # Vérifier si l'utilisateur est connecté
+    if "username" in session:
+        return f"Welcome, {session['username']}!"
+    else:
+        # Rediriger vers la page de connexion
+        return redirect(url_for("login"))
+     
+        return "Welcome to my website!"
+
 def index():
     return render_template('index.html')
 
