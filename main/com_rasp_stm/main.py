@@ -2,14 +2,14 @@
 import serial
 import time
 
-serial=serial.Serial('/dev/ttyUSB0',115200) #On defini un objet serial avec l'adresse du port et la vitesse
+serial=serial.Serial('/dev/ttyUSB0',115200,8) #On defini un objet serial avec l'adresse du port et la vitesse
 if not serial.isOpen(): #Est ce que le port est open si non alors on l'ouvre.
     serial.open()
 print('com is open', serial.isOpen())
 
 while True: #on effectue une boucle infinie
     serial.flushInput();serial.flushOutput() #On nettoie les buffers
-    message = "test$"
+    message = "ceci est un test$"
     print(message)
       #Encodage en byte.
     print("message envoyé : ")
