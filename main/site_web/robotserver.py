@@ -22,6 +22,8 @@ class RobotServer:
         self.duration = self.config['mode3_duration']
     
     def stopRobot(self):
+        
+        self.direction = [0, 0]
         self.write("stop\n\r")
 
     def updateRobot(self):
@@ -44,7 +46,6 @@ class RobotServer:
 
     def write(self, cmd):
         print("write:",cmd)
-        
         if self.config['serial']:
             self.ser.write(cmd.encode())
 
