@@ -176,7 +176,7 @@ def gen_frames():
             yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
     #cap.release()
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["POST"])
 @auth.login_required
 # @check_ip
 @limiter.limit(f"{limit_connection_amount} per day")
