@@ -1,8 +1,6 @@
 import numpy as np
 import serial
 import sounddevice as sd
-from scipy.io.wavfile import write
-import wavio as wv
 
 class RobotServer:
     def __init__(self, config = {}, sharedVariables = None ,sharedFrame = None):
