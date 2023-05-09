@@ -8,3 +8,32 @@ detection_pt_rouge_video_continue_gomete.detect_pt()
 
 # erease img2
 # pour laisser le choix de si on prend une nouvelle photo ou couleur de base
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

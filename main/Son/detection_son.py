@@ -56,7 +56,7 @@ while nb_bruits_consecutifs < 2 and  not bruit_detecte:
     freq_bin = np.logical_and(f > freq_min, f <= freq_max) # Sélectionne les fréquences d'intérêt en utilisant une plage de fréquences comprises entre freq_min et freq_max.
 
     spectre_moyen = np.mean(np.abs(S[freq_bin, :]), axis=0) #Calcule le spectre moyen en prenant la moyenne de la valeur absolue des amplitudes des fréquences d'intérêt.
-    
+   
     ax.plot(t, spectre_moyen, color=colors[i%len(colors)], label="Spectre moyen "+str(i+1))
     
     if seuil is None: #Si la variable seuil n'a pas encore été initialisée, elle est initialisée ici.
@@ -110,8 +110,7 @@ ax.set_ylabel('Amplitude')
 ax.set_title('Spectres moyens')
 ax.legend()
 
-
 plt.show()
 
 
-#idee: detection temps reeel => affiche le son en temps reele et met des pt rouges sur les pics trop haut? 
+
