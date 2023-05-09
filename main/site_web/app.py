@@ -63,19 +63,21 @@ class App:
 
     def run(self):
         print("Starting threads")
-        # self.cameraProcess = multiprocessing.Process(target=runCameraServer, args=(self.config, self.sharedVariables, self.sharedFrame))
-        # self.cameraProcess.start()
-        # self.flaskProcess = multiprocessing.Process(target=runFlaskServer, args=(self.config, self.sharedVariables, self.sharedFrame))
-        # self.flaskProcess.start()
-        # self.robotProcess = multiprocessing.Process(target=runRobotServer, args=(self.config, self.sharedVariables, self.sharedFrame))
-        # self.robotProcess.start()
-        self.simulationProcess = multiprocessing.Process(target=runSimulationServer, args=(self.config, self.sharedVariables))
-        self.simulationProcess.start()
+        self.cameraProcess = multiprocessing.Process(target=runCameraServer, args=(self.config, self.sharedVariables, self.sharedFrame))
+        self.cameraProcess.start()
+        self.flaskProcess = multiprocessing.Process(target=runFlaskServer, args=(self.config, self.sharedVariables, self.sharedFrame))
+        self.flaskProcess.start()
+        self.robotProcess = multiprocessing.Process(target=runRobotServer, args=(self.config, self.sharedVariables, self.sharedFrame))
+        self.robotProcess.start()
+        if self.config['simulation_robot']:
+            self.simulationProcess = multiprocessing.Process(target=runSimulationServer, args=(self.config, self.sharedVariables))
+            self.simulationProcess.start()
         input("Press enter to stop\n")
-        # self.cameraProcess.terminate()
-        # self.flaskProcess.terminate()
-        # self.robotProcess.terminate()
-        self.simulationProcess.terminate()
+        self.cameraProcess.terminate()
+        self.flaskProcess.terminate()
+        self.robotProcess.terminate()
+        if self.config['simulation_robot']:
+            self.simulationProcess.terminate()
         print("Threads stopped")
 
     
