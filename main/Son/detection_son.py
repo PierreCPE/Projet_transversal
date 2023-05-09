@@ -78,7 +78,7 @@ while nb_bruits_consecutifs < 2 and  not bruit_detecte:
             break
 
         max_spectres_moyen.append(max_bruit)
-
+        
         
     else:
         print('Aucun bruit bizarre, restons bien caché!')
