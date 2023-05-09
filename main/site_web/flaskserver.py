@@ -63,8 +63,10 @@ class FlaskServer:
     def check_ip(self):
         if request.remote_addr not in self.logs:
             self.logs[request.remote_addr] = []
-        self.logs[request.remote_addr].append([time.time(), request.path])
-        # print(self.logs[request.remote_addr])
+        timestamp = time.time()
+        self.logs[request.remote_addr].append([timestamp, request.path])
+        print("Heure :", timestamp)
+        print("ADRESSE IP :",request.remote_addr)
         if request.remote_addr not in self.allowed_ips:
             abort(403)  # Forbidden
 
