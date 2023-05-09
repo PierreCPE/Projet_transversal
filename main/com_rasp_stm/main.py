@@ -15,13 +15,15 @@ if not ser.isOpen(): #Est ce que le port est open si non alors on l'ouvre.
 print('com is open', ser.isOpen())
 ser.flushInput()
 ser.flushOutput() #On nettoie les buffers
+message = b"0&14&15,1$"
+#Encodage en byte.
+print("message envoyé : ")
+print(message)
 
 while True: #on effectue une boucle infinie
 
-    message = b"t"
-      #Encodage en byte.
-    print("message envoyé : ")
-    print(message)
+
+
     # for character in message :
 
     #     print(character)
@@ -31,7 +33,7 @@ while True: #on effectue une boucle infinie
     # print(recep)
     print("avant message recu : ")
     reception = (ser.read()) #On lit sur le port serie et on affecte dans une variable #read().decode("utf8",errors="replace")
-    time(0.03) 
+    time(3) 
     break
 print("message recu : ")
 print(reception) #On imprime dans la console
