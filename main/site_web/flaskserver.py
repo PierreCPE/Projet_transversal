@@ -53,7 +53,7 @@ class FlaskServer:
                 print("Too fast try from", request.remote_addr, "=> block ip")
                 #abort(401)  # Forbidden
             
-        verify = preverify and username in self.users and self.users[username] == password
+        verify = username in self.users and self.users[username] == password
         self.logsAuth[request.remote_addr].append([time.time(), verify])
         if verify:
             return username
