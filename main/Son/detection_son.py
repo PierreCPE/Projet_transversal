@@ -73,6 +73,9 @@ while nb_bruits_consecutifs < 2 and  not bruit_detecte:
             premiere_detection = False
         else:
             nb_bruits_consecutifs += 1 #Sinon, on incrémente le nombre de bruits consécutifs.
+
+        
+        
         if nb_bruits_consecutifs == 2:  # Si deux bruits consécutifs ont été détectés, le programme s'arrête.
             print('Trop de bruits détectés, arrêt du programme.')
             break
