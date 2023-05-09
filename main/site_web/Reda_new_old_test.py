@@ -20,50 +20,9 @@ limit_connection_amount = 200
 
 app.secret_key = "my_secret_key"
 
-@auth.verify_password
+#@auth.login
     
-def verify_password():
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
 
-        # Vérifier si l'utilisateur est bloqué
-        if username in users and users[username]["blocked"]:
-            return "This account has been blocked. Please contact support.", 403
-
-        # Vérifier le nom d'utilisateur et le mot de passe
-        if username in users and users[username]["password"] == password:
-            # Réinitialiser le nombre de tentatives de connexion infructueuses pour cet utilisateur
-            users[username]["login_attempts"] = 0
-            # Enregistrer le nom d'utilisateur dans la session
-            session["username"] = username
-            # Rediriger vers la page d'accueil
-            return redirect(url_for("index"))
-        else:
-            # Augmenter le nombre de tentatives de connexion infructueuses pour cet utilisateur
-            if username in users:
-                users[username]["login_attempts"] += 1
-                # Vérifier si l'utilisateur a dépassé la limite de tentatives de connexion infructueuses
-                if users[username]["login_attempts"] >= MAX_LOGIN_ATTEMPTS:
-                    # Bloquer l'utilisateur sans supprimer son compte
-                    users[username]["blocked"] = True
-                    # Renvoyer une réponse d'erreur
-                    return "Too many login attempts. This account has been blocked. Please contact support.", 403
-            # Renvoyer une réponse d'erreur si le nom d'utilisateur ou le mot de passe est incorrect
-            return "Invalid username or password.", 401
-
-    # Afficher le formulaire de connexion
-    return """
-        <form method="POST">
-            <label>Username:</label>
-            <input type="text" name="username"><br>
-            <label>Password:</label>
-            <input type="password" name="password"><br>
-            <input type="submit" value="Log In">
-        </form>
-    """
-
-    
     
     
     
@@ -81,14 +40,7 @@ limiter = Limiter(
     default_limits=["200 per day", "50 per hour"]
 )
 
-@app.route("/home")
-def home():
-    # Vérifier si l'utilisateur est connecté
-    if "username" in session:
-        return f"Welcome, {session['username']}!"
-    else:
-        # Rediriger vers la page de connexion
-        return redirect(url_for("login"))
+
 
 @app.route('/protected')
 @auth.login_required
@@ -178,35 +130,54 @@ def gen_frames():
             yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
     #cap.release()
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["POST"])
 @auth.login_required
 # @check_ip
 @limiter.limit(f"{limit_connection_amount} per day")
+
+def home():
+    # Vérifier si l'utilisateur est connecté
+    if "username" in session:
+        return f"Welcome, {session['username']}!"
+    else:
+        # Rediriger vers la page de connexion
+        return redirect(url_for("login"))
+     
+        return "Welcome to my website!"
+
 def index():
     return render_template('index.html')
+
 
 def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
 
+        # Vérifier si l'utilisateur est bloqué
+        if username in users and users[username]["blocked"]:
+            return "This account has been blocked. Please contact support.", 403
+
         # Vérifier le nom d'utilisateur et le mot de passe
-        if username == "admin" and password == "password":
+        if username in users and users[username]["password"] == password:
             # Réinitialiser le nombre de tentatives de connexion infructueuses pour cet utilisateur
-            session.pop("login_attempts", None)
+            users[username]["login_attempts"] = 0
             # Enregistrer le nom d'utilisateur dans la session
             session["username"] = username
             # Rediriger vers la page d'accueil
-            return redirect(url_for("home"))
+            return redirect(url_for("index"))
         else:
             # Augmenter le nombre de tentatives de connexion infructueuses pour cet utilisateur
-            session["login_attempts"] = session.get("login_attempts", 0) + 1
-            # Vérifier si l'utilisateur a dépassé la limite de tentatives de connexion infructueuses
-            if session["login_attempts"] >= 3:
-                # Bloquer l'utilisateur en supprimant le nom d'utilisateur de la session
-                session.pop("username", None)
-                # Renvoyer une réponse d'erreur
-                return "Too many login attempts. Please try again later.", 429
+            if username in users:
+                users[username]["login_attempts"] += 1
+                # Vérifier si l'utilisateur a dépassé la limite de tentatives de connexion infructueuses
+                if users[username]["login_attempts"] >= MAX_LOGIN_ATTEMPTS:
+                    # Bloquer l'utilisateur sans supprimer son compte
+                    users[username]["blocked"] = True
+                    # Renvoyer une réponse d'erreur
+                    return "Too many login attempts. This account has been blocked. Please contact support.", 403
+            # Renvoyer une réponse d'erreur si le nom d'utilisateur ou le mot de passe est incorrect
+            return "Invalid username or password.", 401
 
     # Afficher le formulaire de connexion
     return """
@@ -218,7 +189,6 @@ def login():
             <input type="submit" value="Log In">
         </form>
     """
-
 
 
 
