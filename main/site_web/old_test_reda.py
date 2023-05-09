@@ -119,6 +119,7 @@ def gen_frames():
         else:
             ret, frame = cap.read()
             if not ret:
+
                 break
             ret,buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()

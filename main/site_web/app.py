@@ -6,6 +6,7 @@ from threadutils import ThreadSafeFrame, ThreadSafeDict
 from flaskserver import FlaskServer
 from cameraserver import CameraServer
 from robotserver import RobotServer
+from simulationserver import SimulationServer
 
 class App:
     def __init__(self, config = None):
@@ -56,6 +57,7 @@ class App:
         config['mode3_duration'] = 3
         config['auth_failed_limit'] = 7 # Nombre de tentatives de connexion avant de bloquer l'adresse IP
         config['auth_try_time'] = 5 # Temps en secondes avant de pouvoir réessayer de se connecter
+        config['simulation_robot'] = True
         ###########################################
         return config
 
@@ -67,10 +69,15 @@ class App:
         self.flaskProcess.start()
         self.robotProcess = multiprocessing.Process(target=runRobotServer, args=(self.config, self.sharedVariables, self.sharedFrame))
         self.robotProcess.start()
+        if self.config['simulation_robot']:
+            self.simulationProcess = multiprocessing.Process(target=runSimulationServer, args=(self.config, self.sharedVariables))
+            self.simulationProcess.start()
         input("Press enter to stop\n")
         self.cameraProcess.terminate()
         self.flaskProcess.terminate()
         self.robotProcess.terminate()
+        if self.config['simulation_robot']:
+            self.simulationProcess.terminate()
         print("Threads stopped")
 
     
@@ -85,6 +92,10 @@ def runCameraServer(config, sharedVariables, sharedFrame):
 def runRobotServer(config, sharedVariables, sharedFrame):
     robotServer = RobotServer(config, sharedVariables, sharedFrame)
     robotServer.run()
+
+def runSimulationServer(config, sharedVariables):
+    simulationServer = SimulationServer(config, sharedVariables)
+    simulationServer.run()
 
 if __name__ == '__main__':
     app = App()

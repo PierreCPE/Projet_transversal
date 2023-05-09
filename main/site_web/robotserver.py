@@ -51,6 +51,15 @@ class RobotServer:
         print("write:",cmd)
         if self.config['serial']:
             self.ser.write(cmd.encode())
+        if self.config['simulation_robot']:
+            self.sharedVariables['serial_output'] = cmd
+
+    def read(self):
+        if self.config['serial']:
+            return self.ser.readline().decode('utf-8')
+        if self.config['simulation_robot']:
+            return self.sharedVariables['serial_input']
+        return ""
 
     def manualControl(self):
         if 'manualControlJson' in self.sharedVariables:
