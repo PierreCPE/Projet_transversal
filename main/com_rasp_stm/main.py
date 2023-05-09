@@ -13,17 +13,16 @@ ser = serial.Serial(
 if not ser.isOpen(): #Est ce que le port est open si non alors on l'ouvre.
     ser.open()
 print('com is open', ser.isOpen())
-ser.flushInput()
-ser.flushOutput() #On nettoie les buffers
+
 message = b"0&14&15,1$"
 #Encodage en byte.
 print("message envoyé : ")
 print(message)
 
 while True: #on effectue une boucle infinie
-
-
-
+    
+    ser.flushInput()
+    ser.flushOutput() #On nettoie les buffers
     # for character in message :
 
     #     print(character)
