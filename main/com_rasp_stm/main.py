@@ -15,7 +15,7 @@ if not ser.isOpen(): #Est ce que le port est open si non alors on l'ouvre.
 print('com is open', ser.isOpen())
 ser.flushInput()
 ser.flushOutput() #On nettoie les buffers
-message = b"t"
+message = b"0&14&15,1$"
 #Encodage en byte.
 print("message envoyé : ")
 print(message)
