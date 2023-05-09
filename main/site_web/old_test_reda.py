@@ -220,8 +220,7 @@ def run_flask():
         app.logger.disabled = True
 
 
-    allowed_ips = ['134.214.51.114', '192.168.56.1',
-                            '192.168.202.1', '192.168.121.33', '127.0.0.1']
+    allowed_ips = []
     users = {
         "user1": "1234",
         "user2": "5678",
