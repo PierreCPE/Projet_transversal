@@ -33,7 +33,7 @@ while True: #on effectue une boucle infinie
     print("message bien envoyé")
     print("avant message recu : ")
     reception = (ser.read()) #On lit sur le port serie et on affecte dans une variable #read().decode("utf8",errors="replace")
-    time(3) 
+    time.sleep(1) 
     break
 print("message recu : ")
 print(reception) #On imprime dans la console
