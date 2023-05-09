@@ -1,6 +1,6 @@
 from flask import Flask, render_template, Response, request, abort
 from flask_httpauth import HTTPBasicAuth
-
+import time
 
 class FlaskServer:
     def __init__(self, config={}, sharedVariables=None, sharedFrame=None):
@@ -26,19 +26,47 @@ class FlaskServer:
                               self.auth.login_required(self.commandes), methods=['POST'])
         # self.sharedFrame = self.config['shared_frame']
         self.allowed_ips = ['134.214.51.114', '192.168.56.1',
-                            '192.168.202.1', '192.168.99.33', '127.0.0.1','192.168.99.192']
+                            '192.168.202.1', '192.168.121.33', '127.0.0.1','192.168.121.198']
         self.users = {
             "user1": "1234",
             "user2": "5678"
         }
+        self.logs = {}
+        self.logsAuth = {}
 
     # authentification
     def verify_password(self, username, password):
-        if username in self.users and self.users[username] == password:
+        # print(request.remote_addr,username, password)
+        preverify = True
+        if request.remote_addr not in self.logsAuth:
+            self.logsAuth[request.remote_addr] = []
+        else:
+            # if remote_addr contains in logsAuth with 5 failed authentification => block ip
+            if len(self.logsAuth[request.remote_addr]) > 0 and len([x for x in self.logsAuth[request.remote_addr] if x[1] == False]) >= self.config['auth_failed_limit']:
+                preverify = False
+                #self.allowed_ips.remove(request.remote_addr)
+                print("//TODO To many try from", request.remote_addr, "=> block ip")
+                abort(401)  # Forbidden
+
+            # if remote_addr contains in logsAuth and the last authentification is less than 5 seconds
+            if len(self.logsAuth[request.remote_addr]) > 0 and time.time() - self.logsAuth[request.remote_addr][-1][0] < self.config['auth_try_time']:
+                preverify = False
+                print("Too fast try from", request.remote_addr, "=> block ip")
+                abort(401)  # Forbidden
+            
+        verify = preverify and username in self.users and self.users[username] == password
+        self.logsAuth[request.remote_addr].append([time.time(), verify])
+        if verify:
             return username
 
     # check if ip is in allowed_ips
     def check_ip(self):
+        if request.remote_addr not in self.logs:
+            self.logs[request.remote_addr] = []
+        timestamp = time.time()
+        self.logs[request.remote_addr].append([timestamp, request.path])
+        print("Heure :", timestamp)
+        print("ADRESSE IP :",request.remote_addr)
         if request.remote_addr not in self.allowed_ips:
             abort(403)  # Forbidden
 

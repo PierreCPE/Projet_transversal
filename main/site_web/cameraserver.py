@@ -35,9 +35,6 @@ class CameraServer:
         masque = cv2.inRange(hsv, self.rouge_clair, self.rouge_fonce)
         # Trouver les contours des objets dans l'image
         contours, hierarchie = cv2.findContours(masque, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        # Dessiner des contours bleus autour des objets détectés
-        for contour in contours:
-            cv2.drawContours(image, [contour], 0, (255, 255, 0), 2)
         # Dessiner la croix au centre de la vidéo
         epaisseur_ligne = 2 # l'épaisseur des lignes de la croix
         couleur_ligne = (255, 255, 255) # la couleur de la croix 
@@ -54,7 +51,8 @@ class CameraServer:
         #Si aucun contour n'a été détecté dans l'image, surface_max restera à None.
         # Si un objet rouge entouré de bleu a été détecté, récupérer sa position et la comparer avec le centre de l'image
         if np.all(surface_max) != None:
-            
+            # Dessiner des contours bleus autour des objets détectés
+            cv2.drawContours(image, [surface_max], 0, (255, 255, 0), 2)
             # Récupérer les coordonnées du rectangle englobant du plus grand contour
             x, y, l, h = cv2.boundingRect(surface_max) #x et y sont les coordonnée en haut a gauche du rectangle. l et h sont la longueur et la hauteur du rectangle
             # Calculer la position de l'objet par rapport au centre de l'image
