@@ -2,7 +2,7 @@
 import serial
 import time
 ser = serial.Serial(
-    port='/dev/ttyUSB0',
+    port='/dev/ttyUSB1',
     baudrate=19200,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
@@ -19,10 +19,8 @@ ser.flushOutput() #On nettoie les buffers
 while True: #on effectue une boucle infinie
 
     message = b"t"
-    print(message)
       #Encodage en byte.
     print("message envoyé : ")
-    message = message.encode()
     print(message)
     # for character in message :
 
