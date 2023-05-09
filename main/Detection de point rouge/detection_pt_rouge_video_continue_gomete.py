@@ -3,7 +3,7 @@ import numpy as np
 
 def detect_pt():
     # Chargement de l'image "gomete"
-    gomete = cv2.imread('Detection de point rouge\gomete.jpg')
+    gomete = cv2.imread('img2.jpg')
 
     # Extraire les valeurs minimale et maximale de rouge dans l'image "gomete"
     hsv_gomete = cv2.cvtColor(gomete, cv2.COLOR_BGR2HSV)

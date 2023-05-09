@@ -10,7 +10,7 @@ def capture_image():
         ret, frame = cap.read()
 
         # Affiche l'image dans la fenêtre
-        cv2.imshow("Appuyer sur o lorsque la couluer que vous voulez detectée est au centre de la camera", frame)
+        cv2.imshow("Appuyer sur o lorsque la couluer que vous voulez detecter est au centre de la camera", frame)
 
         # Attend la touche "o" pour prendre une photo
         if cv2.waitKey(1) == ord('o'):
