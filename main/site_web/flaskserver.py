@@ -26,7 +26,7 @@ class FlaskServer:
                               self.auth.login_required(self.commandes), methods=['POST'])
         # self.sharedFrame = self.config['shared_frame']
         self.allowed_ips = ['134.214.51.114', '192.168.56.1',
-                            '192.168.202.1', '192.168.99.33', '127.0.0.1','192.168.99.192']
+                            '192.168.202.1', '192.168.121.33', '127.0.0.1','192.168.121.198']
         self.users = {
             "user1": "1234",
             "user2": "5678"
@@ -44,7 +44,7 @@ class FlaskServer:
             # if remote_addr contains in logsAuth with 5 failed authentification => block ip
             if len(self.logsAuth[request.remote_addr]) > 0 and len([x for x in self.logsAuth[request.remote_addr] if x[1] == False]) >= self.config['auth_failed_limit']:
                 preverify = False
-                self.allowed_ips.remove(request.remote_addr)
+                #self.allowed_ips.remove(request.remote_addr)
                 print("//TODO To many try from", request.remote_addr, "=> block ip")
                 abort(401)  # Forbidden
 
