@@ -22,8 +22,7 @@ class FlaskServer:
         self.app.add_url_rule('/videofeed', 'videofeed',
                               self.auth.login_required(self.videofeed))
         # add commandes
-        self.app.add_url_rule('/commandes', 'commandes',
-                              self.auth.login_required(self.commandes), methods=['POST'])
+        self.app.add_url_rule('/commandes', 'commandes', self.commandes, methods=['POST'])
         # self.sharedFrame = self.config['shared_frame']
         self.allowed_ips = ['134.214.51.114', '192.168.56.1',
                             '192.168.202.1', '192.168.121.33', '127.0.0.1','192.168.121.198']
