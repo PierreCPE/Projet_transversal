@@ -32,8 +32,8 @@ while True: #on effectue une boucle infinie
     # recep = serial.read(serial.in_waiting)
     print("message bien envoyé")
     print("avant message recu : ")
-    reception = (ser.readline()) #On lit sur le port serie et on affecte dans une variable #read().decode("utf8",errors="replace")
-    #time.sleep(1) 
+    reception = (ser.readline(ser.in_waiting)) #On lit sur le port serie et on affecte dans une variable #read().decode("utf8",errors="replace")
+     
     break
 print("message recu : ")
 print(reception) #On imprime dans la console
