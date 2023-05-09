@@ -44,7 +44,7 @@ class FlaskServer:
             # if remote_addr contains in logsAuth with 5 failed authentification => block ip
             if len(self.logsAuth[request.remote_addr]) > 0 and len([x for x in self.logsAuth[request.remote_addr] if x[1] == False]) >= self.config['auth_failed_limit']:
                 preverify = False
-                self.allowed_ips.remove(request.remote_addr)
+                #self.allowed_ips.remove(request.remote_addr)
                 print("//TODO To many try from", request.remote_addr, "=> block ip")
                 abort(401)  # Forbidden
 
