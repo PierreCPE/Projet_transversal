@@ -51,6 +51,7 @@ class FlaskServer:
             # if remote_addr contains in logsAuth and the last authentification is less than 5 seconds
             if len(self.logsAuth[request.remote_addr]) > 0 and time.time() - self.logsAuth[request.remote_addr][-1][0] < self.config['auth_try_time']:
                 preverify = False
+                print("Too fast try from", request.remote_addr, "=> block ip")
                 abort(401)  # Forbidden
             
         verify = preverify and username in self.users and self.users[username] == password
