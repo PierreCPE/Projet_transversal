@@ -25,7 +25,7 @@ class FlaskServer:
         self.app.add_url_rule('/commandes', 'commandes', self.commandes, methods=['POST'])
         # self.sharedFrame = self.config['shared_frame']
         self.allowed_ips = ['134.214.51.114', '192.168.56.1',
-                            '192.168.202.1', '192.168.121.33', '127.0.0.1','192.168.121.198']
+                            '192.168.202.1', '192.168.121.33', '127.0.0.1']
         self.users = {
             "user1": "1234",
             "user2": "5678"
