@@ -27,8 +27,9 @@ class FlaskApp:
         "user4": {"password": "121314", "ip": '192.168.121.33'},
         "user5": {"password": "151617", "ip": '127.0.0.1'},
         "user6": {"password": "181920", "ip": '192.168.121.198'},
-        "user7": {"password": "151617", "ip": '192.168.224.226'}
-
+        "user7": {"password": "151617", "ip": '192.168.224.226'},
+        "user8": {"password": "1234", "ip": '192.168.224.33'},
+        "user9": {"password": "1234", "ip": '192.168.224.18'}
         }
 
         @self.auth.verify_password
@@ -58,5 +59,8 @@ class FlaskApp:
         self.app.run(host="0.0.0.0", debug=False)
 
 if __name__=="__main__":
+    global auth
+    limit_connection_amount = 200
+    auth = HTTPBasicAuth()
     flask_app = FlaskApp()
     flask_app.run()
