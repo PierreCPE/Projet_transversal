@@ -51,7 +51,7 @@ class App:
         config['speed_variable'] = True # Fixe ou non la vitesse du robot (si non dépendente de la touche LT)
         config['log_all_requests'] = False
         config['video_quality'] = 10 # Qualité de la vidéo (0-100)
-        config['point_simulation'] = True # Simule un point rouge à la place de la détection. Les coordonnées sont définies dans sharedVariables à la clé 'point_simulation_data' ([x,y,rayon])
+        config['point_simulation'] = False # Simule un point rouge à la place de la détection. Les coordonnées sont définies dans sharedVariables à la clé 'point_simulation_data' ([x,y,rayon])
         # Sampling frequency
         config['mode3_freq'] = 44100 # Fréquence d'échantillonnage
         # Recording duration
