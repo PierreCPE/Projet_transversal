@@ -119,8 +119,6 @@ class RobotServer:
     def playSound(self, path):
         # execute command "aplay -c 1 -t wav -r 44100 -f mu_law son.wav"
         os.system(f"aplay -c 1 -t wav -r 44100 -f mu_law {path}")
-        
-
         print()
 
         

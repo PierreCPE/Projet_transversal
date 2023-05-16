@@ -43,22 +43,22 @@ class App:
         ###########################################
         config = ThreadSafeDict()
         config['detection_contour'] = True
-        config['serial'] = True # Activer ou non le port serial
+        config['serial'] = False # Activer ou non le port serial
         # config['serial_port'] = 'COM8' # Port série
         config['serial_port'] = '/dev/ttyUSB0' # Port série
         config['serial_baudrate'] = 115200 # Baudrate du port série
         config['gomete_path'] = "img2.jpg"
         config['speed_variable'] = True # Fixe ou non la vitesse du robot (si non dépendente de la touche LT)
         config['log_all_requests'] = False
-        config['video_quality'] = 50
+        config['video_quality'] = 10 # Qualité de la vidéo (0-100)
         config['point_simulation'] = True # Simule un point rouge à la place de la détection. Les coordonnées sont définies dans sharedVariables à la clé 'point_simulation_data' ([x,y,rayon])
         # Sampling frequency
-        config['mode3_freq'] = 44100
+        config['mode3_freq'] = 44100 # Fréquence d'échantillonnage
         # Recording duration
-        config['mode3_duration'] = 3
+        config['mode3_duration'] = 3 # Durée d'enregistrement
         config['auth_failed_limit'] = 7 # Nombre de tentatives de connexion avant de bloquer l'adresse IP
         config['auth_try_time'] = 5 # Temps en secondes avant de pouvoir réessayer de se connecter
-        config['simulation_robot'] = True
+        config['simulation_robot'] = False # Activer ou non le robot de simulation
         ###########################################
         return config
 
