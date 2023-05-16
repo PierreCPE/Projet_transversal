@@ -1,6 +1,7 @@
 import numpy as np
 import serial
 import sounddevice as sd
+import os
 
 class RobotServer:
     def __init__(self, config = {}, sharedVariables = None ,sharedFrame = None):
@@ -109,8 +110,11 @@ class RobotServer:
         pass
     
     def mode3Play(self):
-        #play sound on linux
-        #
+        # 
+        # execute command "aplay -c 1 -t wav -r 44100 -f mu_law son.wav"
+        os.system("aplay -c 1 -t wav -r 44100 -f mu_law son.wav")
+        
+
         print()
 
         
