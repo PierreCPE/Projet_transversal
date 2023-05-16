@@ -24,17 +24,17 @@ class App:
         self.sharedVariables['detected_object'] = False
         self.sharedVariables['detected_object_xy_norm'] = [0,0]
         
-        #cap = cv2.VideoCapture(0) # Replace 0 with your camera index if you have multiple cameras
+        cap = cv2.VideoCapture(0) # Replace 0 with your camera index if you have multiple cameras
         # Définir la qualité maximale pour la compression JPEG
         quality = self.config['video_quality']
-        #res, image = cap.read()
-        #cap.release()
+        res, image = cap.read()
+        cap.release()
         # Définir les paramètres pour l'encodage JPEG
         encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
-        #ret,buffer = cv2.imencode('.jpg', image, encode_param)
+        ret,buffer = cv2.imencode('.jpg', image, encode_param)
         # On définie un objet multiprocess safe pour stocker l'image
-        #self.sharedFrame = ThreadSafeFrame(len(buffer.tobytes())*5)
-        self.sharedFrame = ThreadSafeFrame(2000)
+        self.sharedFrame = ThreadSafeFrame(len(buffer.tobytes())*5)
+        # self.sharedFrame = ThreadSafeFrame(2000)
 
     # Generate default config
     def generateDefaultConfig(self):
@@ -47,11 +47,11 @@ class App:
         # config['serial_port'] = 'COM8' # Port série
         config['serial_port'] = '/dev/ttyUSB0' # Port série
         config['serial_baudrate'] = 115200 # Baudrate du port série
-        config['gomete_path'] = "img2.jpg"
+        config['gomete_path'] = "gomete.jpg"
         config['speed_variable'] = True # Fixe ou non la vitesse du robot (si non dépendente de la touche LT)
         config['log_all_requests'] = False
         config['video_quality'] = 10 # Qualité de la vidéo (0-100)
-        config['point_simulation'] = True # Simule un point rouge à la place de la détection. Les coordonnées sont définies dans sharedVariables à la clé 'point_simulation_data' ([x,y,rayon])
+        config['point_simulation'] = False # Simule un point rouge à la place de la détection. Les coordonnées sont définies dans sharedVariables à la clé 'point_simulation_data' ([x,y,rayon])
         # Sampling frequency
         config['mode3_freq'] = 44100 # Fréquence d'échantillonnage
         # Recording duration
@@ -64,8 +64,8 @@ class App:
 
     def run(self):
         print("Starting threads")
-        #self.cameraProcess = multiprocessing.Process(target=runCameraServer, args=(self.config, self.sharedVariables, self.sharedFrame))
-        #self.cameraProcess.start()
+        self.cameraProcess = multiprocessing.Process(target=runCameraServer, args=(self.config, self.sharedVariables, self.sharedFrame))
+        self.cameraProcess.start()
         self.flaskProcess = multiprocessing.Process(target=runFlaskServer, args=(self.config, self.sharedVariables, self.sharedFrame))
         self.flaskProcess.start()
         self.robotProcess = multiprocessing.Process(target=runRobotServer, args=(self.config, self.sharedVariables, self.sharedFrame))
