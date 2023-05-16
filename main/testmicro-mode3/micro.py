@@ -26,7 +26,7 @@ if p =="y":
   
     # Start recorder with the given values 
     # of duration and sample frequency
-    recording = sd.rec(int(duration * freq), samplerate=freq, channels=2)
+    recording = sd.rec(int(duration * freq), samplerate=freq, channels=1)
 
     print("Enregistrement en cours")
   
