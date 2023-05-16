@@ -47,7 +47,7 @@ class App:
         # config['serial_port'] = 'COM8' # Port série
         config['serial_port'] = '/dev/ttyUSB0' # Port série
         config['serial_baudrate'] = 115200 # Baudrate du port série
-        config['gomete_path'] = "img2.jpg"
+        config['gomete_path'] = "gomete.jpg"
         config['speed_variable'] = True # Fixe ou non la vitesse du robot (si non dépendente de la touche LT)
         config['log_all_requests'] = False
         config['video_quality'] = 10 # Qualité de la vidéo (0-100)
