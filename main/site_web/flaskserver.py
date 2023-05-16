@@ -20,7 +20,7 @@ class FlaskServer:
         self.app.add_url_rule('/camera.html', '', self.camera_page)
         # add video feed
         self.app.add_url_rule('/videofeed', 'videofeed',
-                              self.auth.login_required(self.videofeed))
+                              self.videofeed)
         # add commandes
         self.app.add_url_rule('/commandes', 'commandes', self.commandes, methods=['POST'])
         # self.sharedFrame = self.config['shared_frame']
