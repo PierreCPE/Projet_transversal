@@ -14,7 +14,7 @@ if not ser.isOpen(): #Est ce que le port est open si non alors on l'ouvre.
     ser.open()
 print('com is open', ser.isOpen())
 
-message = b"0&14&15$"
+message = input("Commande svp: ").encode()
 #Encodage en byte.
 print("message envoyé : ")
 print(message)
