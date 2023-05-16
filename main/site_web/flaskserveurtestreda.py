@@ -58,7 +58,6 @@ class FlaskApp:
             self.ser.close()
 
 
-
 if __name__=="__main__" :
     global auth
     limit_connection_amount = 200
