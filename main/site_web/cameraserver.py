@@ -22,7 +22,7 @@ class CameraServer:
 
         # Définir les couleurs de la plage de couleurs à détecter à partir de l'image "test"
         self.rouge_clair = np.array([min_h, min_s, min_v])
-        self.rouge_fonce = np.array([max_h, max_v, max_v])
+        self.rouge_fonce = np.array([max_h, max_s, max_v])
 
     def applyRedPointDetection(self, image):
         # Obtenir les dimensions de la vidéo
@@ -50,7 +50,7 @@ class CameraServer:
                 val_surface_max = surface_contour #contiends la valeur de cette surface maximale
         #Si aucun contour n'a été détecté dans l'image, surface_max restera à None.
         # Si un objet rouge entouré de bleu a été détecté, récupérer sa position et la comparer avec le centre de l'image
-        if np.all(surface_max) != None:
+        if np.all(surface_max) is not None:
             # Dessiner des contours bleus autour des objets détectés
             cv2.drawContours(image, [surface_max], 0, (255, 255, 0), 2)
             # Récupérer les coordonnées du rectangle englobant du plus grand contour
