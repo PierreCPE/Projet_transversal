@@ -1,10 +1,15 @@
 #pip3 install sounddevice
 #pip3 install wavio
+#pip3 install scipy
+#pip3 install playsound
+#pip3 install soundfile
 
 # import required libraries
 import sounddevice as sd
-# from scipy.io.wavfile import write
-#import wavio as wv
+import soundfile as sf
+from scipy.io.wavfile import write
+
+from playsound import playsound
 
 p = input("y pour lancer l'enregistrement")
 print(sd.default.samplerate)
@@ -21,24 +26,24 @@ if p =="y":
   
     # Start recorder with the given values 
     # of duration and sample frequency
-    recording = sd.rec(int(duration * freq), samplerate=freq, channels=1)
+    recording = sd.rec(int(duration * freq), samplerate=freq, channels=2)
 
     print("Enregistrement en cours")
   
     # Record audio for the given number of seconds
     sd.wait()
-    print(recording)
+
     # This will convert the NumPy array to an audio
     # file with the given sampling frequency
-    # write("son.wav", freq, recording)
+    write("son.wav", freq, recording)
 
     print("Enregistrement terminé")
 
-    import winsound
+    k = 3
 
-    for i in range(3):
+    for i in range(k):
         print("Lecture en cours :", i+1)
-        winsound.PlaySound('son.wav',winsound.SND_FILENAME)
+        playsound('son.wav')
         print("Fin de lecture :", i+1)
         i=i+1 
-    print("Fin Mode 3")
+    print("Fin Mode", k)
