@@ -19,24 +19,24 @@ while p != "y":
 
 if p =="y":
     # Sampling frequency
-    freq = 44100
+    # freq = 44100
   
-    # Recording duration
-    duration = 3
+    # # Recording duration
+    # duration = 3
   
-    # Start recorder with the given values 
-    # of duration and sample frequency
-    recording = sd.rec(int(duration * freq), samplerate=freq, channels=2)
+    # # Start recorder with the given values 
+    # # of duration and sample frequency
+    # recording = sd.rec(int(duration * freq), samplerate=freq, channels=2)
 
 
-    print("Enregistrement en cours")
+    # print("Enregistrement en cours")
   
-    # Record audio for the given number of seconds
-    sd.wait()
+    # # Record audio for the given number of seconds
+    # sd.wait()
 
-    # This will convert the NumPy array to an audio
-    # file with the given sampling frequency
-    write("son.wav", freq, recording)
+    # # This will convert the NumPy array to an audio
+    # # file with the given sampling frequency
+    # write("son.wav", freq, recording)
 
     print("Enregistrement terminé")
 

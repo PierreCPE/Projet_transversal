@@ -1,6 +1,8 @@
 import numpy as np
 import serial
 import sounddevice as sd
+import scipy.signal as sig
+import os
 
 class RobotServer:
     def __init__(self, config = {}, sharedVariables = None ,sharedFrame = None):
@@ -13,6 +15,7 @@ class RobotServer:
         self.direction = [0, 0]
         self.lastDirection = [0, 0]
         self.require_update = False
+        self.last_mode = self.sharedVariables['mode']
         if config['serial']:
             self.ser = serial.Serial(config['serial_port'])
             self.ser.baudrate = config['serial_baudrate']
@@ -20,6 +23,23 @@ class RobotServer:
         self.freq = self.config['mode3_freq']
         # Recording duration
         self.duration = self.config['mode3_duration']
+        
+        # Mode 2 parameters
+        self.freq_min = 500
+        self.freq_max = 4000
+        self.taille_fenetre = 256 
+        self.pas = 128
+        self.taille_fft = 512 
+        self.Fs = 44100
+        self.duree = 1
+        self.max_spectres_moyen=[]
+        self.nb_bruits_consecutifs = 0
+        self.bruit_detecte = False
+        self.premiere_detection = True
+        self.seuil = None
+        
+
+
     
     def stopRobot(self):
         if self.direction != [0, 0]:
@@ -87,6 +107,9 @@ class RobotServer:
             self.direction = [0, 0]
                 
         
+    def mode1Init(self):
+        pass
+
     def mode1Control(self):
         if self.sharedVariables['detected_object'] and 'detected_object_xy_norm' in self.sharedVariables:
             self.speed = 10
@@ -98,6 +121,62 @@ class RobotServer:
             self.speed = 0
             self.direction = [0, 0]
 
+
+    def mode2Init(self):
+        self.nb_bruits_consecutifs = 0
+        self.bruit_detecte = False
+        self.premiere_detection = True
+        self.seuil = None
+        self.max_spectres_moyen = []
+        
+
+    def mode2Control(self):
+        print("Enregistrement en cours")
+        signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
+        sd.wait()
+
+        f, t, S = sig.spectrogram(signal[:, 0], fs=self.Fs, window='hann', nperseg=self.taille_fenetre,
+                                noverlap=self.taille_fenetre - self.pas, nfft=self.taille_fft, detrend=False)
+
+        freq_bin = np.logical_and(f > self.freq_min, f <= self.freq_max)
+        spectre_moyen = np.mean(np.abs(S[freq_bin, :]), axis=0)
+
+        if self.seuil is None:
+            self.seuil = 20 * np.std(spectre_moyen)
+
+        max_bruit = np.max(spectre_moyen)
+
+        if max_bruit > self.seuil:
+            print('Bruit détecté, fuyons!')
+            if self.premiere_detection:
+                self.premiere_detection = False
+            else:
+                self.nb_bruits_consecutifs += 1
+
+            if self.nb_bruits_consecutifs == 2:
+                print('Trop de bruits détectés, arrêt du programme.')
+            else:
+                self.max_spectres_moyen.append(max_bruit)
+        else:
+            print('Aucun bruit bizarre, restons bien caché!')
+            if not self.premiere_detection:
+                self.bruit_detecte = False
+
+        print("La valeur seuil est :", self.seuil)
+        print("La valeur maximale du bruit est :", max_bruit)
+        print()
+
+        print("Le valeur max des bruit sont :", self.max_spectres_moyen)
+
+        if self.max_spectres_moyen[0] < self.max_spectres_moyen[1]:
+            print("Le bruit augmente.")
+        elif self.max_spectres_moyen[0] > self.max_spectres_moyen[1]:
+            print("Le bruit diminue.")
+        else:
+            print("Le bruit est constant.")
+
+
+
     def mode3Control(self):
         # check if sharedvariable has mode3_record to true
         if 'mode3_record' in self.sharedVariables and self.sharedVariables['mode3_record']:
@@ -105,11 +184,15 @@ class RobotServer:
         else:
             self.mode3Play()
 
+    def mode3Init(self):
+        self.playSound("mode3_init.wav")
+
     def mode3Record(self):
         pass
     
-    def mode3Play(self):
-        #play sound on linux
+    def playSound(self, path):
+        # execute command "aplay -c 1 -t wav -r 44100 -f mu_law son.wav"
+        os.system(f"aplay -c 1 -t wav -r 44100 -f mu_law {path}")
         print()
 
         
@@ -121,11 +204,18 @@ class RobotServer:
                 if self.sharedVariables['mode'] == 0:
                     self.manualControl()
                 elif self.sharedVariables['mode'] == 1:
+                    if self.last_mode != 3:
+                        self.mode1Init()
                     self.mode1Control()
+                elif self.sharedVariables['mode'] == 2:
+                    self.mode2Control()
                 elif self.sharedVariables['mode'] == 3:
+                    if self.last_mode != 3:
+                        self.mode3Init()
                     self.mode3Control()
                 else:
                     print("WARNING: Mode not implemented. Default manual control")
+                self.last_mode = self.sharedVariables['mode']
             else:
                 print("WARNING: Mode not implemented. Default manual control")
                 self.manualControl()
