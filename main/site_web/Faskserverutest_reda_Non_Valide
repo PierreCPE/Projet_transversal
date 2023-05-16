@@ -1,8 +1,3 @@
-#!/usr/local/bin/python
-# -*- coding: UTF-8 -*-
-
-#pip install opencv-contrib-python
-
 import serial
 from flask_httpauth import HTTPBasicAuth
 from flask import Flask, render_template, Response, request,  abort, jsonify
@@ -24,21 +19,22 @@ class FlaskApp:
             app=self.app,
             default_limits=["2000 per day", "500 per hour"]
         )
-        self.users = {
-            "user1": "1234",
-             "user2": "5678",
-        }
-        self.allowed_ips = ['134.214.51.114', '192.168.56.1',
-                             '192.168.202.1', '192.168.121.33', '127.0.0.1','192.168.121.198']
-    
 
+        self.users = {
+        "user1": {"password": "1234", "ip": '134.214.51.114'},
+        "user2": {"password": "5678", "ip": '192.168.56.1'},
+        "user3": {"password": "91011", "ip": '192.168.202.1'},
+        "user4": {"password": "121314", "ip": '192.168.121.33'},
+        "user5": {"password": "151617", "ip": '127.0.0.1'},
+        "user6": {"password": "181920", "ip": '192.168.121.198'}
+        }
 
         @self.auth.verify_password
         def verify_password(username, password):
-             if username in self.users and self.users[username] == password:
-                 return username
-
-       
+            client_ip = request.remote_addr
+            if username in self.users and self.users[username]['password'] == password and self.users[username]['ip'] == client_ip:
+                return True
+            return False
 
         @self.app.route('/protected')
         @self.auth.login_required
@@ -58,13 +54,7 @@ class FlaskApp:
 
     def run(self):
         self.app.run(host="0.0.0.0", debug=False)
-        if self.config['serial']:
-            self.ser.close()
 
-
-if __name__=="__main__" :
-    global auth
-    limit_connection_amount = 200
-    auth = HTTPBasicAuth()
+if __name__=="__main__":
     flask_app = FlaskApp()
     flask_app.run()
