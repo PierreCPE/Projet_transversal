@@ -1,11 +1,8 @@
 import numpy as np
 import serial
 import sounddevice as sd
-<<<<<<< HEAD
 import scipy.signal as sig
-=======
 import os
->>>>>>> c39eecf8f4548dc89af138fef6544c777e616dc3
 
 class RobotServer:
     def __init__(self, config = {}, sharedVariables = None ,sharedFrame = None):
