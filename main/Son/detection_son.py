@@ -2,9 +2,9 @@ import numpy as np
 import sounddevice as sd
 import scipy.signal as sig
 import matplotlib.pyplot as plt
-import pyaudio
+# import pyaudio
 
-p = pyaudio.PyAudio()
+# p = pyaudio.PyAudio()
 
 #PARAMETRES ANALYSE SPECTRALE
 
