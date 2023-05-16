@@ -14,6 +14,7 @@ class RobotServer:
         self.direction = [0, 0]
         self.lastDirection = [0, 0]
         self.require_update = False
+        self.last_mode = self.sharedVariables['mode']
         if config['serial']:
             self.ser = serial.Serial(config['serial_port'])
             self.ser.baudrate = config['serial_baudrate']
@@ -88,6 +89,9 @@ class RobotServer:
             self.direction = [0, 0]
                 
         
+    def mode1Init(self):
+        pass
+
     def mode1Control(self):
         if self.sharedVariables['detected_object'] and 'detected_object_xy_norm' in self.sharedVariables:
             self.speed = 10
@@ -106,13 +110,15 @@ class RobotServer:
         else:
             self.mode3Play()
 
+    def mode3Init(self):
+        self.playSound("mode3_init.wav")
+
     def mode3Record(self):
         pass
     
-    def mode3Play(self):
-        # 
+    def playSound(self, path):
         # execute command "aplay -c 1 -t wav -r 44100 -f mu_law son.wav"
-        os.system("aplay -c 1 -t wav -r 44100 -f mu_law son.wav")
+        os.system(f"aplay -c 1 -t wav -r 44100 -f mu_law {path}")
         
 
         print()
@@ -126,11 +132,16 @@ class RobotServer:
                 if self.sharedVariables['mode'] == 0:
                     self.manualControl()
                 elif self.sharedVariables['mode'] == 1:
+                    if self.last_mode != 3:
+                        self.mode1Init()
                     self.mode1Control()
                 elif self.sharedVariables['mode'] == 3:
+                    if self.last_mode != 3:
+                        self.mode3Init()
                     self.mode3Control()
                 else:
                     print("WARNING: Mode not implemented. Default manual control")
+                self.last_mode = self.sharedVariables['mode']
             else:
                 print("WARNING: Mode not implemented. Default manual control")
                 self.manualControl()
