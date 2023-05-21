@@ -239,7 +239,7 @@ nav.menu_left_icon{
 }
 
 .camera_div{
-  background: url(/videofeed); height: 100%; width: 100%;
+  /* background: url(/videofeed); height: 100%; width: 100%; */
   display: flex;
   background-repeat: no-repeat;
   background-position: 50% 0;
