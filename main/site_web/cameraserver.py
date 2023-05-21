@@ -22,7 +22,7 @@ class CameraServer:
 
         # Définir les couleurs de la plage de couleurs à détecter à partir de l'image "test"
         self.rouge_clair = np.array([min_h, min_s, min_v])
-        self.rouge_fonce = np.array([max_h, max_v, max_v])
+        self.rouge_fonce = np.array([max_h, max_s, max_v])
 
     def applyRedPointDetection(self, image):
         # Obtenir les dimensions de la vidéo
@@ -35,9 +35,6 @@ class CameraServer:
         masque = cv2.inRange(hsv, self.rouge_clair, self.rouge_fonce)
         # Trouver les contours des objets dans l'image
         contours, hierarchie = cv2.findContours(masque, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        # Dessiner des contours bleus autour des objets détectés
-        for contour in contours:
-            cv2.drawContours(image, [contour], 0, (255, 255, 0), 2)
         # Dessiner la croix au centre de la vidéo
         epaisseur_ligne = 2 # l'épaisseur des lignes de la croix
         couleur_ligne = (255, 255, 255) # la couleur de la croix 
@@ -53,8 +50,9 @@ class CameraServer:
                 val_surface_max = surface_contour #contiends la valeur de cette surface maximale
         #Si aucun contour n'a été détecté dans l'image, surface_max restera à None.
         # Si un objet rouge entouré de bleu a été détecté, récupérer sa position et la comparer avec le centre de l'image
-        if np.all(surface_max) != None:
-            
+        if np.all(surface_max) is not None:
+            # Dessiner des contours bleus autour des objets détectés
+            cv2.drawContours(image, [surface_max], 0, (255, 255, 0), 2)
             # Récupérer les coordonnées du rectangle englobant du plus grand contour
             x, y, l, h = cv2.boundingRect(surface_max) #x et y sont les coordonnée en haut a gauche du rectangle. l et h sont la longueur et la hauteur du rectangle
             # Calculer la position de l'objet par rapport au centre de l'image
@@ -80,6 +78,8 @@ class CameraServer:
             #si y est positif, le robot doit baisser la tete. Plus y est grand, plus le centre de la video est loin de l'objet au sens de la verticale
             self.sharedVariables['detected_object'] = True
             self.sharedVariables['detected_object_xy_norm'] = [x_norm,y_norm]
+        else:
+            self.sharedVariables['detected_object'] = False
         return image, surface_max, centreX_video, centreY_video
 
 
@@ -90,6 +90,7 @@ class CameraServer:
         cpt=0
         self.last_detection = self.config['detection_contour']
         while True:
+            start_time = time.time()
             detection = self.config['detection_contour']
             if self.last_detection != detection:
                 print("detection changed to", detection)
@@ -107,7 +108,10 @@ class CameraServer:
                 cv2.circle(image, (x, y), size, (0, 0, 255), -1)
 
             if detection:
+                start_app_time = time.time()
                 image, surface_max, centreX_video, centreY_video = self.applyRedPointDetection(image)
+                end_app_time = time.time()
+                #print("PT RED", end_app_time - start_app_time)
                 # Définir la qualité maximale pour la compression JPEG
                 quality = self.config['video_quality']
                 # Définir les paramètres pour l'encodage JPEG
@@ -125,5 +129,5 @@ class CameraServer:
                 ret,buffer = cv2.imencode('.jpg', image,encode_param)
                 frame = buffer.tobytes()
                 self.sharedFrame.setFrame(frame)
-            time.sleep(0.05)
+            #print("PT TOTAL", time.time() - start_time)
         cap.release()
