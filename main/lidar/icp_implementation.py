@@ -9,9 +9,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import json
+import grid
 #  ICP parameters
-EPS = 0.0001
-MAX_ITER = 100
+EPS = 0.00001
+MAX_ITER = 1000
 
 show_animation = True
 
@@ -42,7 +43,7 @@ def icp_matching(previous_points, current_points):
 
         if show_animation:  # pragma: no cover
             plot_points(previous_points, current_points, fig)
-            plt.pause(0.1)
+            plt.pause(0.01)
 
         indexes, error = nearest_neighbor_association(
             previous_points, current_points)
@@ -141,7 +142,11 @@ def plot_points(previous_points, current_points, figure):
         plt.plot(current_points[0, :], current_points[1, :], ".b")
         plt.plot(0.0, 0.0, "xr")
         plt.axis("equal")
-        
+
+
+def apply_transformation(points, R, t):
+    return (R @ points) + t[:, np.newaxis]
+
 def add_noise(point_cloud, noise_level):
     # Add noise to a point cloud
     noisy_cloud = point_cloud.copy() + np.random.normal(0, noise_level, size=point_cloud.shape)
@@ -166,9 +171,8 @@ def load_data(amount):
     datas = json.load(f)
     datas_returned = []
     for i in range(amount):
-        datas_returned.append(limit_points(np.array(datas[i]), 100))
+        datas_returned.append(limit_points(np.array(datas[i]), 300))
     return datas_returned
-
 
 def main():
     print("start!!")
@@ -180,12 +184,13 @@ def main():
 
     nsim = 1  # number of simulation
     print("Loading data...")
-    datas = load_data(amount=4)
+    datas = load_data(amount=20)
     print("Data loaded")
-    print("Datas shape:", np.array(datas).shape)
+    # print("Datas shape:", np.array(datas).shape)
     clouds = []
-    for i in range(1, len(datas)):
-        previous_data = datas[i-1]
+    prev_index = 10
+    for i in range(prev_index, len(datas)):
+        previous_data = datas[i-prev_index]
         x = np.zeros(len(previous_data))
         y = np.zeros(len(previous_data))
         for j,val in enumerate(previous_data):
@@ -216,10 +221,52 @@ def main():
         cy = y
         current_points = np.vstack((cx, cy))
         # current_points = add_noise(current_points, 5)
+        image_size = (150,150)
+        grid_resolution = (50, 50)
+        im1 = grid.generate_grid_image(previous_points.T, image_size, grid_resolution)
+        # fig = plt.figure()
+        # plt.imshow(im1, cmap='gray')
+        im2 = grid.generate_grid_image(current_points.T, image_size, grid_resolution)
+        # fig = plt.figure()
+        # plt.imshow(im2, cmap='gray')
 
-        R, T = icp_matching(previous_points, current_points)
+        # fig = plt.figure()
+        cloud1 = grid.image_to_points(im1, grid_resolution)
+        # plt.scatter(cloud1[:,0], cloud1[:,1])
+        cloud1 = limit_points(cloud1, 100).T
+        cloud2 = grid.image_to_points(im2, grid_resolution)
+        # plt.scatter(cloud2[:,0], cloud2[:,1])
+        cloud2 = limit_points(cloud2, 100).T
+        # plt.show()
+        print("Cloud1 shape:", cloud1.shape)
+        print("Cloud2 shape:", cloud2.shape)
+        # input("Press Enter to continue...")
+        fig = plt.figure()
+        plt.title("Before")
+        # plot from in a subplot and after rotate the subplot
+        plt.scatter(previous_points[0, :], previous_points[1, :],
+                        c="r", marker=".")
+        plt.scatter(current_points[0, :], current_points[1, :],
+                        c="b", marker=".")
+        plt.scatter(0.0, 0.0, c="g", marker="x")
+        R = np.eye(2)
+        T = np.array([0,0])
+        R, T = icp_matching(cloud1.copy(), cloud2.copy())
         print("R:", R)
         print("T:", T)
+        
+        fig = plt.figure()
+        plt.title("After")
+        after = apply_transformation(cloud2.copy(), R, T)
+        # after = cloud1.copy()
+        plt.scatter(cloud1[0, :], cloud1[1, :],
+                        c="r", marker=".")
+        plt.scatter(after[0, :], after[1, :],
+                        c="b", marker=".")
+        plt.scatter(0.0, 0.0, c="g", marker="x")
+        plt.axis("equal")
+        plt.show()
+        break
 
 
 def main_3d_points():
@@ -247,7 +294,6 @@ def main_3d_points():
         cz = [math.sin(motion[3]) * x + math.cos(motion[3]) * z + motion[2]
               for (x, z) in zip(px, pz)]
         current_points = np.vstack((cx, cy, cz))
-            
         R, T = icp_matching(previous_points, current_points)
         print("R:", R)
         print("T:", T)
