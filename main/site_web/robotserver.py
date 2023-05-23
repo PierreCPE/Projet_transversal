@@ -204,14 +204,14 @@ class RobotServer:
         self.mode3Play()
         
     def mode3Init(self):
-    print("RobotMode3 Initializing")
-    duree =5    
-    commands2 = ["aplay -c 1 -t wav -r 44100 -f mu_law 'combat-laser.wav'"]
-    threads2 = []
-    for command in commands2:
-        thread2 = threading.Thread(target=execute_command, args=(command,))
-        thread2.start()
-        threads2.append(thread2)
+        print("RobotMode3 Initializing")
+        duree =5    
+        commands2 = ["aplay -c 1 -t wav -r 44100 -f mu_law 'combat-laser.wav'"]
+        threads2 = []
+        for command in commands2:
+            thread2 = threading.Thread(target=execute_command, args=(command,))
+            thread2.start()
+            threads2.append(thread2)
 
     def mode3record(self):
         print("Début enregistrement")
