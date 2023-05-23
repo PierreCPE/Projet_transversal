@@ -44,8 +44,8 @@ class RobotServer:
     def stopRobot(self):
         if self.direction != [0, 0]:
             self.direction = [0, 0]
-            self.write("stop\n\r")
-
+            self.write("0&0&0\n\r")
+    
     def updateRobot(self):
         # Direction
         if self.lastDirection != self.direction:
@@ -58,7 +58,7 @@ class RobotServer:
             rotation_coef = (x_left / 2)
             right_power = round(-self.speed*(y_left + rotation_coef),2)
             left_power = round(-self.speed*(y_left - rotation_coef),2)
-            cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
+            cmd = f"0&{right_power}&{left_power}\n\r"
             print(f"Send {cmd}")
             if (right_power != 0 or left_power != 0):
                 self.write(cmd)
@@ -127,7 +127,8 @@ class RobotServer:
         self.bruit_detecte = False
         self.premiere_detection = True
         self.max_spectres_moyen = []
-
+        self.speed = 0.0  
+        self.direction = [0, 0]
         print("Enregistrement du seuil ambiant en cours")
         signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
         sd.wait()
@@ -139,13 +140,14 @@ class RobotServer:
         spectre_moyen1 = np.mean(np.abs(S[freq_bin, :]), axis=0)
 
         self.seuil = 20 * np.std(spectre_moyen1)
-
+        print("La valeur seuil est :", self.seuil)
+        print(" ")
         return spectre_moyen1
 
-
+        
     def mode2Control(self, spectre_moyen1):
         if self.nb_bruits_consecutifs >= 2:
-            return  # Exit the loop if 2 consecutive noise detections have occurred
+            return  
 
         print("Enregistrement en cours")
         signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
@@ -166,22 +168,25 @@ class RobotServer:
                 self.premiere_detection = False
             else:
                 self.nb_bruits_consecutifs += 1
+            print("La valeur maximale du bruit est :", max_bruit)
+
         else:
             print('Aucun bruit bizarre, restons bien caché!')
             if not self.premiere_detection:
                 self.bruit_detecte = False
 
-        print("La valeur seuil est :", self.seuil)
-        print("La valeur maximale du bruit est :", max_bruit)
+        print("Les valeurs max des bruits sont :", self.max_spectres_moyen)
         print("   ")
 
-        print("Les valeurs max des bruits sont :", self.max_spectres_moyen)
-
-        if len(self.max_spectres_moyen) > 1:
+        if len(self.max_spectres_moyen) > 2:
             if self.max_spectres_moyen[-2] < self.max_spectres_moyen[-1]:
                 print("Le bruit augmente.")
+                self.speed = 10.0  
+                self.direction = [-1, 0]
             elif self.max_spectres_moyen[-2] > self.max_spectres_moyen[-1]:
                 print("Le bruit diminue.")
+                self.speed = 10.0  
+                self.direction = [1, 0] 
             else:
                 print("Le bruit est constant.")
         elif len(self.max_spectres_moyen) == 1:
@@ -210,7 +215,7 @@ class RobotServer:
     def mode3record(self):
         print("Début enregistrement")
         duree = 5    
-        commands = [f"arecord -d {duree} -f cd -t wav son.wav","echo 'Enregistrement terminé'"]
+        commands = [f"arecord -d {duree} -D hw:2,0 -f S16_LE -r 16000 -c 1 son.wav","echo 'Enregistrement terminé'"]
         threads = []
         for command in commands:
             thread = threading.Thread(target=execute_command, args=(command,))
@@ -219,8 +224,8 @@ class RobotServer:
             time.sleep(5)
               
     def mode3Play(self):
-        commands1 = ["aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'"]
-        threads1 = []       
+        commands1 = ["aplay -c 1 -t wav -r 16000 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 16000 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 16000 -f mu_law 'son.wav'"]
+        threads1 = []     
         for command in commands1 :
             thread1 = threading.Thread(target=execute_command, args=(command,))
             thread1.start()
