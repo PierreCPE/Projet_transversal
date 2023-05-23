@@ -38,84 +38,154 @@ class RobotServer:
         self.premiere_detection = True
         self.seuil = None
         
-    def stopRobot(self):
-        if self.direction != [0, 0]:
-            self.direction = [0, 0]
-            self.write("stop\n\r")
+    # def stopRobot(self):
+    #     if self.direction != [0, 0]:
+    #         self.direction = [0, 0]
+    #         self.write("stop\n\r")
 
-    def updateRobot(self):
-        # Direction
-        if self.lastDirection != self.direction:
-            if self.direction == [0, 0]:
-                self.stopRobot()
-                return
+    # def updateRobot(self):
+    #     # Direction
+    #     if self.lastDirection != self.direction:
+    #         if self.direction == [0, 0]:
+    #             self.stopRobot()
+    #             return
             
-            x_left = self.direction[0]
-            y_left = self.direction[1]
-            rotation_coef = (x_left / 2)
-            right_power = round(-self.speed*(y_left + rotation_coef),2)
-            left_power = round(-self.speed*(y_left - rotation_coef),2)
-            cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
-            print(f"Send {cmd}")
-            if (right_power != 0 or left_power != 0):
-                self.write(cmd)
-            else:
-                self.stopRobot()
+    #         x_left = self.direction[0]
+    #         y_left = self.direction[1]
+    #         rotation_coef = (x_left / 2)
+    #         right_power = round(-self.speed*(y_left + rotation_coef),2)
+    #         left_power = round(-self.speed*(y_left - rotation_coef),2)
+    #         cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
+    #         print(f"Send {cmd}")
+    #         if (right_power != 0 or left_power != 0):
+    #             self.write(cmd)
+    #         else:
+    #             self.stopRobot()
 
-        self.lastDirection = self.direction
+    #     self.lastDirection = self.direction
 
-    def write(self, cmd):
-        print("write:",cmd)
-        if self.config['serial']:
-            self.ser.write(cmd.encode())
-        if self.config['simulation_robot']:
-            self.sharedVariables['serial_output'] = cmd
+    # def write(self, cmd):
+    #     print("write:",cmd)
+    #     if self.config['serial']:
+    #         self.ser.write(cmd.encode())
+    #     if self.config['simulation_robot']:
+    #         self.sharedVariables['serial_output'] = cmd
 
-    def read(self):
-        if self.config['serial']:
-            return self.ser.readline().decode('utf-8')
-        if self.config['simulation_robot']:
-            return self.sharedVariables['serial_input']
-        return ""
+    # def read(self):
+    #     if self.config['serial']:
+    #         return self.ser.readline().decode('utf-8')
+    #     if self.config['simulation_robot']:
+    #         return self.sharedVariables['serial_input']
+    #     return ""
 
-    def manualControl(self):
-        if 'manualControlJson' in self.sharedVariables:
-            json_data = self.sharedVariables['manualControlJson']
-            print("Manual control")
-            del self.sharedVariables['manualControlJson']
-            self.speed = 0
-            if self.config['speed_variable']:
-                if 'LT' in json_data:
-                    self.speed = self.max_speed*json_data['LT']
-                    print("Speed", self.speed)
-            else:
-                self.speed = self.max_speed
-                self.direction = [0, 0]
-            if 'JoystickLeft' in json_data:
-                self.direction = json_data['JoystickLeft']
-                x_left = json_data["JoystickLeft"][0]
-                y_left = json_data["JoystickLeft"][1]
-                self.direction = [x_left, y_left]
-            else:
-                self.direction = [0, 0]
-        else:
-            self.speed = 0
-            self.direction = [0, 0]
+    # def manualControl(self):
+    #     if 'manualControlJson' in self.sharedVariables:
+    #         json_data = self.sharedVariables['manualControlJson']
+    #         print("Manual control")
+    #         del self.sharedVariables['manualControlJson']
+    #         self.speed = 0
+    #         if self.config['speed_variable']:
+    #             if 'LT' in json_data:
+    #                 self.speed = self.max_speed*json_data['LT']
+    #                 print("Speed", self.speed)
+    #         else:
+    #             self.speed = self.max_speed
+    #             self.direction = [0, 0]
+    #         if 'JoystickLeft' in json_data:
+    #             self.direction = json_data['JoystickLeft']
+    #             x_left = json_data["JoystickLeft"][0]
+    #             y_left = json_data["JoystickLeft"][1]
+    #             self.direction = [x_left, y_left]
+    #         else:
+    #             self.direction = [0, 0]
+    #     else:
+    #         self.speed = 0
+    #         self.direction = [0, 0]
                 
         
-    def mode1Init(self):
-        pass
+    # def mode1Init(self):
+    #     pass
 
-    def mode1Control(self):
-        if self.sharedVariables['detected_object'] and 'detected_object_xy_norm' in self.sharedVariables:
-            self.speed = 10
-            x = -self.sharedVariables['detected_object_xy_norm'][0]
-            y = self.sharedVariables['detected_object_xy_norm'][1]
-            #print(f"Need to go to {x},{y}")
-            self.direction = [x, 0.7]
-        else:
-            self.speed = 0
-            self.direction = [0, 0]
+    # def mode1Control(self):
+    #     if self.sharedVariables['detected_object'] and 'detected_object_xy_norm' in self.sharedVariables:
+    #         self.speed = 10
+    #         x = -self.sharedVariables['detected_object_xy_norm'][0]
+    #         y = self.sharedVariables['detected_object_xy_norm'][1]
+    #         #print(f"Need to go to {x},{y}")
+    #         self.direction = [x, 0.7]
+    #     else:
+    #         self.speed = 0
+    #         self.direction = [0, 0]
+
+
+
+    # def mode2Init(self):
+    #     self.nb_bruits_consecutifs = 0
+    #     self.bruit_detecte = False
+    #     self.premiere_detection = True
+    #     self.max_spectres_moyen = []
+
+    #     print("Enregistrement du seuil ambiant en cours")
+    #     signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
+    #     sd.wait()
+
+    #     f, t, S = sig.spectrogram(signal[:, 0], fs=self.Fs, window='hann', nperseg=self.taille_fenetre,
+    #                             noverlap=self.taille_fenetre - self.pas, nfft=self.taille_fft, detrend=False)
+
+    #     freq_bin = np.logical_and(f > self.freq_min, f <= self.freq_max)
+    #     spectre_moyen = np.mean(np.abs(S[freq_bin, :]), axis=0)
+
+    #     self.seuil = 20 * np.std(spectre_moyen)
+                
+    #     print("La valeur seuil initiale est :", self.seuil)
+
+
+    # def mode2Control(self, num_recordings):
+    #     for _ in range(num_recordings):
+    #         if self.nb_bruits_consecutifs >= 2:
+    #             break  # Exit the loop if 2 consecutive noise detections have occurred
+
+    #         print("Enregistrement en cours")
+    #         signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
+    #         sd.wait()
+
+    #         f, t, S = sig.spectrogram(signal[:, 0], fs=self.Fs, window='hann', nperseg=self.taille_fenetre,
+    #                                 noverlap=self.taille_fenetre - self.pas, nfft=self.taille_fft, detrend=False)
+
+    #         freq_bin = np.logical_and(f > self.freq_min, f <= self.freq_max)
+    #         spectre_moyen = np.mean(np.abs(S[freq_bin, :]), axis=0)
+
+    #         max_bruit = np.max(spectre_moyen)
+
+    #         if max_bruit > self.seuil:
+    #             print('Bruit détecté, fuyons!')
+    #             self.max_spectres_moyen.append(max_bruit)
+    #             if self.premiere_detection:
+    #                 self.premiere_detection = False
+    #             else:
+    #                 self.nb_bruits_consecutifs += 1
+    #         else:
+    #             print('Aucun bruit bizarre, restons bien caché!')
+    #             if not self.premiere_detection:
+    #                 self.bruit_detecte = False
+
+    #         print("La valeur seuil est :", self.seuil)
+    #         print("La valeur maximale du bruit est :", max_bruit)
+    #         print("   ")
+
+    #     print("Les valeurs max des bruits sont :", self.max_spectres_moyen)
+
+    #     if len(self.max_spectres_moyen) > 0:
+    #         if self.max_spectres_moyen[0] < self.max_spectres_moyen[1]:
+    #             print("Le bruit augmente.")
+    #         elif self.max_spectres_moyen[0] > self.max_spectres_moyen[1]:
+    #             print("Le bruit diminue.")
+    #         else:
+    #             print("Le bruit est constant.")
+    #     else:
+    #         print("Aucun bruit détecté.")
+
+    #     self.seuil_precedent = self.seuil
 
 
 
@@ -125,8 +195,7 @@ class RobotServer:
         self.premiere_detection = True
         self.max_spectres_moyen = []
 
-        # Calculate the threshold
-        print("Enregistrement du seuil en cours")
+        print("Enregistrement du seuil ambiant en cours")
         signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
         sd.wait()
 
@@ -134,65 +203,60 @@ class RobotServer:
                                 noverlap=self.taille_fenetre - self.pas, nfft=self.taille_fft, detrend=False)
 
         freq_bin = np.logical_and(f > self.freq_min, f <= self.freq_max)
-        spectre_moyen = np.mean(np.abs(S[freq_bin, :]), axis=0)
+        spectre_moyen1 = np.mean(np.abs(S[freq_bin, :]), axis=0)
 
-        self.seuil = 20 * np.std(spectre_moyen)
-                
-        print("La valeur seuil initiale est :", self.seuil)
+        self.seuil = 20 * np.std(spectre_moyen1)
+
+        return spectre_moyen1
 
 
-    def mode2Control(self, num_recordings):
-        for _ in range(num_recordings):
-            if self.nb_bruits_consecutifs >= 2:
-                break  # Exit the loop if 2 consecutive noise detections have occurred
+    def mode2Control(self, spectre_moyen1):
+        if self.nb_bruits_consecutifs >= 2:
+            return  # Exit the loop if 2 consecutive noise detections have occurred
 
-            print("Enregistrement en cours")
-            signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
-            sd.wait()
+        print("Enregistrement en cours")
+        signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
+        sd.wait()
 
-            f, t, S = sig.spectrogram(signal[:, 0], fs=self.Fs, window='hann', nperseg=self.taille_fenetre,
-                                    noverlap=self.taille_fenetre - self.pas, nfft=self.taille_fft, detrend=False)
+        f, t, S = sig.spectrogram(signal[:, 0], fs=self.Fs, window='hann', nperseg=self.taille_fenetre,
+                                noverlap=self.taille_fenetre - self.pas, nfft=self.taille_fft, detrend=False)
 
-            freq_bin = np.logical_and(f > self.freq_min, f <= self.freq_max)
-            spectre_moyen = np.mean(np.abs(S[freq_bin, :]), axis=0)
+        freq_bin = np.logical_and(f > self.freq_min, f <= self.freq_max)
+        spectre_moyen2 = np.mean(np.abs(S[freq_bin, :]), axis=0)
 
-            max_bruit = np.max(spectre_moyen)
+        max_bruit = np.max(spectre_moyen2)
 
-            if max_bruit > self.seuil:
-                print('Bruit détecté, fuyons!')
-                self.max_spectres_moyen.append(max_bruit)
-                if self.premiere_detection:
-                    self.premiere_detection = False
-                else:
-                    self.nb_bruits_consecutifs += 1
+        if max_bruit > self.seuil:
+            print('Bruit détecté, fuyons!')
+            self.max_spectres_moyen.append(max_bruit)
+            if self.premiere_detection:
+                self.premiere_detection = False
             else:
-                print('Aucun bruit bizarre, restons bien caché!')
-                if not self.premiere_detection:
-                    self.bruit_detecte = False
+                self.nb_bruits_consecutifs += 1
+        else:
+            print('Aucun bruit bizarre, restons bien caché!')
+            if not self.premiere_detection:
+                self.bruit_detecte = False
 
-            print("La valeur seuil est :", self.seuil)
-            print("La valeur maximale du bruit est :", max_bruit)
-            print("   ")
+        print("La valeur seuil est :", self.seuil)
+        print("La valeur maximale du bruit est :", max_bruit)
+        print("   ")
 
         print("Les valeurs max des bruits sont :", self.max_spectres_moyen)
 
-        if len(self.max_spectres_moyen) > 0:
-            if self.max_spectres_moyen[0] < self.max_spectres_moyen[1]:
+        if len(self.max_spectres_moyen) > 1:
+            if self.max_spectres_moyen[-2] < self.max_spectres_moyen[-1]:
                 print("Le bruit augmente.")
-            elif self.max_spectres_moyen[0] > self.max_spectres_moyen[1]:
+            elif self.max_spectres_moyen[-2] > self.max_spectres_moyen[-1]:
                 print("Le bruit diminue.")
             else:
                 print("Le bruit est constant.")
+        elif len(self.max_spectres_moyen) == 1:
+            print("Le bruit est constant.")
         else:
             print("Aucun bruit détecté.")
 
-        self.seuil_precedent = self.seuil
-
-
-
-    
-
-
+            self.direction = [0, 0]
 
 
 
@@ -218,25 +282,25 @@ class RobotServer:
 
     def run(self):
         print("RobotServer running")
-        # while True:
-            # if "mode" in self.sharedVariables :
-            #     if self.sharedVariables['mode'] == 0:
-            #         self.manualControl()
-            #     elif self.sharedVariables['mode'] == 1:
-            #         if self.last_mode != 3:
-            #             self.mode1Init()
-            #         self.mode1Control()
-                # elif self.sharedVariables['mode'] == 2:
-        self.mode1Init()
-        self.mode2Control()
-                # elif self.sharedVariables['mode'] == 3:
-                #     if self.last_mode != 3:
-                #         self.mode3Init()
-                #     self.mode3Control()
-                # else:
-                    # print("WARNING: Mode not implemented. Default manual control")
-                # self.last_mode = self.sharedVariables['mode']
-            # else:
-                # print("WARNING: Mode not implemented. Default manual control")
-                # self.manualControl()
-            # self.updateRobot()
+        while True:
+            if "mode" in self.sharedVariables :
+                if self.sharedVariables['mode'] == 0:
+                    self.manualControl()
+                elif self.sharedVariables['mode'] == 1:
+                    if self.last_mode != 3:
+                        self.mode1Init()
+                    self.mode1Control()
+                elif self.sharedVariables['mode'] == 2:
+                    self.mode2Init()
+                    self.mode2Control()
+                elif self.sharedVariables['mode'] == 3:
+                    if self.last_mode != 3:
+                        self.mode3Init()
+                    self.mode3Control()
+                else:
+                    print("WARNING: Mode not implemented. Default manual control")
+                self.last_mode = self.sharedVariables['mode']
+            else:
+                print("WARNING: Mode not implemented. Default manual control")
+                self.manualControl()
+            self.updateRobot()
