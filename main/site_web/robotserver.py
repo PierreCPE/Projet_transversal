@@ -215,7 +215,7 @@ class RobotServer:
     def mode3record(self):
         print("Début enregistrement")
         duree = 5    
-        commands = [f"arecord -d {duree} -f cd -t wav son.wav","echo 'Enregistrement terminé'"]
+        commands = [f"arecord -d {duree} -D hw:2,0 -f S16_LE -r 16000 -c 1 son.wav","echo 'Enregistrement terminé'"]
         threads = []
         for command in commands:
             thread = threading.Thread(target=execute_command, args=(command,))
@@ -224,8 +224,8 @@ class RobotServer:
             time.sleep(5)
               
     def mode3Play(self):
-        commands1 = ["aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'"]
-        threads1 = []       
+        commands1 = ["aplay -c 1 -t wav -r 16000 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 16000 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 16000 -f mu_law 'son.wav'"]
+        threads1 = []     
         for command in commands1 :
             thread1 = threading.Thread(target=execute_command, args=(command,))
             thread1.start()
