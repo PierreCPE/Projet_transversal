@@ -197,7 +197,7 @@ class RobotServer:
             print(f" \n{output.decode()}")
         if error:
             print(f"Error \n{error.decode()}")
-
+    
     def mode3Control(self):
         self.mode3Init()
         self.mode3record() 
