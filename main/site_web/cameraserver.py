@@ -8,14 +8,14 @@ class CameraServer:
         self.sharedVariables = sharedVariables
         self.sharedFrame = sharedFrame
         # self.sharedFrame = self.config['shared_frame']
-        self.initRedPointDetection()
-
-    def initRedPointDetection(self):
-        # Chargement de l'image "gomete"
         gomete = cv2.imread(self.config['gomete_path'])
+        self.initRedPointDetection(gomete)
+
+    def initRedPointDetection(self, image):
+        # Chargement de l'image "gomete"
         
         # Extraire les valeurs minimale et maximale de rouge dans l'image "gomete"
-        self.hsv_gomete = cv2.cvtColor(gomete, cv2.COLOR_BGR2HSV)
+        self.hsv_gomete = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         min_h, max_h, _, _ = cv2.minMaxLoc(self.hsv_gomete[:,:,0])
         min_s, max_s, _, _ = cv2.minMaxLoc(self.hsv_gomete[:,:,1])
         min_v, max_v, _, _ = cv2.minMaxLoc(self.hsv_gomete[:,:,2])
@@ -90,6 +90,14 @@ class CameraServer:
         cpt=0
         self.last_detection = self.config['detection_contour']
         while True:
+            if 'capture_color' in self.sharedVariables:
+                h, l = frame.shape[:2]
+                taille = 40
+                x = (l - taille) // 2
+                y = (h - taille) // 2
+                crop_img = frame[y:y+taille, x:x+taille]
+                self.initRedPointDetection(crop_img)
+                del self.sharedVariables['capture_color']
             start_time = time.time()
             detection = self.config['detection_contour']
             if self.last_detection != detection:

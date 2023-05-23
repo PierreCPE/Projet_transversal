@@ -94,6 +94,8 @@ class FlaskServer:
         # check if point_simulation_data is in json_data
         if "point_simulation_data" in json_data:
             self.sharedVariables['point_simulation_data'] = json_data["point_simulation_data"]
+        if "capture_color" in json_data:
+            self.sharedVariables['capture_color'] = True
         # check if mode is in json_data
         if "mode" in json_data:
             self.sharedVariables['mode'] = json_data["mode"]
