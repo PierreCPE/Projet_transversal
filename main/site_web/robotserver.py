@@ -12,20 +12,20 @@ class RobotServer:
         self.config = config
         self.sharedVariables = sharedVariables
         self.sharedFrame = sharedFrame
-        # self.max_speed = 30
-        # self.speed = 0
-        # self.lastSpeed = 0
-        # self.direction = [0, 0]
-        # self.lastDirection = [0, 0]
-        # self.require_update = False
-        # self.last_mode = self.sharedVariables['mode']
-        # if config['serial']:
-        #     self.ser = serial.Serial(config['serial_port'])
-        #     self.ser.baudrate = config['serial_baudrate']
-        # # Sampling frequency
-        # self.freq = self.config['mode3_freq']
-        # # Recording duration
-        # self.duration = self.config['mode3_duration']
+        self.max_speed = 30
+        self.speed = 0
+        self.lastSpeed = 0
+        self.direction = [0, 0]
+        self.lastDirection = [0, 0]
+        self.require_update = False
+        self.last_mode = self.sharedVariables['mode']
+        if config['serial']:
+            self.ser = serial.Serial(config['serial_port'])
+            self.ser.baudrate = config['serial_baudrate']
+        # Sampling frequency
+        self.freq = self.config['mode3_freq']
+        # Recording duration
+        self.duration = self.config['mode3_duration']
         
         # Mode 2 parameters
         self.freq_min = 500
