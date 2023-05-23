@@ -193,7 +193,6 @@ class RobotServer:
     
     def mode3Control(self):
         print("RobotMode3 Control")
-        self.mode3Init()
         self.mode3record() 
         self.mode3Play()
         
