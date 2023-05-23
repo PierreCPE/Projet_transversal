@@ -7,8 +7,7 @@ import threading
 from rplidar import RPLidar
 from rplidar import RPLidarException
 import time
-from rplidar import RPLidar
-from rplidar import RPLidarException
+import subprocess
 
 
 class RobotServer:
@@ -102,7 +101,8 @@ class RobotServer:
             rotation_coef = (x_left / 2)
             right_power = round(-self.speed*(y_left + rotation_coef),2)
             left_power = round(-self.speed*(y_left - rotation_coef),2)
-            cmd = f"0&{int(right_power)}&{int(left_power)}\n\r"
+            # cmd = f"1&{int(right_power)}&{int(left_power)}$\n\r"
+            cmd = f"1&{int(right_power)}$\n\r"
             print(f"Send {cmd}")
             if (right_power != 0 or left_power != 0):
                 self.write(cmd)
