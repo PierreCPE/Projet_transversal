@@ -31,7 +31,7 @@ _Il est possible d'envoyer plusieurs commandes séparées par des virgules_
 | ID | Value 1 | Value 2 | Description |
 | :-: | :-: | :-: | :-: |
 | 0 | int | int | Permet de définir la vitesse de rotation des roues |
-| 1 | float | - | Description de la commande 1 |
+| 1 | float | - | Force stop |
 | 2 | float | - | Description de la commande 2 |
 | 3 | float | - | Description de la commande 3 |
 | 4 | float | - | Description de la commande 4 |

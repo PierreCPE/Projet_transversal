@@ -3,9 +3,12 @@ import serial
 import sounddevice as sd
 import scipy.signal as sig
 import os
+import threading
+import subprocess
+import time
 from rplidar import RPLidar
 from rplidar import RPLidarException
-import time
+
 
 class RobotServer:
     def __init__(self, config = {}, sharedVariables = None ,sharedFrame = None):
@@ -41,12 +44,6 @@ class RobotServer:
         self.premiere_detection = True
         self.seuil = None
         
-        # Init du lidar
-        PORT_NAME = 'COM7'
-        self.lidar = RPLidar(PORT_NAME)
-            #Params du robot pour le lidar
-        self.flag_obstacle = False #mm
-        self.distance_min_obst = 1000 #mm
 
 
     
@@ -54,42 +51,7 @@ class RobotServer:
         if self.direction != [0, 0]:
             self.direction = [0, 0]
             self.write("stop\n\r")
-    
-    def check_obstacle(self):
-        try :
-            self.lidar_database_temp = []
-            
-            ####
-            # si dans la direction de la cible, sur une largeur L1 (= largeur du robot+ sécurité), 
-            # il n'y a aucun obstacle à une distance inférieurs à D , alors tu avances tout droit vers la destination
-            # Sinon s'il y a un obstacle dans la largeur L1 à moins de D mètres sur le chemin vers la destination, 
-            # alors calcul des azimuts correspondant au bord de l'obstacle. Choix le coté où 
-            # l'erreur d'azimut est le plus petit, et tu vises cet azimut +- l'angle nécessaire pour passer à une distance L1 de l'obstacle
-            ####
 
-            for scan in self.lidar.iter_scans():
-                self.scan = scan 
-                break
-            self.lidar_database_temp.append([time.time(),self.scan])
-
-            #Traitement de lidar_database_temp
-            
-            for i, tuple in enumerate(self.scan): 
-                
-                if (tuple[1]>=330 or tuple[1] <=30):
-                    if tuple[2]<=self.distance_min_obst : 
-                        print(tuple)
-                        self.flag_obstacle = True 
-                else : 
-                    self.flag_obstacle = False
-            #On reçoit la generatrice du lidar et on l'append a notre list
-            
-            
-            return self.flag_obstacle
-        except RPLidarException :
-            self.lidar.clear_input()
-
-    
     def updateRobot(self):
         # Ajout de detection d'obstacle de check_obstacle if check_obstacle
         # Selon le mode stop le robot ou fait un son
@@ -107,7 +69,7 @@ class RobotServer:
             rotation_coef = (x_left / 2)
             right_power = round(-self.speed*(y_left + rotation_coef),2)
             left_power = round(-self.speed*(y_left - rotation_coef),2)
-            cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
+            cmd = f"0&{int(right_power)}&{int(left_power)}\n\r"
             print(f"Send {cmd}")
             if (right_power != 0 or left_power != 0):
                 self.write(cmd)
@@ -170,15 +132,34 @@ class RobotServer:
             self.direction = [0, 0]
 
 
+
     def mode2Init(self):
         self.nb_bruits_consecutifs = 0
         self.bruit_detecte = False
         self.premiere_detection = True
-        self.seuil = None
         self.max_spectres_moyen = []
-        
+        self.speed = 0.0  
+        self.direction = [0, 0]
+        print("Enregistrement du seuil ambiant en cours")
+        signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
+        sd.wait()
 
-    def mode2Control(self):
+        f, t, S = sig.spectrogram(signal[:, 0], fs=self.Fs, window='hann', nperseg=self.taille_fenetre,
+                                noverlap=self.taille_fenetre - self.pas, nfft=self.taille_fft, detrend=False)
+
+        freq_bin = np.logical_and(f > self.freq_min, f <= self.freq_max)
+        spectre_moyen1 = np.mean(np.abs(S[freq_bin, :]), axis=0)
+
+        self.seuil = 20 * np.std(spectre_moyen1)
+        print("La valeur seuil est :", self.seuil)
+        print(" ")
+        return spectre_moyen1
+
+        
+    def mode2Control(self, spectre_moyen1):
+        if self.nb_bruits_consecutifs >= 2:
+            return  
+
         print("Enregistrement en cours")
         signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
         sd.wait()
@@ -187,62 +168,82 @@ class RobotServer:
                                 noverlap=self.taille_fenetre - self.pas, nfft=self.taille_fft, detrend=False)
 
         freq_bin = np.logical_and(f > self.freq_min, f <= self.freq_max)
-        spectre_moyen = np.mean(np.abs(S[freq_bin, :]), axis=0)
+        spectre_moyen2 = np.mean(np.abs(S[freq_bin, :]), axis=0)
 
-        if self.seuil is None:
-            self.seuil = 20 * np.std(spectre_moyen)
-
-        max_bruit = np.max(spectre_moyen)
+        max_bruit = np.max(spectre_moyen2)
 
         if max_bruit > self.seuil:
             print('Bruit détecté, fuyons!')
+            self.max_spectres_moyen.append(max_bruit)
             if self.premiere_detection:
                 self.premiere_detection = False
             else:
                 self.nb_bruits_consecutifs += 1
+            print("La valeur maximale du bruit est :", max_bruit)
 
-            if self.nb_bruits_consecutifs == 2:
-                print('Trop de bruits détectés, arrêt du programme.')
-            else:
-                self.max_spectres_moyen.append(max_bruit)
         else:
             print('Aucun bruit bizarre, restons bien caché!')
             if not self.premiere_detection:
                 self.bruit_detecte = False
 
-        print("La valeur seuil est :", self.seuil)
-        print("La valeur maximale du bruit est :", max_bruit)
-        print()
+        print("Les valeurs max des bruits sont :", self.max_spectres_moyen)
+        print("   ")
 
-        print("Le valeur max des bruit sont :", self.max_spectres_moyen)
-
-        if self.max_spectres_moyen[0] < self.max_spectres_moyen[1]:
-            print("Le bruit augmente.")
-        elif self.max_spectres_moyen[0] > self.max_spectres_moyen[1]:
-            print("Le bruit diminue.")
-        else:
+        if len(self.max_spectres_moyen) > 2:
+            if self.max_spectres_moyen[-2] < self.max_spectres_moyen[-1]:
+                print("Le bruit augmente.")
+                self.speed = 10.0  
+                self.direction = [-1, 0]
+            elif self.max_spectres_moyen[-2] > self.max_spectres_moyen[-1]:
+                print("Le bruit diminue.")
+                self.speed = 10.0  
+                self.direction = [1, 0] 
+            else:
+                print("Le bruit est constant.")
+        elif len(self.max_spectres_moyen) == 1:
             print("Le bruit est constant.")
-
-
-
-    def mode3Control(self):
-        # check if sharedvariable has mode3_record to true
-        if 'mode3_record' in self.sharedVariables and self.sharedVariables['mode3_record']:
-            self.mode3Record()
         else:
-            self.mode3Play()
+            print("Aucun bruit détecté.")
 
-    def mode3Init(self):
-        self.playSound("mode3_init.wav")
-
-    def mode3Record(self):
-        pass
+        self.seuil_precedent = self.seuil
     
-    def playSound(self, path):
-        print("Playing sound")
-        # execute command "aplay -c 1 -t wav -r 44100 -f mu_law son.wav"
-        os.system(f"aplay -c 1 -t wav -r 44100 -f mu_law {path}")
+    def mode3Control(self):
+        print("RobotMode3 Control")
+        self.mode3Init()
+        self.mode3record() 
+        self.mode3Play()
+        
+    def mode3Init(self):
+        print("RobotMode3 Initializing")
+        duree =5    
+        commands2 = ["aplay -c 1 -t wav -r 44100 -f mu_law 'combat-laser.wav'"]
+        threads2 = []
+        for command in commands2:
+            thread2 = threading.Thread(target=execute_command, args=(command,))
+            thread2.start()
+            threads2.append(thread2)
 
+    def mode3record(self):
+        print("Début enregistrement")
+        duree = 5    
+        commands = [f"arecord -d {duree} -D hw:2,0 -f S16_LE -r 16000 -c 1 son.wav","echo 'Enregistrement terminé'"]
+        threads = []
+        for command in commands:
+            thread = threading.Thread(target=execute_command, args=(command,))
+            thread.start()
+            threads.append(thread)
+            time.sleep(5)
+              
+    def mode3Play(self):
+        commands1 = ["aplay -c 1 -t wav -r 16000 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 16000 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 16000 -f mu_law 'son.wav'"]
+        threads1 = []     
+        for command in commands1 :
+            thread1 = threading.Thread(target=execute_command, args=(command,))
+            thread1.start()
+            threads1.append(thread1)
+            time.sleep(6)
+        print("Lecture terminée")
+    
     def run(self):
         print("RobotServer running")
         while True:
@@ -250,11 +251,14 @@ class RobotServer:
                 if self.sharedVariables['mode'] == 0:
                     self.manualControl()
                 elif self.sharedVariables['mode'] == 1:
-                    if self.last_mode != 3:
+                    if self.last_mode != 1:
                         self.mode1Init()
                     self.mode1Control()
                 elif self.sharedVariables['mode'] == 2:
+                    if self.last_mode != 2:
+                        self.mode2Init()
                     self.mode2Control()
+
                 elif self.sharedVariables['mode'] == 3:
                     if self.last_mode != 3:
                         self.mode3Init()
@@ -266,3 +270,11 @@ class RobotServer:
                 print("WARNING: Mode not implemented. Default manual control")
                 self.manualControl()
             self.updateRobot()
+
+def execute_command(command):
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    output, error = process.communicate()
+    if output:
+        print(f" \n{output.decode()}")
+    if error:
+        print(f"Error \n{error.decode()}")
