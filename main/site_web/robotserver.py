@@ -127,7 +127,8 @@ class RobotServer:
         self.bruit_detecte = False
         self.premiere_detection = True
         self.max_spectres_moyen = []
-
+        self.speed = 0.0  
+        self.direction = [0, 0]
         print("Enregistrement du seuil ambiant en cours")
         signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
         sd.wait()
@@ -139,13 +140,15 @@ class RobotServer:
         spectre_moyen1 = np.mean(np.abs(S[freq_bin, :]), axis=0)
 
         self.seuil = 20 * np.std(spectre_moyen1)
-
+        print("La valeur seuil est :", self.seuil)
+        print(" ")
         return spectre_moyen1
 
 
+        
     def mode2Control(self, spectre_moyen1):
         if self.nb_bruits_consecutifs >= 2:
-            return  # Exit the loop if 2 consecutive noise detections have occurred
+            return  
 
         print("Enregistrement en cours")
         signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
@@ -166,53 +169,41 @@ class RobotServer:
                 self.premiere_detection = False
             else:
                 self.nb_bruits_consecutifs += 1
+            print("La valeur maximale du bruit est :", max_bruit)
+
         else:
             print('Aucun bruit bizarre, restons bien caché!')
             if not self.premiere_detection:
                 self.bruit_detecte = False
 
-        print("La valeur seuil est :", self.seuil)
-        print("La valeur maximale du bruit est :", max_bruit)
+        print("Les valeurs max des bruits sont :", self.max_spectres_moyen)
         print("   ")
 
-        print("Les valeurs max des bruits sont :", self.max_spectres_moyen)
-
-        if len(self.max_spectres_moyen) > 1:
+        if len(self.max_spectres_moyen) > 2:
             if self.max_spectres_moyen[-2] < self.max_spectres_moyen[-1]:
                 print("Le bruit augmente.")
+                self.speed = 10.0  
+                self.direction = [-1, 0]
             elif self.max_spectres_moyen[-2] > self.max_spectres_moyen[-1]:
                 print("Le bruit diminue.")
+                self.speed = 10.0  
+                self.direction = [1, 0] 
             else:
                 print("Le bruit est constant.")
-        elif len(self.max_spectres_moyen) == 1:
-            print("Le bruit est constant.")
-        else:
-            print("Aucun bruit détecté.")
+                
 
-        self.seuil_precedent = self.seuil
+    # def mode3Control(self):
+    #     # check if sharedvariable has mode3_record to true
+    #     if 'mode3_record' in self.sharedVariables and self.sharedVariables['mode3_record']:
+    #         self.mode3Record()
+    #     else:
+    #         self.mode3Play()
 
+    # def mode3Init(self):
+    #     self.playSound("mode3_init.wav")
 
-
-    
-
-
-
-
-
-
-
-    # # def mode3Control(self):
-    # #     # check if sharedvariable has mode3_record to true
-    # #     if 'mode3_record' in self.sharedVariables and self.sharedVariables['mode3_record']:
-    # #         self.mode3Record()
-    # #     else:
-    # #         self.mode3Play()
-
-    # # def mode3Init(self):
-    # #     self.playSound("mode3_init.wav")
-
-    # # def mode3Record(self):
-    # #     pass
+    # def mode3Record(self):
+    #     pass
     
     def run(self):
         print("RobotServer running")
