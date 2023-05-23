@@ -225,7 +225,7 @@ class RobotServer:
             thread1 = threading.Thread(target=execute_command, args=(command,))
             thread1.start()
             threads1.append(thread1)
-            time.sleep(5)
+            time.sleep(6)
         print("Lecture terminée")
     
     def run(self):

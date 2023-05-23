@@ -23,19 +23,16 @@ class FlaskApp:
         )
 
         self.users = {
-        "user1": {"password": "1234", "ip": '134.214.51.114'},
-        "user2": {"password": "5678", "ip": '192.168.56.1'},
-        "user3": {"password": "91011", "ip": '192.168.202.1' },
-        "user4": {"password": "121314", "ip": '192.168.121.33'},
-        "user5": {"password": "151617", "ip": '127.0.0.1' },
-        "user6": {"password": "181920", "ip": '192.168.121.198' },
-        "user7": {"password": "151617", "ip": '192.168.224.226' },
-        "user8": {"password": "1234", "ip": '192.168.224.33' },
-        "user9": {"password": "1234", "ip": '192.168.224.18' },
-        }
-       
-       
-        
+            "user1": {"password": "1234", "ip": '134.214.51.114'},
+            "user2": {"password": "5678", "ip": '192.168.56.1'},
+            "user3": {"password": "91011", "ip": '192.168.202.1' },
+            "user4": {"password": "121314", "ip": '192.168.121.33'},
+            "user5": {"password": "151617", "ip": '127.0.0.1' },
+            "user6": {"password": "181920", "ip": '192.168.121.198' },
+            "user7": {"password": "151617", "ip": '192.168.224.226' },
+            "hugues": {"password": "1234", "ip": '192.168.229.33' },
+            "user9": {"password": "1234", "ip": '192.168.224.18' },
+        }        
         self.tentatives = {}
 
         @self.auth.verify_password
