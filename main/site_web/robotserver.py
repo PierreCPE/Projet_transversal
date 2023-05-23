@@ -4,7 +4,8 @@ import sounddevice as sd
 import scipy.signal as sig
 import os
 import threading
-import subprocess
+from rplidar import RPLidar
+from rplidar import RPLidarException
 import time
 from rplidar import RPLidar
 from rplidar import RPLidarException
@@ -44,13 +45,45 @@ class RobotServer:
         self.premiere_detection = True
         self.seuil = None
         
-
-
-    
     def stopRobot(self):
         if self.direction != [0, 0]:
             self.direction = [0, 0]
-            self.write("stop\n\r")
+            self.write("0&0&0\n\r")
+            
+    def check_obstacle(self):
+        try :
+            self.lidar_database_temp = []
+            
+            ####
+            # si dans la direction de la cible, sur une largeur L1 (= largeur du robot+ sécurité), 
+            # il n'y a aucun obstacle à une distance inférieurs à D , alors tu avances tout droit vers la destination
+            # Sinon s'il y a un obstacle dans la largeur L1 à moins de D mètres sur le chemin vers la destination, 
+            # alors calcul des azimuts correspondant au bord de l'obstacle. Choix le coté où 
+            # l'erreur d'azimut est le plus petit, et tu vises cet azimut +- l'angle nécessaire pour passer à une distance L1 de l'obstacle
+            ####
+
+            for scan in self.lidar.iter_scans():
+                self.scan = scan 
+                break
+            self.lidar_database_temp.append([time.time(),self.scan])
+
+            #Traitement de lidar_database_temp
+            
+            for i, tuple in enumerate(self.scan): 
+                
+                if (tuple[1]>=330 or tuple[1] <=30):
+                    if tuple[2]<=self.distance_min_obst : 
+                        print(tuple)
+                        self.flag_obstacle = True 
+                else : 
+                    self.flag_obstacle = False
+            #On reçoit la generatrice du lidar et on l'append a notre list
+            
+            
+            return self.flag_obstacle
+        except RPLidarException :
+            self.lidar.clear_input()
+    
 
     def updateRobot(self):
         # Ajout de detection d'obstacle de check_obstacle if check_obstacle
