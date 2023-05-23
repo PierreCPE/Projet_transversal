@@ -3,6 +3,8 @@ import serial
 import sounddevice as sd
 import scipy.signal as sig
 import os
+import threading
+import subprocess
 
 class RobotServer:
     def __init__(self, config = {}, sharedVariables = None ,sharedFrame = None):
@@ -187,35 +189,51 @@ class RobotServer:
             print("Aucun bruit détecté.")
 
         self.seuil_precedent = self.seuil
+        
+    def execute_command(command):
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+        output, error = process.communicate()
+        if output:
+            print(f" \n{output.decode()}")
+        if error:
+            print(f"Error \n{error.decode()}")
 
+    def mode3Control(self):
+        self.mode3Init()
+        self.mode3record() 
+        self.mode3Play()
+        
+    def mode3Init(self):
+    print("RobotMode3 Initializing")
+    duree =5    
+    commands2 = ["aplay -c 1 -t wav -r 44100 -f mu_law 'combat-laser.wav'"]
+    threads2 = []
+    for command in commands2:
+        thread2 = threading.Thread(target=execute_command, args=(command,))
+        thread2.start()
+        threads2.append(thread2)
 
-
+    def mode3record(self):
+        print("Début enregistrement")
+        duree =5    
+        commands = [f"arecord -d {duree} -f cd -t wav son.wav","echo 'Enregistrement terminé'"]
+        threads = []
+        for command in commands:
+            thread = threading.Thread(target=execute_command, args=(command,))
+            thread.start()
+            threads.append(thread)
+            sleep(5)
+              
+    def mode3Play(self):
+        commands1 = ["aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'"]
+        threads1 = []       
+        for command in commands1 :
+            thread1 = threading.Thread(target=execute_command, args=(command,))
+            thread1.start()
+            threads1.append(thread1)
+            sleep(5)
+        print("Lecture terminée")
     
-
-
-
-
-
-
-
-    # # def mode3Control(self):
-    # #     # check if sharedvariable has mode3_record to true
-    # #     if 'mode3_record' in self.sharedVariables and self.sharedVariables['mode3_record']:
-    # #         self.mode3Record()
-    # #     else:
-    # #         self.mode3Play()
-
-    # # def mode3Init(self):
-    # #     self.playSound("mode3_init.wav")
-
-    # # def mode3Record(self):
-    # #     pass
-    
-    # def playSound(self, path):
-    #     print("Playing sound")
-    #     # execute command "aplay -c 1 -t wav -r 44100 -f mu_law son.wav"
-    #     os.system(f"aplay -c 1 -t wav -r 44100 -f mu_law {path}")
-
     def run(self):
         print("RobotServer running")
         # while True:
