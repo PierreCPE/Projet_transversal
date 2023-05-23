@@ -89,8 +89,6 @@ class FlaskApp:
                     return jsonify({"message": "User already exists"}), 400
             else:
                 return render_template('Register.html')
-            
-      
 
     def run(self):
         self.app.run(host="0.0.0.0", debug=False)

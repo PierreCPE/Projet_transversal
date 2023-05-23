@@ -144,7 +144,6 @@ class RobotServer:
         print(" ")
         return spectre_moyen1
 
-
         
     def mode2Control(self, spectre_moyen1):
         if self.nb_bruits_consecutifs >= 2:
@@ -190,20 +189,49 @@ class RobotServer:
                 self.direction = [1, 0] 
             else:
                 print("Le bruit est constant.")
-                
+        elif len(self.max_spectres_moyen) == 1:
+            print("Le bruit est constant.")
+        else:
+            print("Aucun bruit détecté.")
 
-    # def mode3Control(self):
-    #     # check if sharedvariable has mode3_record to true
-    #     if 'mode3_record' in self.sharedVariables and self.sharedVariables['mode3_record']:
-    #         self.mode3Record()
-    #     else:
-    #         self.mode3Play()
+        self.seuil_precedent = self.seuil
+    
+    def mode3Control(self):
+        print("RobotMode3 Control")
+        self.mode3Init()
+        self.mode3record() 
+        self.mode3Play()
+        
+    def mode3Init(self):
+        print("RobotMode3 Initializing")
+        duree =5    
+        commands2 = ["aplay -c 1 -t wav -r 44100 -f mu_law 'combat-laser.wav'"]
+        threads2 = []
+        for command in commands2:
+            thread2 = threading.Thread(target=execute_command, args=(command,))
+            thread2.start()
+            threads2.append(thread2)
 
-    # def mode3Init(self):
-    #     self.playSound("mode3_init.wav")
-
-    # def mode3Record(self):
-    #     pass
+    def mode3record(self):
+        print("Début enregistrement")
+        duree = 5    
+        commands = [f"arecord -d {duree} -f cd -t wav son.wav","echo 'Enregistrement terminé'"]
+        threads = []
+        for command in commands:
+            thread = threading.Thread(target=execute_command, args=(command,))
+            thread.start()
+            threads.append(thread)
+            time.sleep(5)
+              
+    def mode3Play(self):
+        commands1 = ["aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'"]
+        threads1 = []       
+        for command in commands1 :
+            thread1 = threading.Thread(target=execute_command, args=(command,))
+            thread1.start()
+            threads1.append(thread1)
+            time.sleep(6)
+        print("Lecture terminée")
     
     def run(self):
         print("RobotServer running")
