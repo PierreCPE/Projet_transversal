@@ -1,5 +1,5 @@
 from robotserver import RobotServer
+import app
+a = app.App()
 
-robot_server = RobotServer()
-robot_server.mode2Init()
-robot_server.mode2Control(12)
+app.runRobotServer(a.config, a.sharedVariables, a.sharedFrame)
