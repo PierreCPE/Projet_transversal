@@ -128,8 +128,7 @@ class RobotServer:
         self.premiere_detection = True
         self.max_spectres_moyen = []
 
-        # Calculate the threshold
-        print("Enregistrement du seuil en cours")
+        print("Enregistrement du seuil ambiant en cours")
         signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
         sd.wait()
 
@@ -137,55 +136,56 @@ class RobotServer:
                                 noverlap=self.taille_fenetre - self.pas, nfft=self.taille_fft, detrend=False)
 
         freq_bin = np.logical_and(f > self.freq_min, f <= self.freq_max)
-        spectre_moyen = np.mean(np.abs(S[freq_bin, :]), axis=0)
+        spectre_moyen1 = np.mean(np.abs(S[freq_bin, :]), axis=0)
 
-        self.seuil = 20 * np.std(spectre_moyen)
-                
-        print("La valeur seuil initiale est :", self.seuil)
+        self.seuil = 20 * np.std(spectre_moyen1)
+
+        return spectre_moyen1
 
 
-    def mode2Control(self, num_recordings):
-        for _ in range(num_recordings):
-            if self.nb_bruits_consecutifs >= 2:
-                break  # Exit the loop if 2 consecutive noise detections have occurred
+    def mode2Control(self, spectre_moyen1):
+        if self.nb_bruits_consecutifs >= 2:
+            return  # Exit the loop if 2 consecutive noise detections have occurred
 
-            print("Enregistrement en cours")
-            signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
-            sd.wait()
+        print("Enregistrement en cours")
+        signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
+        sd.wait()
 
-            f, t, S = sig.spectrogram(signal[:, 0], fs=self.Fs, window='hann', nperseg=self.taille_fenetre,
-                                    noverlap=self.taille_fenetre - self.pas, nfft=self.taille_fft, detrend=False)
+        f, t, S = sig.spectrogram(signal[:, 0], fs=self.Fs, window='hann', nperseg=self.taille_fenetre,
+                                noverlap=self.taille_fenetre - self.pas, nfft=self.taille_fft, detrend=False)
 
-            freq_bin = np.logical_and(f > self.freq_min, f <= self.freq_max)
-            spectre_moyen = np.mean(np.abs(S[freq_bin, :]), axis=0)
+        freq_bin = np.logical_and(f > self.freq_min, f <= self.freq_max)
+        spectre_moyen2 = np.mean(np.abs(S[freq_bin, :]), axis=0)
 
-            max_bruit = np.max(spectre_moyen)
+        max_bruit = np.max(spectre_moyen2)
 
-            if max_bruit > self.seuil:
-                print('Bruit détecté, fuyons!')
-                self.max_spectres_moyen.append(max_bruit)
-                if self.premiere_detection:
-                    self.premiere_detection = False
-                else:
-                    self.nb_bruits_consecutifs += 1
+        if max_bruit > self.seuil:
+            print('Bruit détecté, fuyons!')
+            self.max_spectres_moyen.append(max_bruit)
+            if self.premiere_detection:
+                self.premiere_detection = False
             else:
-                print('Aucun bruit bizarre, restons bien caché!')
-                if not self.premiere_detection:
-                    self.bruit_detecte = False
+                self.nb_bruits_consecutifs += 1
+        else:
+            print('Aucun bruit bizarre, restons bien caché!')
+            if not self.premiere_detection:
+                self.bruit_detecte = False
 
-            print("La valeur seuil est :", self.seuil)
-            print("La valeur maximale du bruit est :", max_bruit)
-            print("   ")
+        print("La valeur seuil est :", self.seuil)
+        print("La valeur maximale du bruit est :", max_bruit)
+        print("   ")
 
         print("Les valeurs max des bruits sont :", self.max_spectres_moyen)
 
-        if len(self.max_spectres_moyen) > 0:
-            if self.max_spectres_moyen[0] < self.max_spectres_moyen[1]:
+        if len(self.max_spectres_moyen) > 1:
+            if self.max_spectres_moyen[-2] < self.max_spectres_moyen[-1]:
                 print("Le bruit augmente.")
-            elif self.max_spectres_moyen[0] > self.max_spectres_moyen[1]:
+            elif self.max_spectres_moyen[-2] > self.max_spectres_moyen[-1]:
                 print("Le bruit diminue.")
             else:
                 print("Le bruit est constant.")
+        elif len(self.max_spectres_moyen) == 1:
+            print("Le bruit est constant.")
         else:
             print("Aucun bruit détecté.")
 
@@ -193,6 +193,7 @@ class RobotServer:
     
     def mode3Control(self):
         print("RobotMode3 Control")
+        self.mode3Init()
         self.mode3record() 
         self.mode3Play()
         
@@ -209,7 +210,7 @@ class RobotServer:
     def mode3record(self):
         print("Début enregistrement")
         duree = 5    
-        commands = [f"arecord -d {duree} -f cd --D hw:2,0 -t wav son.wav","echo 'Enregistrement terminé'"]
+        commands = [f"arecord -d {duree} -f cd -t wav son.wav","echo 'Enregistrement terminé'"]
         threads = []
         for command in commands:
             thread = threading.Thread(target=execute_command, args=(command,))
