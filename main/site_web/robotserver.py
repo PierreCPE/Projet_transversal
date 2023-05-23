@@ -84,7 +84,6 @@ class RobotServer:
     def manualControl(self):
         if 'manualControlJson' in self.sharedVariables:
             json_data = self.sharedVariables['manualControlJson']
-            
             print("Manual control")
             del self.sharedVariables['manualControlJson']
             self.speed = 0
@@ -191,11 +190,9 @@ class RobotServer:
         pass
     
     def playSound(self, path):
+        print("Playing sound")
         # execute command "aplay -c 1 -t wav -r 44100 -f mu_law son.wav"
         os.system(f"aplay -c 1 -t wav -r 44100 -f mu_law {path}")
-        print()
-
-        
 
     def run(self):
         print("RobotServer running")

@@ -1,82 +1,82 @@
 from flask import Flask, render_template, Response, request, abort
 from flask_httpauth import HTTPBasicAuth
 import time
+from flask_httpauth import HTTPBasicAuth
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from timer import timer
 
 class FlaskServer:
     def __init__(self, config={}, sharedVariables=None, sharedFrame=None):
         self.config = config
         self.sharedVariables = sharedVariables
         self.sharedFrame = sharedFrame
-        self.app = Flask(__name__)
-        self.auth = HTTPBasicAuth()
-        # add index page
-        self.app.add_url_rule('/', 'index', self.index)
-        # add decoration to check auth
-        self.auth.verify_password(self.verify_password)
-        # add decoration to check ip address with allowed_ips
-        self.app.before_request(self.check_ip)
 
-        # add camera page
-        self.app.add_url_rule('/camera.html', '', self.camera_page)
-        # add video feed
-        self.app.add_url_rule('/videofeed', 'videofeed',
-                              self.videofeed)
-        # add commandes
-        self.app.add_url_rule('/commandes', 'commandes', self.commandes, methods=['POST'])
-        # self.sharedFrame = self.config['shared_frame']
-        self.allowed_ips = ['134.214.51.114', '192.168.56.1',
-                            '192.168.202.1', '192.168.121.33', '127.0.0.1','192.168.121.198','134.214.51.156','192.168.224.33']
+        self.auth = HTTPBasicAuth()
+        self.app = Flask(__name__)
+        self.limit_connection_amount = 2000
+        self.limiter = Limiter(
+            get_remote_address,
+            app=self.app,
+            default_limits=["2000 per day", "500 per hour"]
+        )
+        
         self.users = {
-            "user1": "1234",
-            "user2": "5678"
+            "user1": {"password": "1234", "ip": '134.214.51.114'},
+            "user2": {"password": "5678", "ip": '192.168.56.1'},
+            "user3": {"password": "91011", "ip": '192.168.202.1'},
+            "user4": {"password": "121314", "ip": '192.168.121.33'},
+            "local": {"password": "1234", "ip": '127.0.0.1'},
+            "user6": {"password": "181920", "ip": '192.168.121.198'},
+            "user7": {"password": "151617", "ip": '192.168.224.226'},
+            "user8": {"password": "1234", "ip": '192.168.224.33'},
+            "user9": {"password": "1234", "ip": '192.168.224.18'}
         }
         self.logs = {}
         self.logsAuth = {}
 
-    # authentification
-    def verify_password(self, username, password):
-        # print(request.remote_addr,username, password)
-        preverify = True
-        if request.remote_addr not in self.logsAuth:
-            self.logsAuth[request.remote_addr] = []
-        else:
-            # if remote_addr contains in logsAuth with 5 failed authentification => block ip
-            if len(self.logsAuth[request.remote_addr]) > 0 and len([x for x in self.logsAuth[request.remote_addr] if x[1] == False]) >= self.config['auth_failed_limit']:
-                preverify = False
-                #self.allowed_ips.remove(request.remote_addr)
-                print("//TODO To many try from", request.remote_addr, "=> block ip")
-                #abort(401)  # Forbidden
+        # authentification
+        @self.auth.verify_password
+        def verify_password(username, password):
+            client_ip = request.remote_addr
+            if username in self.users and self.users[username]['password'] == password and self.users[username]['ip'] == client_ip:
+                return True
+            return False
+    
+        @self.app.route('/protected')
+        @self.auth.login_required
+        def protected_route():
+            return "Vous êtes connecté en tant que : {} et votre adresse IP est autorisée.".format(self.auth.current_user())
+        
+        
+        @self.app.route('/commandes', methods=['POST'])
+        @self.auth.login_required
+        def commandes():
+            # print("commandes")
+            print(request)
+            json_data = request.get_json()
+            print(json_data)
+            if "control" in json_data:
+                self.controlCommandes(json_data["control"])
+            if "config" in json_data:
+                self.configCommandes(json_data["config"])
+            return 'OK'
 
-            # if remote_addr contains in logsAuth and the last authentification is less than 5 seconds
-            if len(self.logsAuth[request.remote_addr]) > 0 and time.time() - self.logsAuth[request.remote_addr][-1][0] < self.config['auth_try_time']:
-                preverify = False
-                print("Too fast try from", request.remote_addr, "=> block ip")
-                #abort(401)  # Forbidden
-            
-        verify = username in self.users and self.users[username] == password
-        self.logsAuth[request.remote_addr].append([time.time(), verify])
-        if verify:
-            return username
-
-    # check if ip is in allowed_ips
-    def check_ip(self):
-        if request.remote_addr not in self.logs:
-            self.logs[request.remote_addr] = []
-        timestamp = time.time()
-        self.logs[request.remote_addr].append([timestamp, request.path])
-        print("Heure :", timestamp)
-        print("ADRESSE IP :",request.remote_addr)
-        if request.remote_addr not in self.allowed_ips:
-            abort(403)  # Forbidden
-
-    def commandes(self):
-        json_data = request.get_json()
-        print(json_data)
-        if "control" in json_data:
-            self.controlCommandes(json_data["control"])
-        if "config" in json_data:
-            self.configCommandes(json_data["config"])
-        return 'OK'
+        @self.app.route('/camera.html')
+        @self.auth.login_required
+        def camera_page():
+            return render_template('camera.html', detection_contour=self.config['detection_contour'], point_simulation=self.config["point_simulation"],point_simulation_data=self.sharedVariables['point_simulation_data'])
+        
+        @self.app.route('/videofeed')
+        @self.auth.login_required
+        def videofeed():
+            return Response(self.genFrames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+        
+        @self.app.route('/')
+        @self.auth.login_required
+        @self.limiter.limit(f"{self.limit_connection_amount} per day")
+        def index():
+            return render_template('index.html')
 
     def configCommandes(self, json_data):
         # check if detection_contour is in json_data
@@ -100,7 +100,7 @@ class FlaskServer:
 
     def controlCommandes(self, json_data):
         self.sharedVariables['manualControlJson'] = json_data
-
+    
     def genFrames(self):
         while True:
             frame = self.sharedFrame.getFrame()
@@ -112,16 +112,6 @@ class FlaskServer:
                 # generate empty frame
                 frame = b''
                 yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-    def camera_page(self):
-        return render_template('camera.html', detection_contour=self.config['detection_contour'], point_simulation=self.config["point_simulation"],point_simulation_data=self.sharedVariables['point_simulation_data'])
-
-    def videofeed(self):
-        return Response(self.genFrames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-    def index(self):
-        self.config['blabla'] = "blabla"
-        return render_template('index.html')
 
     def run(self):
         print("Starting Flask Server")

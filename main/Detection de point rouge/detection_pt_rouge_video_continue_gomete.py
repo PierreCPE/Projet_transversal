@@ -3,17 +3,18 @@ import numpy as np
 
 def detect_pt():
     # Chargement de l'image "gomete"
-    gomete = cv2.imread('gomete.jpg')
+    gomete = cv2.imread('img2.jpg')
 
     # Extraire les valeurs minimale et maximale de rouge dans l'image "gomete"
     hsv_gomete = cv2.cvtColor(gomete, cv2.COLOR_BGR2HSV)
     min_h, max_h, _, _ = cv2.minMaxLoc(hsv_gomete[:,:,0])
     min_s, max_s, _, _ = cv2.minMaxLoc(hsv_gomete[:,:,1])
     min_v, max_v, _, _ = cv2.minMaxLoc(hsv_gomete[:,:,2])
+    print("min_h:", min_h, "    min_s:" ,min_s , "    min_v:", min_v, "    max_h:",  max_h , "    max_s:" , max_s , "    max_v:" , max_v)
 
     # Définir les couleurs de la plage de couleurs à détecter à partir de l'image "test"
     couleur_clair = np.array([min_h, min_s, min_v])
-    couleur_fonce = np.array([max_h, max_v, max_v])
+    couleur_fonce = np.array([max_h, max_s, max_v])
 
     # Chargement de la vidéo
     video = cv2.VideoCapture(0)
@@ -32,7 +33,7 @@ def detect_pt():
     # Boucle sur chaque trame de la vidéo
     while True:
         # Lire la trame vidéo
-        res, image = video.read() #res est un bollean qui verifie si la video a pu etre lu est image est une "capture de video"
+        res, image = video.read() #res est un bollean qui verifie si la video a pu etre lu et image est une "capture de video"
         if res == False:  
             break
 
@@ -41,11 +42,11 @@ def detect_pt():
 
         # Appliquer le masque pour détecter les pixels rouges
         masque = cv2.inRange(hsv, couleur_clair, couleur_fonce)
-        masque = cv2.morphologyEx(masque, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5)))
+        masque = cv2.morphologyEx(masque, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5)))
 
 
         # Trouver les contours des objets dans l'image
-        contours, hierarchie = cv2.findContours(masque, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(masque, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         # Dessiner des contours bleus autour des objets détectés
         for contour in contours:
@@ -73,7 +74,7 @@ def detect_pt():
             #Si aucun contour n'a été détecté dans l'image, surface_max restera à None.
 
             # Si un objet rouge entouré de bleu a été détecté, récupérer sa position et la comparer avec le centre de l'image
-            if np.all(surface_max) != None:
+            if np.all(surface_max) is not None:
                 # Récupérer les coordonnées du rectangle englobant du plus grand contour
                 x, y, l, h = cv2.boundingRect(surface_max) #x et y sont les coordonnée en haut a gauche du rectangle. l et h sont la longueur et la hauteur du rectangle
 

@@ -13,11 +13,15 @@ ser = serial.Serial(
 if not ser.isOpen(): #Est ce que le port est open si non alors on l'ouvre.
     ser.open()
 print('com is open', ser.isOpen())
-
-message = b"0&14&15$"
-#Encodage en byte.
+#Encodage en byte + mise de la commande
+input = input("Commande svp: ")
+message_arret = input+"$"
+message = message_arret.encode()
 print("message envoyé : ")
 print(message)
+#this will store the line
+seq = []
+count = 1
 
 while True: #on effectue une boucle infinie
     
@@ -31,11 +35,19 @@ while True: #on effectue une boucle infinie
     # recep = serial.read(serial.in_waiting)
     print("message bien envoyé")
     print("avant message recu : ")
-    reception = (ser.readline(ser.in_waiting)) #On lit sur le port serie et on affecte dans une variable #read().decode("utf8",errors="replace")
-     
+    #reception = (ser.readline(ser.in_waiting)) #On lit sur le port serie et on affecte dans une variable #read().decode("utf8",errors="replace")
+    for c in ser.read():
+        seq.append(chr(c)) #convert from ANSII
+        joined_seq = ''.join(str(v) for v in seq) #Make a string from array
+
+        if chr(c) == '\n':
+            print("Line " + str(count) + ': ' + joined_seq)
+            seq = []
+            count += 1
+            break
     break
 print("message recu : ")
-print(reception) #On imprime dans la console
+print(seq) #On imprime dans la console
 print ("fini")
 
 
