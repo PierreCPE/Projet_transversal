@@ -3,7 +3,7 @@ from rplidar import RPLidar
 import json
 import time
 
-PORT_NAME = 'COM7'
+PORT_NAME = 'COM3'
 
 
 def run(path):
