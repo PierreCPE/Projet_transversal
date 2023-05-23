@@ -38,87 +38,84 @@ class RobotServer:
         self.premiere_detection = True
         self.seuil = None
         
+    def stopRobot(self):
+        if self.direction != [0, 0]:
+            self.direction = [0, 0]
+            self.write("stop\n\r")
 
-
-    
-    # def stopRobot(self):
-    #     if self.direction != [0, 0]:
-    #         self.direction = [0, 0]
-    #         self.write("stop\n\r")
-
-    # def updateRobot(self):
-    #     # Direction
-    #     if self.lastDirection != self.direction:
-    #         if self.direction == [0, 0]:
-    #             self.stopRobot()
-    #             return
+    def updateRobot(self):
+        # Direction
+        if self.lastDirection != self.direction:
+            if self.direction == [0, 0]:
+                self.stopRobot()
+                return
             
-    #         x_left = self.direction[0]
-    #         y_left = self.direction[1]
-    #         rotation_coef = (x_left / 2)
-    #         right_power = round(-self.speed*(y_left + rotation_coef),2)
-    #         left_power = round(-self.speed*(y_left - rotation_coef),2)
-    #         cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
-    #         print(f"Send {cmd}")
-    #         if (right_power != 0 or left_power != 0):
-    #             self.write(cmd)
-    #         else:
-    #             self.stopRobot()
+            x_left = self.direction[0]
+            y_left = self.direction[1]
+            rotation_coef = (x_left / 2)
+            right_power = round(-self.speed*(y_left + rotation_coef),2)
+            left_power = round(-self.speed*(y_left - rotation_coef),2)
+            cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
+            print(f"Send {cmd}")
+            if (right_power != 0 or left_power != 0):
+                self.write(cmd)
+            else:
+                self.stopRobot()
 
-    #     self.lastDirection = self.direction
+        self.lastDirection = self.direction
 
-    # def write(self, cmd):
-    #     print("write:",cmd)
-    #     if self.config['serial']:
-    #         self.ser.write(cmd.encode())
-    #     if self.config['simulation_robot']:
-    #         self.sharedVariables['serial_output'] = cmd
+    def write(self, cmd):
+        print("write:",cmd)
+        if self.config['serial']:
+            self.ser.write(cmd.encode())
+        if self.config['simulation_robot']:
+            self.sharedVariables['serial_output'] = cmd
 
-    # def read(self):
-    #     if self.config['serial']:
-    #         return self.ser.readline().decode('utf-8')
-    #     if self.config['simulation_robot']:
-    #         return self.sharedVariables['serial_input']
-    #     return ""
+    def read(self):
+        if self.config['serial']:
+            return self.ser.readline().decode('utf-8')
+        if self.config['simulation_robot']:
+            return self.sharedVariables['serial_input']
+        return ""
 
-    # def manualControl(self):
-    #     if 'manualControlJson' in self.sharedVariables:
-    #         json_data = self.sharedVariables['manualControlJson']
-    #         print("Manual control")
-    #         del self.sharedVariables['manualControlJson']
-    #         self.speed = 0
-    #         if self.config['speed_variable']:
-    #             if 'LT' in json_data:
-    #                 self.speed = self.max_speed*json_data['LT']
-    #                 print("Speed", self.speed)
-    #         else:
-    #             self.speed = self.max_speed
-    #             self.direction = [0, 0]
-    #         if 'JoystickLeft' in json_data:
-    #             self.direction = json_data['JoystickLeft']
-    #             x_left = json_data["JoystickLeft"][0]
-    #             y_left = json_data["JoystickLeft"][1]
-    #             self.direction = [x_left, y_left]
-    #         else:
-    #             self.direction = [0, 0]
-    #     else:
-    #         self.speed = 0
-    #         self.direction = [0, 0]
+    def manualControl(self):
+        if 'manualControlJson' in self.sharedVariables:
+            json_data = self.sharedVariables['manualControlJson']
+            print("Manual control")
+            del self.sharedVariables['manualControlJson']
+            self.speed = 0
+            if self.config['speed_variable']:
+                if 'LT' in json_data:
+                    self.speed = self.max_speed*json_data['LT']
+                    print("Speed", self.speed)
+            else:
+                self.speed = self.max_speed
+                self.direction = [0, 0]
+            if 'JoystickLeft' in json_data:
+                self.direction = json_data['JoystickLeft']
+                x_left = json_data["JoystickLeft"][0]
+                y_left = json_data["JoystickLeft"][1]
+                self.direction = [x_left, y_left]
+            else:
+                self.direction = [0, 0]
+        else:
+            self.speed = 0
+            self.direction = [0, 0]
                 
         
-    # def mode1Init(self):
-    #     pass
+    def mode1Init(self):
+        pass
 
-    # def mode1Control(self):
-    #     if self.sharedVariables['detected_object'] and 'detected_object_xy_norm' in self.sharedVariables:
-    #         self.speed = 10
-    #         x = -self.sharedVariables['detected_object_xy_norm'][0]
-    #         y = self.sharedVariables['detected_object_xy_norm'][1]
-    #         #print(f"Need to go to {x},{y}")
-    #         self.direction = [x, 0.7]
-    #     else:
-    #         self.speed = 0
-    #         self.direction = [0, 0]
+    def mode1Control(self):
+        if self.sharedVariables['detected_object'] and 'detected_object_xy_norm' in self.sharedVariables:
+            self.speed = 10
+            x = -self.sharedVariables['detected_object_xy_norm'][0]
+            y = self.sharedVariables['detected_object_xy_norm'][1]
+            #print(f"Need to go to {x},{y}")
+            self.direction = [x, 0.7]
+        else:
+            self.speed = 0
+            self.direction = [0, 0]
 
 
     def mode2Init(self):
