@@ -1,5 +1,7 @@
 from robotserver import RobotServer
 import app
+import multiprocessing
 a = app.App()
 
-app.runRobotServer(a.config, a.sharedVariables, a.sharedFrame)
+robotProcess = multiprocessing.Process(target=app.runRobotServer, args=(a.config, a.sharedVariables, a.sharedFrame))
+robotProcess.start()
