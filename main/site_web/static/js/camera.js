@@ -41,7 +41,7 @@ point_simulation_flag.addEventListener("change", function () {
 
 var capture_color_flag = document.getElementById("capture_color_flag");
 // When click on button send tag
-capture_color_flag.addEventListener("onclick", function () {
+capture_color_flag.addEventListener("click", function () {
   var jsonData = {};
   jsonData["capture_color"] = true;
   var xhr = new XMLHttpRequest();

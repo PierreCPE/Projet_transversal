@@ -90,14 +90,7 @@ class CameraServer:
         cpt=0
         self.last_detection = self.config['detection_contour']
         while True:
-            if 'capture_color' in self.sharedVariables:
-                h, l = frame.shape[:2]
-                taille = 40
-                x = (l - taille) // 2
-                y = (h - taille) // 2
-                crop_img = frame[y:y+taille, x:x+taille]
-                self.initRedPointDetection(crop_img)
-                del self.sharedVariables['capture_color']
+            
             start_time = time.time()
             detection = self.config['detection_contour']
             if self.last_detection != detection:
@@ -107,6 +100,14 @@ class CameraServer:
             image = cv2.flip(image, 1) #mirroir de l'image
             if res == False:
                 break
+            if 'capture_color' in self.sharedVariables:
+                h, l = image.shape[:2]
+                taille = 10
+                x = (l - taille) // 2
+                y = (h - taille) // 2
+                crop_img = image[y:y+taille, x:x+taille]
+                self.initRedPointDetection(crop_img)
+                del self.sharedVariables['capture_color']
             # verify if config is in simulation mode
             if self.config['point_simulation']:
                 # draw fake red point with size at position in 'point_simulation_data' shared variable
