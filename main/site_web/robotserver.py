@@ -44,8 +44,8 @@ class RobotServer:
     def stopRobot(self):
         if self.direction != [0, 0]:
             self.direction = [0, 0]
-            self.write("stop\n\r")
-
+            self.write("0&0&0\n\r")
+    
     def updateRobot(self):
         # Direction
         if self.lastDirection != self.direction:
@@ -58,7 +58,7 @@ class RobotServer:
             rotation_coef = (x_left / 2)
             right_power = round(-self.speed*(y_left + rotation_coef),2)
             left_power = round(-self.speed*(y_left - rotation_coef),2)
-            cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
+            cmd = f"0&{right_power}&{left_power}\n\r"
             print(f"Send {cmd}")
             if (right_power != 0 or left_power != 0):
                 self.write(cmd)
