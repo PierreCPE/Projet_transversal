@@ -121,16 +121,34 @@ class RobotServer:
     #         self.direction = [0, 0]
 
 
+
     def mode2Init(self):
         self.nb_bruits_consecutifs = 0
         self.bruit_detecte = False
         self.premiere_detection = True
-        self.seuil = None
         self.max_spectres_moyen = []
-        
 
-    def mode2Control(self):
-        while self.nb_bruits_consecutifs < 2 and  not self.bruit_detecte:
+        # Calculate the threshold
+        print("Enregistrement du seuil en cours")
+        signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
+        sd.wait()
+
+        f, t, S = sig.spectrogram(signal[:, 0], fs=self.Fs, window='hann', nperseg=self.taille_fenetre,
+                                noverlap=self.taille_fenetre - self.pas, nfft=self.taille_fft, detrend=False)
+
+        freq_bin = np.logical_and(f > self.freq_min, f <= self.freq_max)
+        spectre_moyen = np.mean(np.abs(S[freq_bin, :]), axis=0)
+
+        self.seuil = 20 * np.std(spectre_moyen)
+                
+        print("La valeur seuil initiale est :", self.seuil)
+
+
+    def mode2Control(self, num_recordings):
+        for _ in range(num_recordings):
+            if self.nb_bruits_consecutifs >= 2:
+                break  # Exit the loop if 2 consecutive noise detections have occurred
+
             print("Enregistrement en cours")
             signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
             sd.wait()
@@ -141,22 +159,15 @@ class RobotServer:
             freq_bin = np.logical_and(f > self.freq_min, f <= self.freq_max)
             spectre_moyen = np.mean(np.abs(S[freq_bin, :]), axis=0)
 
-            if self.seuil is None:
-                self.seuil = 20 * np.std(spectre_moyen)
-
             max_bruit = np.max(spectre_moyen)
 
             if max_bruit > self.seuil:
                 print('Bruit détecté, fuyons!')
+                self.max_spectres_moyen.append(max_bruit)
                 if self.premiere_detection:
                     self.premiere_detection = False
                 else:
                     self.nb_bruits_consecutifs += 1
-
-                if self.nb_bruits_consecutifs <= 2:
-                    self.max_spectres_moyen.append(max_bruit)
-                else:
-                    print('Trop de bruits détectés, arrêt du programme.')
             else:
                 print('Aucun bruit bizarre, restons bien caché!')
                 if not self.premiere_detection:
@@ -166,14 +177,28 @@ class RobotServer:
             print("La valeur maximale du bruit est :", max_bruit)
             print("   ")
 
-        print("Le valeur max des bruit sont :", self.max_spectres_moyen)
+        print("Les valeurs max des bruits sont :", self.max_spectres_moyen)
 
-        if self.max_spectres_moyen[0] < self.max_spectres_moyen[1]:
-            print("Le bruit augmente.")
-        elif self.max_spectres_moyen[0] > self.max_spectres_moyen[1]:
-            print("Le bruit diminue.")
+        if len(self.max_spectres_moyen) > 0:
+            if self.max_spectres_moyen[0] < self.max_spectres_moyen[1]:
+                print("Le bruit augmente.")
+            elif self.max_spectres_moyen[0] > self.max_spectres_moyen[1]:
+                print("Le bruit diminue.")
+            else:
+                print("Le bruit est constant.")
         else:
-            print("Le bruit est constant.")
+            print("Aucun bruit détecté.")
+
+        self.seuil_precedent = self.seuil
+
+
+
+    
+
+
+
+
+
 
 
     # # def mode3Control(self):
