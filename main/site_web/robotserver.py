@@ -209,7 +209,7 @@ class RobotServer:
     def mode3record(self):
         print("Début enregistrement")
         duree = 5    
-        commands = [f"arecord -d {duree} -f cd -t wav son.wav","echo 'Enregistrement terminé'"]
+        commands = [f"arecord -d {duree} -f cd --D hw:2,0 -t wav son.wav","echo 'Enregistrement terminé'"]
         threads = []
         for command in commands:
             thread = threading.Thread(target=execute_command, args=(command,))
