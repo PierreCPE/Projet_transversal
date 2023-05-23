@@ -45,8 +45,8 @@ class App:
         config['detection_contour'] = True
         config['serial'] = False # Activer ou non le port serial
         # config['serial_port'] = 'COM8' # Port série
-        config['serial_port'] = '/dev/ttyUSB0' # Port série
-        config['serial_baudrate'] = 115200 # Baudrate du port série
+        config['serial_port'] = '/dev/ttyUSB1' # Port série
+        config['serial_baudrate'] = 19200 # Baudrate du port série
         config['gomete_path'] = "gomete.jpg"
         config['speed_variable'] = True # Fixe ou non la vitesse du robot (si non dépendente de la touche LT)
         config['log_all_requests'] = False

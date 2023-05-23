@@ -39,6 +39,26 @@ point_simulation_flag.addEventListener("change", function () {
   xhr.send(JSON.stringify(jsonSend));
 });
 
+var capture_color_flag = document.getElementById("capture_color_flag");
+// When click on button send tag
+capture_color_flag.addEventListener("click", function () {
+  var jsonData = {};
+  jsonData["capture_color"] = true;
+  var xhr = new XMLHttpRequest();
+  var url = "/commandes";
+  xhr.open("POST", url, true);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      console.log(xhr.status);
+    }
+  };
+  console.log(jsonData);
+  jsonSend = {};
+  jsonSend["config"] = jsonData;
+  xhr.send(JSON.stringify(jsonSend));
+});
+
 // get elements with input tag in element point_simulation_data_inputs id
 var point_simulation_data_inputs = document.getElementById("point_simulation_data_inputs").getElementsByTagName("input");
 for (var i = 0; i < point_simulation_data_inputs.length; i++) {

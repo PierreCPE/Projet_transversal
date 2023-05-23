@@ -10,6 +10,7 @@
   <input type="checkbox" id="point_simulation_flag" name="point_simulation"
   {{"checked" if point_simulation else ""}} />
   <label for="point_simulation_flag">Activer le point rouge de test</label>
+  <button id="capture_color_flag">Capture de la couleur (center la couleur)</button>
   <div id="point_simulation_data_inputs">
     <label for="point_simulation_data_x">X:</label>
     <input
@@ -36,7 +37,7 @@
     />
   </div>
 </div>
-<div class="camera_div" src="{{url_for('videofeed')}}">
+<div class="camera_div">
   <img
     class="camera_video"
     style="width: 80%; height: 80%"

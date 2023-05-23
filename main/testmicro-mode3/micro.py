@@ -40,7 +40,7 @@ if p =="y":
 
     print("Enregistrement terminé")
 
-    k = 3
+    k = 3 
 
     for i in range(k):
         print("Lecture en cours :", i+1)

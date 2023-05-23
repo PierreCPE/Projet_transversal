@@ -3,6 +3,9 @@ import serial
 import sounddevice as sd
 import scipy.signal as sig
 import os
+import threading
+import subprocess
+import time
 
 class RobotServer:
     def __init__(self, config = {}, sharedVariables = None ,sharedFrame = None):
@@ -38,9 +41,6 @@ class RobotServer:
         self.premiere_detection = True
         self.seuil = None
         
-
-
-    
     def stopRobot(self):
         if self.direction != [0, 0]:
             self.direction = [0, 0]
@@ -84,7 +84,6 @@ class RobotServer:
     def manualControl(self):
         if 'manualControlJson' in self.sharedVariables:
             json_data = self.sharedVariables['manualControlJson']
-            
             print("Manual control")
             del self.sharedVariables['manualControlJson']
             self.speed = 0
@@ -122,16 +121,15 @@ class RobotServer:
             self.direction = [0, 0]
 
 
+
     def mode2Init(self):
         self.nb_bruits_consecutifs = 0
         self.bruit_detecte = False
         self.premiere_detection = True
-        self.seuil = None
         self.max_spectres_moyen = []
-        
 
-    def mode2Control(self):
-        print("Enregistrement en cours")
+        # Calculate the threshold
+        print("Enregistrement du seuil en cours")
         signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
         sd.wait()
 
@@ -141,62 +139,95 @@ class RobotServer:
         freq_bin = np.logical_and(f > self.freq_min, f <= self.freq_max)
         spectre_moyen = np.mean(np.abs(S[freq_bin, :]), axis=0)
 
-        if self.seuil is None:
-            self.seuil = 20 * np.std(spectre_moyen)
+        self.seuil = 20 * np.std(spectre_moyen)
+                
+        print("La valeur seuil initiale est :", self.seuil)
 
-        max_bruit = np.max(spectre_moyen)
 
-        if max_bruit > self.seuil:
-            print('Bruit détecté, fuyons!')
-            if self.premiere_detection:
-                self.premiere_detection = False
-            else:
-                self.nb_bruits_consecutifs += 1
+    def mode2Control(self, num_recordings):
+        for _ in range(num_recordings):
+            if self.nb_bruits_consecutifs >= 2:
+                break  # Exit the loop if 2 consecutive noise detections have occurred
 
-            if self.nb_bruits_consecutifs == 2:
-                print('Trop de bruits détectés, arrêt du programme.')
-            else:
+            print("Enregistrement en cours")
+            signal = sd.rec(int(self.duree * self.Fs), samplerate=self.Fs, channels=1)
+            sd.wait()
+
+            f, t, S = sig.spectrogram(signal[:, 0], fs=self.Fs, window='hann', nperseg=self.taille_fenetre,
+                                    noverlap=self.taille_fenetre - self.pas, nfft=self.taille_fft, detrend=False)
+
+            freq_bin = np.logical_and(f > self.freq_min, f <= self.freq_max)
+            spectre_moyen = np.mean(np.abs(S[freq_bin, :]), axis=0)
+
+            max_bruit = np.max(spectre_moyen)
+
+            if max_bruit > self.seuil:
+                print('Bruit détecté, fuyons!')
                 self.max_spectres_moyen.append(max_bruit)
+                if self.premiere_detection:
+                    self.premiere_detection = False
+                else:
+                    self.nb_bruits_consecutifs += 1
+            else:
+                print('Aucun bruit bizarre, restons bien caché!')
+                if not self.premiere_detection:
+                    self.bruit_detecte = False
+
+            print("La valeur seuil est :", self.seuil)
+            print("La valeur maximale du bruit est :", max_bruit)
+            print("   ")
+
+        print("Les valeurs max des bruits sont :", self.max_spectres_moyen)
+
+        if len(self.max_spectres_moyen) > 0:
+            if self.max_spectres_moyen[0] < self.max_spectres_moyen[1]:
+                print("Le bruit augmente.")
+            elif self.max_spectres_moyen[0] > self.max_spectres_moyen[1]:
+                print("Le bruit diminue.")
+            else:
+                print("Le bruit est constant.")
         else:
-            print('Aucun bruit bizarre, restons bien caché!')
-            if not self.premiere_detection:
-                self.bruit_detecte = False
+            print("Aucun bruit détecté.")
 
-        print("La valeur seuil est :", self.seuil)
-        print("La valeur maximale du bruit est :", max_bruit)
-        print()
-
-        print("Le valeur max des bruit sont :", self.max_spectres_moyen)
-
-        if self.max_spectres_moyen[0] < self.max_spectres_moyen[1]:
-            print("Le bruit augmente.")
-        elif self.max_spectres_moyen[0] > self.max_spectres_moyen[1]:
-            print("Le bruit diminue.")
-        else:
-            print("Le bruit est constant.")
-
-
-
-    def mode3Control(self):
-        # check if sharedvariable has mode3_record to true
-        if 'mode3_record' in self.sharedVariables and self.sharedVariables['mode3_record']:
-            self.mode3Record()
-        else:
-            self.mode3Play()
-
-    def mode3Init(self):
-        self.playSound("mode3_init.wav")
-
-    def mode3Record(self):
-        pass
+        self.seuil_precedent = self.seuil
     
-    def playSound(self, path):
-        # execute command "aplay -c 1 -t wav -r 44100 -f mu_law son.wav"
-        os.system(f"aplay -c 1 -t wav -r 44100 -f mu_law {path}")
-        print()
-
+    def mode3Control(self):
+        print("RobotMode3 Control")
+        self.mode3Init()
+        self.mode3record() 
+        self.mode3Play()
         
+    def mode3Init(self):
+        print("RobotMode3 Initializing")
+        duree =5    
+        commands2 = ["aplay -c 1 -t wav -r 44100 -f mu_law 'combat-laser.wav'"]
+        threads2 = []
+        for command in commands2:
+            thread2 = threading.Thread(target=execute_command, args=(command,))
+            thread2.start()
+            threads2.append(thread2)
 
+    def mode3record(self):
+        print("Début enregistrement")
+        duree = 5    
+        commands = [f"arecord -d {duree} -f cd -t wav son.wav","echo 'Enregistrement terminé'"]
+        threads = []
+        for command in commands:
+            thread = threading.Thread(target=execute_command, args=(command,))
+            thread.start()
+            threads.append(thread)
+            time.sleep(5)
+              
+    def mode3Play(self):
+        commands1 = ["aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'"]
+        threads1 = []       
+        for command in commands1 :
+            thread1 = threading.Thread(target=execute_command, args=(command,))
+            thread1.start()
+            threads1.append(thread1)
+            time.sleep(5)
+        print("Lecture terminée")
+    
     def run(self):
         print("RobotServer running")
         while True:
@@ -204,11 +235,14 @@ class RobotServer:
                 if self.sharedVariables['mode'] == 0:
                     self.manualControl()
                 elif self.sharedVariables['mode'] == 1:
-                    if self.last_mode != 3:
+                    if self.last_mode != 1:
                         self.mode1Init()
                     self.mode1Control()
                 elif self.sharedVariables['mode'] == 2:
+                    if self.last_mode != 2:
+                        self.mode2Init()
                     self.mode2Control()
+
                 elif self.sharedVariables['mode'] == 3:
                     if self.last_mode != 3:
                         self.mode3Init()
@@ -220,3 +254,11 @@ class RobotServer:
                 print("WARNING: Mode not implemented. Default manual control")
                 self.manualControl()
             self.updateRobot()
+
+def execute_command(command):
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    output, error = process.communicate()
+    if output:
+        print(f" \n{output.decode()}")
+    if error:
+        print(f"Error \n{error.decode()}")

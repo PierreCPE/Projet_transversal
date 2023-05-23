@@ -20,12 +20,12 @@
 #include "main.h"
 #include "usart.h"
 #include "gpio.h"
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "string.h"
+#include "stdio.h"
+#include "stdlib.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,11 +47,24 @@
 
 /* USER CODE BEGIN PV */
 uint8_t Rxuint4[1];
-char RxChar4[25];
-char CharData[1];
-char *ptrCharData = CharData ;
+char RxChar4[50];
+char CharData4[1];
 char *ptrRxChar4 = RxChar4;
-int taille = 0;
+char *ptrCharData4 = CharData4 ;
+int taille4 = 0;
+
+uint8_t Rxuint5[1];
+char RxChar5[50];
+char CharData5[1];
+char *ptrRxChar5 = RxChar5;
+char *ptrCharData5 = CharData5 ;
+int taille5 = 0;
+
+const char *SepCommandes = ",";
+const char *SepValeurs = "&";
+const char *Fin = "$";
+const char *RetChariot = "\r";
+char cmd_id[] = "012345";
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -63,19 +76,70 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+void CONTROL_Motor(int cmd[]){
+	if (cmd[0] == 0 && cmd[1] == 0){
+		char stop[] = "stop\r";
+		HAL_UART_Transmit(&huart5,(uint8_t *) stop, strlen(stop), 50 );
+	}
+	else{
+		char buff[sizeof("mogo 1:00 2:00\r")];
+		sprintf(buff, "mogo 1:%d 2:%d\r", cmd[0], cmd[1]);
+		HAL_UART_Transmit(&huart5,(uint8_t *) buff, strlen(buff), 50);
+		memset(buff, 0, sizeof(buff));
+	}
+}
+
+void SELEC_Commande(char cmd[]){
+	char *TokenCommandeComplete = strtok(cmd, SepCommandes);
+	if (*TokenCommandeComplete == cmd_id[0]){
+		char *TokenCommandeUnique = strtok(TokenCommandeComplete, SepValeurs);
+		int buff_int[2];
+		int *pt_buff_int = &buff_int;
+		int i = 0;
+		TokenCommandeUnique = strtok(NULL, SepValeurs);
+		while (TokenCommandeUnique != NULL){
+			*(pt_buff_int+i) = atoi(TokenCommandeUnique);//probleme lorsque l'on envoie 2 entier (14.15) et apres (0.0)
+			i++;
+			TokenCommandeUnique = strtok(NULL, SepValeurs);
+		}
+		CONTROL_Motor(buff_int);
+	}
+	else{
+		char buffer[sizeof("code incomplet")];
+		memcpy(buffer, "code incomplet", sizeof("code incomplet"));
+		HAL_UART_Transmit(&huart4,(uint8_t *) buffer ,4 ,50 );
+	}
+}
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-	sprintf(CharData, "%s", Rxuint4); // on convertit Rxuint4 en char dans CharData
-	if (*ptrCharData != '$'){
-		*ptrRxChar4 = *ptrCharData;
-		*ptrRxChar4++;
-		taille++;
+	if (huart->Instance == UART4){
+		sprintf(CharData4, "%s", Rxuint4); // on convertit Rxuint4 en char dans CharData
+		if (*ptrCharData4 != *Fin){
+			*ptrRxChar4 = *ptrCharData4;
+			*ptrRxChar4++;
+			taille4++;
+		}
+		else if (*ptrCharData4 == *Fin){
+			SELEC_Commande(RxChar4);
+			ptrRxChar4 = RxChar4;				// on reinitialise le pointeur de RxChar4
+			taille4 = 0;							// on reinitialise le vecteur taille
+		}
+		HAL_UART_Receive_IT(&huart4,Rxuint4,1); // on reenable le Receive */
 	}
-	else if (*ptrCharData == '$'){
-		HAL_UART_Transmit_IT(&huart4,RxChar4,taille);	// on envoie RxChar4 part l'huart4
-		ptrRxChar4 = RxChar4;				// on reinitialise le pointeur de RxChar4
-		taille = 0;							// on reinitialise le vecteur taille
+	else if (huart->Instance == UART5){
+		sprintf(CharData5, "%s", Rxuint5);
+		if (*ptrCharData5 != *RetChariot){
+			*ptrRxChar5 = *ptrCharData5;
+			*ptrRxChar5++;
+			taille5++;
+		}
+		else if (*ptrCharData5 == *RetChariot){
+			HAL_UART_Transmit(&huart4,(uint8_t *) RxChar5 ,taille5 ,50);
+			ptrRxChar5 = RxChar5;
+			taille5 = 0;
+		}
+		HAL_UART_Receive_IT(&huart5,Rxuint5,1);
 	}
-	HAL_UART_Receive_IT(&huart4,Rxuint4,1); // on reenable le Receive */
 }
 
 /* USER CODE END 0 */
@@ -109,9 +173,10 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_UART4_Init();
+  MX_UART5_Init();
   /* USER CODE BEGIN 2 */
-  HAL_UART_Transmit(&huart4, debut, sizeof(debut), 100);
   HAL_UART_Receive_IT(&huart4, Rxuint4, 1);
+  HAL_UART_Receive_IT(&huart5, Rxuint5, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -162,8 +227,9 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_UART4;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_UART4|RCC_PERIPHCLK_UART5;
   PeriphClkInit.Uart4ClockSelection = RCC_UART4CLKSOURCE_PCLK1;
+  PeriphClkInit.Uart5ClockSelection = RCC_UART5CLKSOURCE_PCLK1;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
