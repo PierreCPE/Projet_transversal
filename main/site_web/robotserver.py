@@ -5,6 +5,7 @@ import scipy.signal as sig
 import os
 import threading
 import subprocess
+import time
 
 class RobotServer:
     def __init__(self, config = {}, sharedVariables = None ,sharedFrame = None):
@@ -189,14 +190,6 @@ class RobotServer:
             print("Aucun bruit détecté.")
 
         self.seuil_precedent = self.seuil
-        
-    def execute_command(command):
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-        output, error = process.communicate()
-        if output:
-            print(f" \n{output.decode()}")
-        if error:
-            print(f"Error \n{error.decode()}")
     
     def mode3Control(self):
         self.mode3Init()
@@ -215,14 +208,14 @@ class RobotServer:
 
     def mode3record(self):
         print("Début enregistrement")
-        duree =5    
+        duree = 5    
         commands = [f"arecord -d {duree} -f cd -t wav son.wav","echo 'Enregistrement terminé'"]
         threads = []
         for command in commands:
             thread = threading.Thread(target=execute_command, args=(command,))
             thread.start()
             threads.append(thread)
-            sleep(5)
+            time.sleep(5)
               
     def mode3Play(self):
         commands1 = ["aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 44100 -f mu_law 'son.wav'"]
@@ -231,30 +224,40 @@ class RobotServer:
             thread1 = threading.Thread(target=execute_command, args=(command,))
             thread1.start()
             threads1.append(thread1)
-            sleep(5)
+            time.sleep(5)
         print("Lecture terminée")
     
     def run(self):
         print("RobotServer running")
-        # while True:
-            # if "mode" in self.sharedVariables :
-            #     if self.sharedVariables['mode'] == 0:
-            #         self.manualControl()
-            #     elif self.sharedVariables['mode'] == 1:
-            #         if self.last_mode != 3:
-            #             self.mode1Init()
-            #         self.mode1Control()
-                # elif self.sharedVariables['mode'] == 2:
-        self.mode1Init()
-        self.mode2Control()
-                # elif self.sharedVariables['mode'] == 3:
-                #     if self.last_mode != 3:
-                #         self.mode3Init()
-                #     self.mode3Control()
-                # else:
-                    # print("WARNING: Mode not implemented. Default manual control")
-                # self.last_mode = self.sharedVariables['mode']
-            # else:
-                # print("WARNING: Mode not implemented. Default manual control")
-                # self.manualControl()
-            # self.updateRobot()
+        while True:
+            if "mode" in self.sharedVariables :
+                if self.sharedVariables['mode'] == 0:
+                    self.manualControl()
+                elif self.sharedVariables['mode'] == 1:
+                    if self.last_mode != 1:
+                        self.mode1Init()
+                    self.mode1Control()
+                elif self.sharedVariables['mode'] == 2:
+                    if self.last_mode != 2:
+                        self.mode2Init()
+                    self.mode2Control()
+
+                elif self.sharedVariables['mode'] == 3:
+                    if self.last_mode != 3:
+                        self.mode3Init()
+                    self.mode3Control()
+                else:
+                    print("WARNING: Mode not implemented. Default manual control")
+                self.last_mode = self.sharedVariables['mode']
+            else:
+                print("WARNING: Mode not implemented. Default manual control")
+                self.manualControl()
+            self.updateRobot()
+
+def execute_command(command):
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    output, error = process.communicate()
+    if output:
+        print(f" \n{output.decode()}")
+    if error:
+        print(f"Error \n{error.decode()}")
