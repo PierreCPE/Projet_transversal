@@ -1,11 +1,7 @@
 from robotserver import RobotServer
-# import app
-# a = app.App()
-
-# app.runRobotServer(a.config, a.sharedVariables, a.sharedFrame)
-
-robot_server = RobotServer()
-spectre_moyen1 = robot_server.mode2Init()
-for _ in range(12):
-    robot_server.mode2Control(spectre_moyen1)
-
+import app
+import multiprocessing
+a = app.App()
+a.sharedVariables['mode'] = 3
+robotProcess = multiprocessing.Process(target=app.runRobotServer, args=(a.config, a.sharedVariables, a.sharedFrame))
+robotProcess.start()
