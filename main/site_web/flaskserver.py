@@ -18,7 +18,7 @@ class FlaskServer:
         self.limiter = Limiter(
             get_remote_address,
             app=self.app,
-            default_limits=["2000 per day", "500 per hour"]
+            default_limits=["200000 per day", "20000 per hour"]
         )
         
         self.users = {
@@ -53,7 +53,6 @@ class FlaskServer:
         @self.auth.login_required
         def commandes():
             # print("commandes")
-            print(request)
             json_data = request.get_json()
             print(json_data)
             if "control" in json_data:
