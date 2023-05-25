@@ -10,7 +10,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_login import login_required, current_user
 
-class FlaskApp:
+class FlaskServer:
     def __init__(self):
         self.auth = HTTPBasicAuth()
         self.app = Flask(__name__)
@@ -119,5 +119,5 @@ if __name__=="__main__":
     #global tentative
     limit_connection_amount = 200
     auth = HTTPBasicAuth()
-    flask_app = FlaskApp()
+    flask_app = FlaskServer()
     flask_app.run()
