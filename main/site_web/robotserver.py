@@ -117,6 +117,7 @@ class RobotServer:
             return self.flag_obstacle
         except RPLidarException :
             self.lidar.clear_input()
+        return True
     
 
     def updateRobot(self):
