@@ -125,7 +125,8 @@ class RobotServer:
         obstacle = self.check_obstacle()
         if not obstacle:
             # Config speciale en fonction du mode
-            self.direction = [0,1]
+            # self.direction = [0,1]
+            pass
         if self.lookDirection [0] < 0:
             self.lookDirection[0] = 0
         if self.lookDirection [0] > 180:
