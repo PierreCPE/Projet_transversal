@@ -4,8 +4,11 @@ import sounddevice as sd
 import scipy.signal as sig
 import os
 import threading
-import subprocess
+from rplidar import RPLidar
+from rplidar import RPLidarException
 import time
+import subprocess
+
 
 class RobotServer:
     def __init__(self, config = {}, sharedVariables = None ,sharedFrame = None):
@@ -14,9 +17,14 @@ class RobotServer:
         self.sharedFrame = sharedFrame
         self.max_speed = 30
         self.speed = 0
+        self.maxLookSpeed = 7
         self.lastSpeed = 0
-        self.direction = [0, 0]
-        self.lastDirection = [0, 0]
+        self.direction = [0, 0] # (-1 to 0)
+        self.lastDirection = [0, 0] # (-1 to 0)
+        self.lookSpeed = 0
+        self.lastLookSpeed = 0
+        self.lookDirection = [0, 0] # in degrees (-80 to 80)
+        self.lastLookDirection = [0, 0] # in degrees (-80 to 80)
         self.require_update = False
         self.last_mode = self.sharedVariables['mode']
         if config['serial']:
@@ -44,22 +52,72 @@ class RobotServer:
     def stopRobot(self):
         if self.direction != [0, 0]:
             self.direction = [0, 0]
-            self.write("stop\n\r")
+            self.write("0&0&0\n\r")
+            
+    def check_obstacle(self):
+        if not 'utilisation_lidar' in self.config or not self.config['utilisation_lidar']:
+            return False
+        try :
+            self.lidar_database_temp = []
+            
+            ####
+            # si dans la direction de la cible, sur une largeur L1 (= largeur du robot+ sécurité), 
+            # il n'y a aucun obstacle à une distance inférieurs à D , alors tu avances tout droit vers la destination
+            # Sinon s'il y a un obstacle dans la largeur L1 à moins de D mètres sur le chemin vers la destination, 
+            # alors calcul des azimuts correspondant au bord de l'obstacle. Choix le coté où 
+            # l'erreur d'azimut est le plus petit, et tu vises cet azimut +- l'angle nécessaire pour passer à une distance L1 de l'obstacle
+            ####
+
+            for scan in self.lidar.iter_scans():
+                self.scan = scan 
+                break
+            self.lidar_database_temp.append([time.time(),self.scan])
+
+            #Traitement de lidar_database_temp
+            
+            for i, tuple in enumerate(self.scan): 
+                
+                if (tuple[1]>=330 or tuple[1] <=30):
+                    if tuple[2]<=self.distance_min_obst : 
+                        print(tuple)
+                        self.flag_obstacle = True 
+                else : 
+                    self.flag_obstacle = False
+            #On reçoit la generatrice du lidar et on l'append a notre list
+            
+            
+            return self.flag_obstacle
+        except RPLidarException :
+            self.lidar.clear_input()
+    
 
     def updateRobot(self):
+        # Ajout de detection d'obstacle de check_obstacle if check_obstacle
+        # Selon le mode stop le robot ou fait un son
+        self.check_obstacle()
+        
+        # Look direction
+        if self.lastLookDirection != self.lookDirection:
+            cmd = f"1&{int(self.lookDirection[0])}$\n\r"
+            self.write(cmd)
+            cmd = f"2&{int(self.lookDirection[1])}$\n\r"
+            self.write(cmd)
+            print("write lookDirection")
+
+        self.lastLookDirection = self.lookDirection.copy()
+
         # Direction
         if self.lastDirection != self.direction:
             if self.direction == [0, 0]:
+                self.lastDirection = self.direction
                 self.stopRobot()
                 return
-            
             x_left = self.direction[0]
             y_left = self.direction[1]
             rotation_coef = (x_left / 2)
             right_power = round(-self.speed*(y_left + rotation_coef),2)
             left_power = round(-self.speed*(y_left - rotation_coef),2)
-            cmd = f"mogo 1:{right_power} 2:{left_power}\n\r"
-            print(f"Send {cmd}")
+            cmd = f"0&{int(right_power)}&{int(left_power)}$\n\r"
             if (right_power != 0 or left_power != 0):
                 self.write(cmd)
             else:
@@ -80,22 +138,40 @@ class RobotServer:
         if self.config['simulation_robot']:
             return self.sharedVariables['serial_input']
         return ""
-
+    
+    def modeManualInit(self):
+        print("modeManualInit")
+        command = "mode_manual_activate.wav"
+        self.playSound(command)
+        
     def manualControl(self):
         if 'manualControlJson' in self.sharedVariables:
             json_data = self.sharedVariables['manualControlJson']
-            print("Manual control")
             del self.sharedVariables['manualControlJson']
             self.speed = 0
+            self.lookSpeed = 0
             if self.config['speed_variable']:
                 if 'LT' in json_data:
                     self.speed = self.max_speed*json_data['LT']
-                    print("Speed", self.speed)
             else:
                 self.speed = self.max_speed
                 self.direction = [0, 0]
+
+            if self.config['look_speed_variable']:
+                if 'RT' in json_data:
+                    self.lookSpeed = self.maxLookSpeed*json_data['RT']
+            else:
+                self.lookSpeed = self.maxLookSpeed
+
+            print("lookSpeed:",self.lookSpeed)
+            if 'JoystickRight' in json_data:
+                x_left = self.lookSpeed*json_data["JoystickRight"][0]
+                y_left = self.lookSpeed*json_data["JoystickRight"][1]
+                self.lookDirection[0] += x_left
+                self.lookDirection[1] += y_left
+
+            print("lookDirection:",self.lookDirection)
             if 'JoystickLeft' in json_data:
-                self.direction = json_data['JoystickLeft']
                 x_left = json_data["JoystickLeft"][0]
                 y_left = json_data["JoystickLeft"][1]
                 self.direction = [x_left, y_left]
@@ -104,10 +180,12 @@ class RobotServer:
         else:
             self.speed = 0
             self.direction = [0, 0]
+            self.lookSpeed = 0
                 
         
     def mode1Init(self):
-        pass
+        command = "mode_1_activate.wav"
+        self.playSound(command)
 
     def mode1Control(self):
         if self.sharedVariables['detected_object'] and 'detected_object_xy_norm' in self.sharedVariables:
@@ -123,6 +201,9 @@ class RobotServer:
 
 
     def mode2Init(self):
+        command = "mode_2_activate.wav"
+        self.playSound(command)
+        print("mode2Init")
         self.nb_bruits_consecutifs = 0
         self.bruit_detecte = False
         self.premiere_detection = True
@@ -196,69 +277,85 @@ class RobotServer:
 
         self.seuil_precedent = self.seuil
     
+        
+    def mode3Init(self):
+        print("mode3Init")
+        duree =5    
+        command = "combat-laser.wav"
+        self.playSound(command)
+
     def mode3Control(self):
-        print("RobotMode3 Control")
         self.mode3Init()
         self.mode3record() 
         self.mode3Play()
-        
-    def mode3Init(self):
-        print("RobotMode3 Initializing")
-        duree =5    
-        commands2 = ["aplay -c 1 -t wav -r 44100 -f mu_law 'combat-laser.wav'"]
-        threads2 = []
-        for command in commands2:
-            thread2 = threading.Thread(target=execute_command, args=(command,))
-            thread2.start()
-            threads2.append(thread2)
 
     def mode3record(self):
         print("Début enregistrement")
         duree = 5    
-        commands = [f"arecord -d {duree} -D hw:2,0 -f S16_LE -r 16000 -c 1 son.wav","echo 'Enregistrement terminé'"]
-        threads = []
-        for command in commands:
-            thread = threading.Thread(target=execute_command, args=(command,))
-            thread.start()
-            threads.append(thread)
-            time.sleep(5)
+        command = f"arecord -d {duree} -D hw:2,0 -f S16_LE -r 16000 -c 1 son.wav","echo 'Enregistrement terminé'"
+        self.playSound(command)
               
     def mode3Play(self):
-        commands1 = ["aplay -c 1 -t wav -r 16000 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 16000 -f mu_law 'son.wav'","aplay -c 1 -t wav -r 16000 -f mu_law 'son.wav'"]
-        threads1 = []     
-        for command in commands1 :
-            thread1 = threading.Thread(target=execute_command, args=(command,))
-            thread1.start()
-            threads1.append(thread1)
-            time.sleep(6)
+        commands = ["son.wav","son.wav","son.wav"]
+        self.playSound(commands)
         print("Lecture terminée")
     
+    def playSound(self, sounds):
+        if self.config['windows']:
+            import winsound
+            if  isinstance(sounds, str):
+                winsound.PlaySound(sounds, winsound.SND_FILENAME)
+            else:
+                for sound in sounds:
+                    winsound.PlaySound(sound, winsound.SND_FILENAME)
+        else:
+            if  isinstance(sounds, str):
+                command= f"aplay -c 1 -t wav -r 16000 -f mu_law '{sounds}'"
+                thread = threading.Thread(target=execute_command, args=(command,))
+            else:
+                commands = []
+                for sound in sounds:
+                    commands.append(f"aplay -c 1 -t wav -r 16000 -f mu_law '{sound}'")
+                thread = threading.Thread(target=execute_command, args=(commands,))
+            thread.start()
+
     def run(self):
         print("RobotServer running")
         while True:
-            if "mode" in self.sharedVariables :
-                if self.sharedVariables['mode'] == 0:
-                    self.manualControl()
-                elif self.sharedVariables['mode'] == 1:
-                    if self.last_mode != 1:
-                        self.mode1Init()
-                    self.mode1Control()
-                elif self.sharedVariables['mode'] == 2:
-                    if self.last_mode != 2:
-                        self.mode2Init()
-                    self.mode2Control()
+            try:
+                if "mode" in self.sharedVariables :
+                    if self.sharedVariables['mode'] == 0:
+                        if self.last_mode != 0:
+                            self.modeManualInit()
+                        self.manualControl()
+                    elif self.sharedVariables['mode'] == 1:
+                        if self.last_mode != 1:
+                            self.mode1Init()
+                        self.mode1Control()
+                    elif self.sharedVariables['mode'] == 2:
+                        if self.last_mode != 2:
+                            self.mode2Init()
+                        self.mode2Control()
 
-                elif self.sharedVariables['mode'] == 3:
-                    if self.last_mode != 3:
-                        self.mode3Init()
-                    self.mode3Control()
+                    elif self.sharedVariables['mode'] == 3:
+                        if self.last_mode != 3:
+                            self.mode3Init()
+                        self.mode3Control()
+                    else:
+                        print("WARNING: Mode not implemented. Default manual control")
                 else:
                     print("WARNING: Mode not implemented. Default manual control")
+                    self.manualControl()
+                self.updateRobot()
                 self.last_mode = self.sharedVariables['mode']
-            else:
-                print("WARNING: Mode not implemented. Default manual control")
-                self.manualControl()
-            self.updateRobot()
+                time.sleep(0.1)
+            except Exception as e:
+                self.last_mode = self.sharedVariables['mode']
+                self.stopRobot()
+                command = "erreur.wav"
+                self.playSound(command)
+                break
+            
 
 def execute_command(command):
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)

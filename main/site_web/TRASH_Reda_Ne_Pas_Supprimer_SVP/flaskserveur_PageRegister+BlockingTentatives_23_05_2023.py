@@ -51,6 +51,7 @@ class FlaskApp:
                     
 
                 else :
+                    flash("Trop de tentatives de connexion. Votre adresse IP a été bloquée pour des raisons de sécurité.")
                     return False  
                 
     
