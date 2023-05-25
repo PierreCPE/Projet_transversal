@@ -123,6 +123,14 @@ class RobotServer:
         # Ajout de detection d'obstacle de check_obstacle if check_obstacle
         # Selon le mode stop le robot ou fait un son
         self.check_obstacle()
+        if self.lookDirection [0] < 0:
+            self.lookDirection[0] = 0
+        if self.lookDirection [0] > 180:
+            self.lookDirection[0] = 180
+        if self.lookDirection [1] < 0:
+            self.lookDirection[1] = 0
+        if self.lookDirection [1] > 180:
+            self.lookDirection[1] = 180
         
         # Look direction
         if self.lastLookDirection != self.lookDirection:
