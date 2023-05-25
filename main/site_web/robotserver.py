@@ -151,6 +151,9 @@ class RobotServer:
     def write(self, cmd):
         print("write:",cmd)
         if self.config['serial']:
+            
+            self.ser.flushInput()
+            self.ser.flushOutput() #On nettoie les buffers
             self.ser.write(cmd.encode())
         if self.config['simulation_robot']:
             if not 'serial_output' in self.sharedVariables:
