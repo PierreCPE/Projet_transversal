@@ -44,6 +44,14 @@ class RobotServer:
         self.premiere_detection = True
         self.seuil = None
         
+        # Init du lidar
+        PORT_NAME = 'COM7'
+        self.lidar = RPLidar(PORT_NAME)
+            #Params du robot pour le lidar
+        self.flag_obstacle = False #mm
+        self.distance_min_obst = 1000 #mm
+        self.angle_seuil = 30 # 30 degres
+
     def stopRobot(self):
         if self.direction != [0, 0]:
             self.direction = [0, 0]
@@ -70,10 +78,22 @@ class RobotServer:
             
             for i, tuple in enumerate(self.scan): 
                 
-                if (tuple[1]>=330 or tuple[1] <=30):
+                if (tuple[1]>=(180-self.angle_seuil) and (tuple[1] <=180+self.angle_seuil)):
                     if tuple[2]<=self.distance_min_obst : 
                         print(tuple)
-                        self.flag_obstacle = True 
+                        self.flag_obstacle = True
+                        if tuple[1]>= 180+self.angle_seuil :
+                            print("Je tourne à gauche")
+                            self.direction = [0, -1]
+                            self.speed = self.max_speed/2
+
+                        else :
+                            print("Je tourne à droite")
+                            self.direction = [0, 1]
+                            self.speed = self.max_speed/2
+
+                            
+
                 else : 
                     self.flag_obstacle = False
             #On reçoit la generatrice du lidar et on l'append a notre list
