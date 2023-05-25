@@ -157,7 +157,7 @@ class RobotServer:
         # Direction
         if self.lastDirection != self.direction:
             if self.direction == [0, 0]:
-                self.lastDirection = self.direction
+                self.lastDirection = self.direction.copy()
                 self.stopRobot()
                 return
             x_left = self.direction[0]
