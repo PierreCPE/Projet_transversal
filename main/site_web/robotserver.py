@@ -66,6 +66,7 @@ class RobotServer:
 
         self.led_statut = 0
         self.last_led_statut = 0
+        self.led_delay_stop = time.time()
 
     def stopRobot(self):
         if self.direction != [0, 0]:
@@ -138,7 +139,8 @@ class RobotServer:
         if self.last_led_statut != self.led_statut:
             if self.led_statut:
                 self.sendUART("3&1")
-            else:
+                self.led_delay_stop = time.time()+2
+            elif time.time() > self.led_delay_stop:
                 self.sendUART("3&0")
 
         # Look direction
