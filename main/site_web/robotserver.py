@@ -126,9 +126,9 @@ class RobotServer:
         
         # Look direction
         if self.lastLookDirection != self.lookDirection:
-            cmd = f"1&{int(self.lookDirection[0])}$"
+            cmd = f"1&{int(self.lookDirection[0])}"
             self.sendUART(cmd)
-            cmd = f"2&{int(self.lookDirection[1])}$"
+            cmd = f"2&{int(self.lookDirection[1])}"
             self.sendUART(cmd)
             print("write lookDirection")
 
@@ -145,7 +145,7 @@ class RobotServer:
             rotation_coef = (x_left / 2)
             right_power = round(-self.speed*(y_left + rotation_coef),2)
             left_power = round(-self.speed*(y_left - rotation_coef),2)
-            cmd = f"0&{int(right_power)}&{int(left_power)}$"
+            cmd = f"0&{int(right_power)}&{int(left_power)}"
             if (right_power != 0 or left_power != 0):
                 self.sendUART(cmd)
             else:
