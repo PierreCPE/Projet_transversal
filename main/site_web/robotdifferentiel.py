@@ -1,8 +1,8 @@
-import pygame
 import math
 from simulationsensor import LidarSimulationSensor
 class RobotDifferential:
     def __init__(self, carte_largeur, carte_hauteur, robot_largeur, robot_hauteur, vitesse_max, vitesse_rotation_max, config, sharedVariables):
+        import pygame        
         self.carte_largeur = carte_largeur
         self.carte_hauteur = carte_hauteur
         self.robot_largeur = robot_largeur
