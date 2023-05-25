@@ -1,0 +1,54 @@
+@font-face {
+    font-family: 'Pixelogist';
+    src: url('../font/PixeloidSans.ttf') format('truetype');
+    }
+  
+body {
+    background-color: #f96c00;
+    font-family: 'Pixelogist';
+
+    background-color:#e0f900;
+}
+
+form {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Pixelogist';
+}
+
+
+
+input[type="submit"],input[type="password"],
+input[type="texte"] {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-family: 'Pixelogist';
+}
+
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: rgb(127, 79, 32);
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    text-decoration-color: aquamarine;
+    align-items: center;
+    font-family: 'Pixelogist';
+}
+
+
+button:hover {
+    background-color:#e0f900
+    
+}
+
+
