@@ -109,13 +109,8 @@ class RobotServer:
                             print("Je tourne à droite")
                             self.direction = [1,0]
                             self.speed = self.max_speed/2
-
-                            
-
                 else : 
                     self.flag_obstacle = False
-                    # Config speciale en fonction du mode
-                    self.direction = [0,1]
             
             
             return self.flag_obstacle
@@ -127,7 +122,10 @@ class RobotServer:
         self.messages_to_serial.clear()
         # Ajout de detection d'obstacle de check_obstacle if check_obstacle
         # Selon le mode stop le robot ou fait un son
-        self.check_obstacle()
+        obstacle = self.check_obstacle()
+        if not obstacle:
+            # Config speciale en fonction du mode
+            self.direction = [0,1]
         if self.lookDirection [0] < 0:
             self.lookDirection[0] = 0
         if self.lookDirection [0] > 180:
