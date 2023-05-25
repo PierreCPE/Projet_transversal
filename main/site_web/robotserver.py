@@ -157,11 +157,12 @@ class RobotServer:
         self.messages_to_serial.append(cmd)
 
     def write(self):
+        if len(self.messages_to_serial) == 0:
+            return
         message = ",".join(self.messages_to_serial)
         message += "$"
         print("write:",message)
         if self.config['serial']:
-            
             self.ser.flushInput()
             self.ser.flushOutput() #On nettoie les buffers
             self.ser.write(message.encode())
