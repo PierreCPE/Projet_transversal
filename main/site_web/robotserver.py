@@ -64,11 +64,14 @@ class RobotServer:
         self.distance_min_obst = 300 #mm
         self.angle_seuil = 30 # 30 degres
 
+        self.led_statut = 0
+        self.last_led_statut = 0
+
     def stopRobot(self):
         if self.direction != [0, 0]:
             self.direction = [0, 0]
             self.sendUART("0&0&0")
-            
+    
     def check_obstacle(self):
         if not 'utilisation_lidar' in self.config or not self.config['utilisation_lidar']:
             return False
@@ -131,7 +134,13 @@ class RobotServer:
             self.lookDirection[1] = 0
         if self.lookDirection [1] > 180:
             self.lookDirection[1] = 180
-        
+        # LED
+        if self.last_led_statut != self.led_statut:
+            if self.led_statut:
+                self.sendUART("3&1")
+            else:
+                self.sendUART("3&0")
+
         # Look direction
         if self.lastLookDirection != self.lookDirection:
             cmd = f"1&{int(self.lookDirection[0])}"
@@ -159,6 +168,7 @@ class RobotServer:
             else:
                 self.stopRobot()
         self.write()
+        self.last_led_statut = self.led_statut
         self.lastDirection = self.direction
         
     def sendUART(self, cmd):
@@ -197,6 +207,7 @@ class RobotServer:
         if 'manualControlJson' in self.sharedVariables:
             json_data = self.sharedVariables['manualControlJson']
             del self.sharedVariables['manualControlJson']
+            self.led_statut = 'A' in json_data
             self.speed = 0
             self.lookSpeed = 0
             if self.config['speed_variable']:
