@@ -50,11 +50,11 @@ class RobotServer:
         self.seuil = None
         
         # Init du lidar
-        PORT_NAME = '/dev/ttyAMA0'
+        PORT_NAME ='COM7' # '/dev/ttyAMA0'
         self.lidar = RPLidar(PORT_NAME)
             #Params du robot pour le lidar
         self.flag_obstacle = False #mm
-        self.distance_min_obst = 1000 #mm
+        self.distance_min_obst = 300 #mm
         self.angle_seuil = 30 # 30 degres
 
     def stopRobot(self):
