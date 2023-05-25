@@ -17,7 +17,7 @@ class RobotServer:
         self.sharedFrame = sharedFrame
         self.max_speed = 30
         self.speed = 0
-        self.maxLookSpeed = 3.5
+        self.maxLookSpeed = 20
         self.lastSpeed = 0
         self.direction = [0, 0] # (-1 to 0)
         self.lastDirection = [0, 0] # (-1 to 0)
@@ -423,7 +423,7 @@ class RobotServer:
                     self.manualControl()
                 self.updateRobot()
                 self.last_mode = self.sharedVariables['mode']
-                time.sleep(0.1)
+                time.sleep(0.05)
             except Exception as e:
                 print("ERROR: ", e)
                 self.last_mode = self.sharedVariables['mode']
