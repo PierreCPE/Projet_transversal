@@ -344,8 +344,10 @@ class RobotServer:
               
     def mode3Play(self):
         if not self.mode3_playing:
-                self.mode3_playing = True
                 command = "son.wav"
+                if self.mode3_count >= 3:
+                    return
+                self.mode3_playing = True
                 self.playSound(command)
                 self.mode3_count += 1
                 print(f"play {self.mode3_count}")
