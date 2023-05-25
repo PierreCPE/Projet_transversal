@@ -52,8 +52,9 @@ class RobotServer:
         self.timer_play_sound = time.time()
         
         # Init du lidar
-        PORT_NAME ='COM7' # '/dev/ttyAMA0'
-        self.lidar = RPLidar(PORT_NAME)
+        if config['utilisation_lidar']:
+            PORT_NAME = '/dev/ttyAMA0'
+            self.lidar = RPLidar(PORT_NAME)
             #Params du robot pour le lidar
         self.flag_obstacle = False #mm
         self.distance_min_obst = 300 #mm
