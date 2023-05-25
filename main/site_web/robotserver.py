@@ -209,11 +209,11 @@ class RobotServer:
         if 'manualControlJson' in self.sharedVariables:
             json_data = self.sharedVariables['manualControlJson']
             del self.sharedVariables['manualControlJson']
+            if 'A' in json_data:
+                self.led_statut = True
+                self.led_delay_stop = time.time()+2
             if time.time() > self.led_delay_stop:
-                if 'A' in json_data:
-                    self.led_statut = True
-                    self.led_delay_stop = time.time()+2
-                else:
+                if not 'A' in json_data:
                     self.led_statut = False
             self.speed = 0
             self.lookSpeed = 0
