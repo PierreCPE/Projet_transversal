@@ -114,7 +114,8 @@ class RobotServer:
 
                 else : 
                     self.flag_obstacle = False
-            #On reçoit la generatrice du lidar et on l'append a notre list
+                    # Config speciale en fonction du mode
+                    self.direction = [0,1]
             
             
             return self.flag_obstacle
