@@ -137,11 +137,11 @@ class RobotServer:
         if self.lookDirection [1] > 180:
             self.lookDirection[1] = 180
         # LED
-        # if self.last_led_statut != self.led_statut:
-        if self.led_statut:
-            self.sendUART("3&1")
-        else:
-            self.sendUART("3&0")
+        if self.last_led_statut != self.led_statut:
+            if self.led_statut:
+                self.sendUART("3&1")
+            else:
+                self.sendUART("3&0")
 
         # Look direction
         if self.lastLookDirection != self.lookDirection:
