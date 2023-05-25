@@ -63,7 +63,7 @@ class RobotServer:
     def stopRobot(self):
         if self.direction != [0, 0]:
             self.direction = [0, 0]
-            self.write("0&0&0\n\r")
+            self.write("0&0&0")
             
     def check_obstacle(self):
         if not 'utilisation_lidar' in self.config or not self.config['utilisation_lidar']:
@@ -121,9 +121,9 @@ class RobotServer:
         
         # Look direction
         if self.lastLookDirection != self.lookDirection:
-            cmd = f"1&{int(self.lookDirection[0])}$\n\r"
+            cmd = f"1&{int(self.lookDirection[0])}$"
             self.write(cmd)
-            cmd = f"2&{int(self.lookDirection[1])}$\n\r"
+            cmd = f"2&{int(self.lookDirection[1])}$"
             self.write(cmd)
             print("write lookDirection")
 
@@ -140,7 +140,7 @@ class RobotServer:
             rotation_coef = (x_left / 2)
             right_power = round(-self.speed*(y_left + rotation_coef),2)
             left_power = round(-self.speed*(y_left - rotation_coef),2)
-            cmd = f"0&{int(right_power)}&{int(left_power)}$\n\r"
+            cmd = f"0&{int(right_power)}&{int(left_power)}$"
             if (right_power != 0 or left_power != 0):
                 self.write(cmd)
             else:
