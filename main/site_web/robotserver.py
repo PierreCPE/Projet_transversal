@@ -89,7 +89,7 @@ class RobotServer:
                     if tuple[2]<=self.distance_min_obst : 
                         print(tuple)
                         self.flag_obstacle = True
-                        if tuple[1]>= 180+self.angle_seuil :
+                        if tuple[1]>= 180 :
                             print("Je tourne à gauche")
                             self.direction = [0, -1]
                             self.speed = self.max_speed/2
