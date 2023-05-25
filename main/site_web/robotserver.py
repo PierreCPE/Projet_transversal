@@ -53,7 +53,7 @@ class RobotServer:
         
         # Init du lidar
         if config['utilisation_lidar']:
-            PORT_NAME = '/dev/ttyAMA0'
+            PORT_NAME = '/dev/ttyUSB0'
             self.lidar = RPLidar(PORT_NAME)
             #Params du robot pour le lidar
         self.flag_obstacle = False #mm
