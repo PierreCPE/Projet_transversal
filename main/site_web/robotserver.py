@@ -139,7 +139,6 @@ class RobotServer:
         if self.last_led_statut != self.led_statut:
             if self.led_statut:
                 self.sendUART("3&1")
-                self.led_delay_stop = time.time()+2
             else:
                 self.sendUART("3&0")
 
@@ -211,6 +210,7 @@ class RobotServer:
             del self.sharedVariables['manualControlJson']
             if 'A' in json_data:
                 self.led_statut = True
+                self.led_delay_stop = time.time()+2
             elif time.time() > self.led_delay_stop:
                 self.led_statut = False
             self.speed = 0
