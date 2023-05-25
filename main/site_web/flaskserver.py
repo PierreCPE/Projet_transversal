@@ -19,21 +19,22 @@ class FlaskApp:
         self.limiter = Limiter(
             get_remote_address,
             app=self.app,
-            default_limits=["2000 per day", "500 per hour"]
+            default_limits=["200000 per day", "20000 per hour"]
         )
 
         self.users = {
             "user1": {"password": "1234", "ip": '134.214.51.114'},
             "user2": {"password": "5678", "ip": '192.168.56.1'},
-            "user3": {"password": "91011", "ip": '192.168.202.1' },
-            "user4": {"password": "121314", "ip": '192.168.121.33'},
-            "user5": {"password": "151617", "ip": '127.0.0.1' },
-            "user6": {"password": "181920", "ip": '192.168.121.198' },
-            "user7": {"password": "151617", "ip": '192.168.224.226' },
-            "hugues": {"password": "1234", "ip": '192.168.229.33' },
-            "user9": {"password": "1234", "ip": '134.214.51.88' },
-        }        
-        self.tentatives = {}
+            "user3": {"password": "91011", "ip": '192.168.202.1'},
+            "user4": {"password": "121314", "ip": '192.168.47.33'},
+            "local": {"password": "1234", "ip": '127.0.0.1'},
+            "user6": {"password": "181920", "ip": '192.168.121.198'},
+            "user7": {"password": "151617", "ip": '192.168.47.226'},
+            "hugues": {"password": "1234", "ip": '192.168.47.33'},
+            "user9": {"password": "1234", "ip": '192.168.47.18'}
+        }
+        self.logs = {}
+        self.logsAuth = {}
 
         @self.auth.verify_password
         def verify_password(username, password):
@@ -77,13 +78,17 @@ class FlaskApp:
             return render_template('login.html')
 
         @self.auth.login_required
-        @self.limiter.limit(f"{self.limit_connection_amount} per day")
-        def index(): 
-            return render_template('index.html')
+        def commandes():
+            # print("commandes")
+            print(request)
+            json_data = request.get_json()
+            print(json_data)
+            if "control" in json_data:
+                self.controlCommandes(json_data["control"])
+            if "config" in json_data:
+                self.configCommandes(json_data["config"])
+            return 'OK'
 
-        
-        
-                        
         @self.app.route('/camera.html')
         @self.auth.login_required
         def camera_page():

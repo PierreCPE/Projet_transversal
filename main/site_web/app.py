@@ -7,6 +7,8 @@ from flaskserver import FlaskServer
 from cameraserver import CameraServer
 from robotserver import RobotServer
 from simulationserver import SimulationServer
+import robotdifferentiel
+import math
 
 class App:
     def __init__(self, config = None):
@@ -43,12 +45,13 @@ class App:
         ###########################################
         config = ThreadSafeDict()
         config['detection_contour'] = True
-        config['serial'] = False # Activer ou non le port serial
+        config['serial'] = True # Activer ou non le port serial
         # config['serial_port'] = 'COM8' # Port série
         config['serial_port'] = '/dev/ttyUSB1' # Port série
         config['serial_baudrate'] = 19200 # Baudrate du port série
         config['gomete_path'] = "gomete.jpg"
         config['speed_variable'] = True # Fixe ou non la vitesse du robot (si non dépendente de la touche LT)
+        config['look_speed_variable'] = True # Fixe ou non la vitesse de déplacement des axes (si non dépendente de la touche RT)
         config['log_all_requests'] = False
         config['video_quality'] = 10 # Qualité de la vidéo (0-100)
         config['point_simulation'] = False # Simule un point rouge à la place de la détection. Les coordonnées sont définies dans sharedVariables à la clé 'point_simulation_data' ([x,y,rayon])
@@ -59,6 +62,8 @@ class App:
         config['auth_failed_limit'] = 7 # Nombre de tentatives de connexion avant de bloquer l'adresse IP
         config['auth_try_time'] = 5 # Temps en secondes avant de pouvoir réessayer de se connecter
         config['simulation_robot'] = False # Activer ou non le robot de simulation
+        config['utilisation_lidar'] = True # Si le lidar est utilisé (pour les tests)
+        config['windows'] = False # Si le lidar est utilisé (pour les tests)
         ###########################################
         return config
 
@@ -95,8 +100,15 @@ def runRobotServer(config, sharedVariables, sharedFrame):
     robotServer.run()
 
 def runSimulationServer(config, sharedVariables):
-    simulationServer = SimulationServer(config, sharedVariables)
-    simulationServer.run()
+    # robotdifferentiel.run(config, sharedVariables)
+    # Exemple d'utilisation
+    ratio = 1
+    ROBOT_LARGEUR = 1
+    ROBOT_HAUTEUR = ROBOT_LARGEUR*ratio
+    VITESSE_MAX = 1.5
+    VITESSE_ROTATION_MAX = math.pi/100
+    robot = robotdifferentiel.RobotDifferential(800, 600, ROBOT_LARGEUR, ROBOT_HAUTEUR, VITESSE_MAX, VITESSE_ROTATION_MAX, config, sharedVariables)
+    robot.run()
 
 if __name__ == '__main__':
     app = App()
