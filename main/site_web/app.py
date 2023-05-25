@@ -62,7 +62,7 @@ class App:
         config['auth_failed_limit'] = 7 # Nombre de tentatives de connexion avant de bloquer l'adresse IP
         config['auth_try_time'] = 5 # Temps en secondes avant de pouvoir réessayer de se connecter
         config['simulation_robot'] = False # Activer ou non le robot de simulation
-        config['utilisation_lidar'] = True # Si le lidar est utilisé (pour les tests)
+        config['utilisation_lidar'] = False # Si le lidar est utilisé (pour les tests)
         config['windows'] = True # Si le lidar est utilisé (pour les tests)
         ###########################################
         return config
