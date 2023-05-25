@@ -109,6 +109,7 @@ class RobotServer:
                             print("Je tourne à droite")
                             self.direction = [1,0]
                             self.speed = self.max_speed/2
+                        return self.flag_obstacle
                 else : 
                     self.flag_obstacle = False
             
