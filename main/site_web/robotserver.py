@@ -51,6 +51,14 @@ class RobotServer:
         self.timer_mode3 = time.time()
         self.timer_play_sound = time.time()
         
+        # Init du lidar
+        PORT_NAME = '/dev/ttyAMA0'
+        self.lidar = RPLidar(PORT_NAME)
+            #Params du robot pour le lidar
+        self.flag_obstacle = False #mm
+        self.distance_min_obst = 1000 #mm
+        self.angle_seuil = 30 # 30 degres
+
     def stopRobot(self):
         if self.direction != [0, 0]:
             self.direction = [0, 0]
@@ -79,10 +87,22 @@ class RobotServer:
             
             for i, tuple in enumerate(self.scan): 
                 
-                if (tuple[1]>=330 or tuple[1] <=30):
+                if (tuple[1]>=(180-self.angle_seuil) and (tuple[1] <=180+self.angle_seuil)):
                     if tuple[2]<=self.distance_min_obst : 
                         print(tuple)
-                        self.flag_obstacle = True 
+                        self.flag_obstacle = True
+                        if tuple[1]>= 180 :
+                            print("Je tourne à gauche")
+                            self.direction = [0, -1]
+                            self.speed = self.max_speed/2
+
+                        else :
+                            print("Je tourne à droite")
+                            self.direction = [0, 1]
+                            self.speed = self.max_speed/2
+
+                            
+
                 else : 
                     self.flag_obstacle = False
             #On reçoit la generatrice du lidar et on l'append a notre list
@@ -269,11 +289,11 @@ class RobotServer:
             if self.max_spectres_moyen[-2] < self.max_spectres_moyen[-1]:
                 print("Le bruit augmente.")
                 self.speed = 10.0  
-                self.direction = [-1, 0]
+                self.direction = [1, 0]
             elif self.max_spectres_moyen[-2] > self.max_spectres_moyen[-1]:
                 print("Le bruit diminue.")
                 self.speed = 10.0  
-                self.direction = [1, 0] 
+                self.direction = [-1, 0] 
             else:
                 print("Le bruit est constant.")
         elif len(self.max_spectres_moyen) == 1:
