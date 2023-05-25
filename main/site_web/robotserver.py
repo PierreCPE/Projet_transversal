@@ -17,7 +17,7 @@ class RobotServer:
         self.sharedFrame = sharedFrame
         self.max_speed = 30
         self.speed = 0
-        self.maxLookSpeed = 7
+        self.maxLookSpeed = 3.5
         self.lastSpeed = 0
         self.direction = [0, 0] # (-1 to 0)
         self.lastDirection = [0, 0] # (-1 to 0)
@@ -138,7 +138,7 @@ class RobotServer:
             self.sendUART(cmd)
             cmd = f"2&{int(self.lookDirection[1])}"
             self.sendUART(cmd)
-            print("write lookDirection")
+            # print("write lookDirection")
 
         self.lastLookDirection = self.lookDirection.copy()
 
@@ -177,8 +177,8 @@ class RobotServer:
         if self.config['simulation_robot']:
             if not 'serial_output' in self.sharedVariables:
                 self.sharedVariables['serial_output'] = []
-                print("create serial_output")
-            print("write in fake serial:",message)
+                # print("create serial_output")
+            # print("write in fake serial:",message)
             self.sharedVariables['serial_output'].append(message)
 
     def read(self):
@@ -212,14 +212,14 @@ class RobotServer:
             else:
                 self.lookSpeed = self.maxLookSpeed
 
-            print("lookSpeed:",self.lookSpeed)
+            # print("lookSpeed:",self.lookSpeed)
             if 'JoystickRight' in json_data:
                 x_left = self.lookSpeed*json_data["JoystickRight"][0]
                 y_left = self.lookSpeed*json_data["JoystickRight"][1]
                 self.lookDirection[0] += x_left
                 self.lookDirection[1] += y_left
 
-            print("lookDirection:",self.lookDirection)
+            # print("lookDirection:",self.lookDirection)
             if 'JoystickLeft' in json_data:
                 x_left = json_data["JoystickLeft"][0]
                 y_left = json_data["JoystickLeft"][1]
