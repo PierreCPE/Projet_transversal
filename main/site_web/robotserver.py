@@ -333,7 +333,7 @@ class RobotServer:
 
     def mode3record(self):
         print("Début enregistrement")
-        duree = 5    
+        duree = 3
         if self.config['windows']:
             print("Fake record windows")
         else:
@@ -349,7 +349,7 @@ class RobotServer:
                 self.mode3_count += 1
                 print(f"play {self.mode3_count}")
         else:
-            if time.time() - self.timer_mode3 > 3*self.mode3_count:
+            if time.time() - self.timer_mode3 > 3*(self.mode3_count+1):
                 self.mode3_phase = 'play'
                 self.mode3_playing = False
     
