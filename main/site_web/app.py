@@ -63,7 +63,7 @@ class App:
         config['auth_try_time'] = 5 # Temps en secondes avant de pouvoir réessayer de se connecter
         config['simulation_robot'] = False # Activer ou non le robot de simulation
         config['utilisation_lidar'] = False # Si le lidar est utilisé (pour les tests)
-        config['windows'] = True # Si le lidar est utilisé (pour les tests)
+        config['windows'] = False # Si le lidar est utilisé (pour les tests)
         ###########################################
         return config
 
