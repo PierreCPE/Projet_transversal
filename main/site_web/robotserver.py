@@ -182,11 +182,11 @@ class RobotServer:
             if self.max_spectres_moyen[-2] < self.max_spectres_moyen[-1]:
                 print("Le bruit augmente.")
                 self.speed = 10.0  
-                self.direction = [-1, 0]
+                self.direction = [1, 0]
             elif self.max_spectres_moyen[-2] > self.max_spectres_moyen[-1]:
                 print("Le bruit diminue.")
                 self.speed = 10.0  
-                self.direction = [1, 0] 
+                self.direction = [-1, 0] 
             else:
                 print("Le bruit est constant.")
         elif len(self.max_spectres_moyen) == 1:
