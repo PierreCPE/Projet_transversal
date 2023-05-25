@@ -28,7 +28,11 @@ class RobotServer:
         self.require_update = False
         self.last_mode = self.sharedVariables['mode']
         if config['serial']:
-            self.ser = serial.Serial(config['serial_port'])
+            self.ser = serial.Serial(config['serial_port'], 
+                parity=serial.PARITY_NONE,
+                stopbits=serial.STOPBITS_ONE,
+                bytesize=serial.EIGHTBITS,
+                timeout=None)
             self.ser.baudrate = config['serial_baudrate']
         # Sampling frequency
         self.freq = self.config['mode3_freq']
@@ -50,7 +54,7 @@ class RobotServer:
         self.seuil = None
         self.timer_mode3 = time.time()
         self.timer_play_sound = time.time()
-        
+        self.messages_to_serial = []
         # Init du lidar
         if config['utilisation_lidar']:
             PORT_NAME = '/dev/ttyUSB0'
@@ -63,7 +67,7 @@ class RobotServer:
     def stopRobot(self):
         if self.direction != [0, 0]:
             self.direction = [0, 0]
-            self.write("0&0&0")
+            self.sendUART("0&0&0")
             
     def check_obstacle(self):
         if not 'utilisation_lidar' in self.config or not self.config['utilisation_lidar']:
@@ -115,6 +119,7 @@ class RobotServer:
     
 
     def updateRobot(self):
+        self.messages_to_serial.clear()
         # Ajout de detection d'obstacle de check_obstacle if check_obstacle
         # Selon le mode stop le robot ou fait un son
         self.check_obstacle()
@@ -122,9 +127,9 @@ class RobotServer:
         # Look direction
         if self.lastLookDirection != self.lookDirection:
             cmd = f"1&{int(self.lookDirection[0])}$"
-            self.write(cmd)
+            self.sendUART(cmd)
             cmd = f"2&{int(self.lookDirection[1])}$"
-            self.write(cmd)
+            self.sendUART(cmd)
             print("write lookDirection")
 
         self.lastLookDirection = self.lookDirection.copy()
@@ -142,25 +147,30 @@ class RobotServer:
             left_power = round(-self.speed*(y_left - rotation_coef),2)
             cmd = f"0&{int(right_power)}&{int(left_power)}$"
             if (right_power != 0 or left_power != 0):
-                self.write(cmd)
+                self.sendUART(cmd)
             else:
                 self.stopRobot()
-
+        self.write()
         self.lastDirection = self.direction
+        
+    def sendUART(self, cmd):
+        self.messages_to_serial.append(cmd)
 
-    def write(self, cmd):
-        print("write:",cmd)
+    def write(self):
+        message = ",".join(self.messages_to_serial)
+        message += "$"
+        print("write:",message)
         if self.config['serial']:
             
             self.ser.flushInput()
             self.ser.flushOutput() #On nettoie les buffers
-            self.ser.write(cmd.encode())
+            self.ser.write(message.encode())
         if self.config['simulation_robot']:
             if not 'serial_output' in self.sharedVariables:
                 self.sharedVariables['serial_output'] = []
                 print("create serial_output")
-            print("write in fake serial:",cmd)
-            self.sharedVariables['serial_output'].append(cmd)
+            print("write in fake serial:",message)
+            self.sharedVariables['serial_output'].append(message)
 
     def read(self):
         if self.config['serial']:
