@@ -322,6 +322,7 @@ class RobotServer:
             self.mode3record()
             self.mode3_phase = 'play'
             self.mode3_count = 0
+            self.mode3_playing = True
         elif self.mode3_phase == 'play':
             self.mode3Play()
             if self.mode3_count > 3 and time.time() - self.timer_mode3 > 3*3:
