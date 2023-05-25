@@ -325,7 +325,7 @@ class RobotServer:
             self.mode3_playing = True
         elif self.mode3_phase == 'play':
             self.mode3Play()
-            if self.mode3_count > 3 and time.time() - self.timer_mode3 > 3*6:
+            if self.mode3_count > 3 and time.time() - self.timer_mode3 > 3*3:
                 self.mode3_phase = 'record'
         else:
             self.timer_mode3 = time.time()
@@ -344,13 +344,12 @@ class RobotServer:
               
     def mode3Play(self):
         if not self.mode3_playing:
+                self.mode3_playing = True
                 command = "son.wav"
                 self.mode3_count += 1
                 if self.mode3_count > 3:
                     return
-                self.mode3_playing = True
                 self.playSound(command)
-                self.mode3_count += 1
                 print(f"play {self.mode3_count}")
         else:
             if time.time() - self.timer_mode3 > 3*(self.mode3_count+1):
