@@ -48,6 +48,8 @@ class RobotServer:
         self.bruit_detecte = False
         self.premiere_detection = True
         self.seuil = None
+        self.timer_mode3 = time.time()
+        self.timer_play_sound = time.time()
         
     def stopRobot(self):
         if self.direction != [0, 0]:
@@ -130,7 +132,11 @@ class RobotServer:
         if self.config['serial']:
             self.ser.write(cmd.encode())
         if self.config['simulation_robot']:
-            self.sharedVariables['serial_output'] = cmd
+            if not 'serial_output' in self.sharedVariables:
+                self.sharedVariables['serial_output'] = []
+                print("create serial_output")
+            print("write in fake serial:",cmd)
+            self.sharedVariables['serial_output'].append(cmd)
 
     def read(self):
         if self.config['serial']:
@@ -279,44 +285,67 @@ class RobotServer:
     
         
     def mode3Init(self):
+        self.timer_mode3 = time.time()
         print("mode3Init")
         duree =5    
-        command = "combat-laser.wav"
-        self.playSound(command)
+        # command = "combat-laser.wav"
+        # self.playSound(command)
+        self.timer_mode3 = time.time()
+        self.mode3_phase = 'record'
+        self.mode3_playing = False
+        self.mode3_count = 0
 
     def mode3Control(self):
-        self.mode3Init()
-        self.mode3record() 
-        self.mode3Play()
+        if self.mode3_phase == 'record':
+            self.timer_mode3 = time.time()
+            self.mode3record()
+            self.mode3_phase = 'play'
+            self.mode3_count = 0
+        elif self.mode3_phase == 'play':
+            self.mode3Play()
+            if self.mode3_count > 3 and time.time() - self.timer_mode3 > 3*3:
+                self.mode3_phase = 'record'
+        else:
+            self.timer_mode3 = time.time()
+            self.mode3_count = 0
+            self.mode3_phase = 'record'
 
     def mode3record(self):
         print("Début enregistrement")
         duree = 5    
-        command = f"arecord -d {duree} -D hw:2,0 -f S16_LE -r 16000 -c 1 son.wav","echo 'Enregistrement terminé'"
-        self.playSound(command)
+        if self.config['windows']:
+            print("Fake record windows")
+        else:
+            command = f"arecord -d {duree} -D hw:2,0 -f S16_LE -r 16000 -c 1 son.wav"
+            thread = threading.Thread(target=execute_command, args=(command,))
+            thread.start()
               
     def mode3Play(self):
-        commands = ["son.wav","son.wav","son.wav"]
-        self.playSound(commands)
-        print("Lecture terminée")
+        if not self.mode3_playing:
+                self.mode3_playing = True
+                command = "son.wav"
+                self.playSound(command)
+                self.mode3_count += 1
+                print(f"play {self.mode3_count}")
+        else:
+            if time.time() - self.timer_mode3 > 3*self.mode3_count:
+                self.mode3_phase = 'play'
+                self.mode3_playing = False
     
     def playSound(self, sounds):
         if self.config['windows']:
-            import winsound
-            if  isinstance(sounds, str):
-                winsound.PlaySound(sounds, winsound.SND_FILENAME)
-            else:
-                for sound in sounds:
-                    winsound.PlaySound(sound, winsound.SND_FILENAME)
+            thread = threading.Thread(target=execute_sound_windows, args=(sounds,))
+            thread.start()
+            
         else:
             if  isinstance(sounds, str):
                 command= f"aplay -c 1 -t wav -r 16000 -f mu_law '{sounds}'"
                 thread = threading.Thread(target=execute_command, args=(command,))
             else:
-                commands = []
+                self.timer_play_sound = time.time()
                 for sound in sounds:
-                    commands.append(f"aplay -c 1 -t wav -r 16000 -f mu_law '{sound}'")
-                thread = threading.Thread(target=execute_command, args=(commands,))
+                    command = f"aplay -c 1 -t wav -r 16000 -f mu_law '{sound}'"
+                    thread = threading.Thread(target=execute_command, args=(command,))
             thread.start()
 
     def run(self):
@@ -350,12 +379,16 @@ class RobotServer:
                 self.last_mode = self.sharedVariables['mode']
                 time.sleep(0.1)
             except Exception as e:
+                print("ERROR: ", e)
                 self.last_mode = self.sharedVariables['mode']
                 self.stopRobot()
                 command = "erreur.wav"
                 self.playSound(command)
                 break
             
+def execute_sound_windows(sound):
+    import winsound
+    winsound.PlaySound(sound, winsound.SND_FILENAME)  
 
 def execute_command(command):
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)

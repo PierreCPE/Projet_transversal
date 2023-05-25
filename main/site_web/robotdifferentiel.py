@@ -2,19 +2,22 @@ import pygame
 import math
 from simulationsensor import LidarSimulationSensor
 class RobotDifferential:
-    def __init__(self, carte_largeur, carte_hauteur, robot_largeur, robot_hauteur, vitesse_max, vitesse_rotation_max):
+    def __init__(self, carte_largeur, carte_hauteur, robot_largeur, robot_hauteur, vitesse_max, vitesse_rotation_max, config, sharedVariables):
         self.carte_largeur = carte_largeur
         self.carte_hauteur = carte_hauteur
         self.robot_largeur = robot_largeur
         self.robot_hauteur = robot_hauteur
         self.vitesse_max = vitesse_max
         self.vitesse_rotation_max = vitesse_rotation_max
+        
+        self.config = config
+        self.sharedVariables = sharedVariables
         pygame.init()
         self.fenetre = pygame.display.set_mode((self.carte_largeur, self.carte_hauteur))
         pygame.display.set_caption("Contrôle du robot")
 
         scale = 15
-        self.robot_image = pygame.image.load("robot_test.png")
+        self.robot_image = pygame.image.load("robot.png")
         self.robot_image = pygame.transform.scale(self.robot_image.copy(), (self.robot_largeur * scale, self.robot_hauteur * scale))
 
         self.fond_image = pygame.image.load("simulation_background.png")
@@ -25,6 +28,11 @@ class RobotDifferential:
         self.robot_y = self.carte_hauteur // 2 - self.robot_hauteur // 2
         self.robot_angle = 0
         self.lidar = LidarSimulationSensor(self)
+
+    def serial_input(self):
+        if 'serial_output' in self.sharedVariables:
+            serial_output = self.sharedVariables['serial_output']
+            print("serial_output:", serial_output)
 
     def checkCollision(self):
         # check if pixel at pos is black
@@ -51,7 +59,7 @@ class RobotDifferential:
         scan = self.lidar.scan()
         vitesse_lineaire = 0
         vitesse_rotation = 0
-
+        self.serial_input()
         touches = pygame.key.get_pressed()
         if touches[pygame.K_z]:
             vitesse_lineaire = self.vitesse_max
@@ -101,11 +109,3 @@ class RobotDifferential:
 
         pygame.quit()
 
-# Exemple d'utilisation
-ratio = 1
-ROBOT_LARGEUR = 1
-ROBOT_HAUTEUR = ROBOT_LARGEUR*ratio
-VITESSE_MAX = 1.5
-VITESSE_ROTATION_MAX = math.pi/100
-robot = RobotDifferential(800, 600, ROBOT_LARGEUR, ROBOT_HAUTEUR, VITESSE_MAX, VITESSE_ROTATION_MAX)
-robot.run()

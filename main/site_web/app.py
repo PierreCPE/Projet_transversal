@@ -7,6 +7,8 @@ from flaskserver import FlaskServer
 from cameraserver import CameraServer
 from robotserver import RobotServer
 from simulationserver import SimulationServer
+import robotdifferentiel
+import math
 
 class App:
     def __init__(self, config = None):
@@ -98,8 +100,15 @@ def runRobotServer(config, sharedVariables, sharedFrame):
     robotServer.run()
 
 def runSimulationServer(config, sharedVariables):
-    simulationServer = SimulationServer(config, sharedVariables)
-    simulationServer.run()
+    # robotdifferentiel.run(config, sharedVariables)
+    # Exemple d'utilisation
+    ratio = 1
+    ROBOT_LARGEUR = 1
+    ROBOT_HAUTEUR = ROBOT_LARGEUR*ratio
+    VITESSE_MAX = 1.5
+    VITESSE_ROTATION_MAX = math.pi/100
+    robot = robotdifferentiel.RobotDifferential(800, 600, ROBOT_LARGEUR, ROBOT_HAUTEUR, VITESSE_MAX, VITESSE_ROTATION_MAX, config, sharedVariables)
+    robot.run()
 
 if __name__ == '__main__':
     app = App()
