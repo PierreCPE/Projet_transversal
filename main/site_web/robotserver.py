@@ -140,7 +140,7 @@ class RobotServer:
             if self.led_statut:
                 self.sendUART("3&1")
                 self.led_delay_stop = time.time()+2
-            elif time.time() > self.led_delay_stop:
+            else:
                 self.sendUART("3&0")
 
         # Look direction
@@ -209,7 +209,10 @@ class RobotServer:
         if 'manualControlJson' in self.sharedVariables:
             json_data = self.sharedVariables['manualControlJson']
             del self.sharedVariables['manualControlJson']
-            self.led_statut = 'A' in json_data
+            if 'A' in json_data:
+                self.led_statut = True
+            elif time.time() > self.led_delay_stop:
+                self.led_statut = False
             self.speed = 0
             self.lookSpeed = 0
             if self.config['speed_variable']:
