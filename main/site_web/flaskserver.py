@@ -35,7 +35,8 @@ class FlaskServer:
             "user7": {"password": "151617", "ip": '192.168.47.226'},
             "hugues": {"password": "1234", "ip": '192.168.47.33'},
             "user9": {"password": "1234", "ip": '192.168.47.18'},
-            "hugues2": {"password": "1234", "ip": '192.168.1.34'}
+            "hugues2": {"password": "1234", "ip": '192.168.1.34'},
+            "redapc": {"password": "1234", "ip": '192.168.1.18'},
         }
         self.logs = {}
         self.logsAuth = {}
@@ -45,7 +46,7 @@ class FlaskServer:
         def verify_password(username, password):
                 client_ip = request.remote_addr
                 if not client_ip in self.tentatives:
-                    self.tentatives[client_ip] = 50
+                    self.tentatives[client_ip] = 3
                 if self.tentatives[client_ip] > 0 : 
                     print(username), print(password)
                     if username in self.users and self.users[username]['password'] == password and self.users[username]['ip'] == client_ip:
