@@ -1,9 +1,9 @@
 import math
 from simulationsensor import LidarSimulationSensor
-
+import pygame
+import time
 class RobotDifferential:
     def __init__(self, carte_largeur, carte_hauteur, robot_largeur, robot_hauteur, vitesse_max, vitesse_rotation_max, config, sharedVariables):
-        import pygame        
         self.carte_largeur = carte_largeur
         self.carte_hauteur = carte_hauteur
         self.robot_largeur = robot_largeur
@@ -25,15 +25,28 @@ class RobotDifferential:
         self.fond_image = pygame.transform.scale(self.fond_image.copy(), (self.carte_largeur, self.carte_hauteur))
 
 
+        self.vitesse_gauche = 0
+        self.vitesse_droite = 0
         self.robot_x = self.carte_largeur // 2 - self.robot_largeur // 2
         self.robot_y = self.carte_hauteur // 2 - self.robot_hauteur // 2
         self.robot_angle = 0
         self.lidar = LidarSimulationSensor(self)
 
     def serial_input(self):
+        direction = [0, 0]
         if 'serial_output' in self.sharedVariables:
             serial_output = self.sharedVariables['serial_output']
             print("serial_output:", serial_output)
+            del self.sharedVariables['serial_output']
+            json_data = serial_output
+            if 'JoystickLeft' in json_data:
+                x_left = json_data["JoystickLeft"][0]
+                y_left = json_data["JoystickLeft"][1]
+                direction = [x_left, y_left]
+            else:
+                direction = [0, 0]
+            self.vitesse_gauche = direction[1]
+            self.vitesse_droite = direction[0]
 
     def checkCollision(self):
         # check if pixel at pos is black
@@ -42,7 +55,7 @@ class RobotDifferential:
         for i in range(self.robot_image.get_width()):
             for j in range(self.robot_image.get_height()):
                 if self.collision(offset_x + i, offset_y + j):
-                    print('collision')
+                    # print('collision')
                     return True
         return False
 
@@ -52,31 +65,32 @@ class RobotDifferential:
         except IndexError:
             return True
 
+    
     def control(self):
         for evenement in pygame.event.get():
             if evenement.type == pygame.QUIT:
                 return False
 
         scan = self.lidar.scan()
-        vitesse_lineaire = 0
-        vitesse_rotation = 0
-        self.serial_input()
-        touches = pygame.key.get_pressed()
-        if touches[pygame.K_z]:
-            vitesse_lineaire = self.vitesse_max
-        elif touches[pygame.K_s]:
-            vitesse_lineaire = -self.vitesse_max
+        if True:
+            self.serial_input()
+        else:
+            touches = pygame.key.get_pressed()
+            if touches[pygame.K_z]:
+                self.vitesse_lineaire = self.vitesse_max
+            elif touches[pygame.K_s]:
+                self.vitesse_lineaire = -self.vitesse_max
 
-        if touches[pygame.K_q]:
-            vitesse_rotation = self.vitesse_rotation_max
-        elif touches[pygame.K_d]:
-            vitesse_rotation = -self.vitesse_rotation_max
+            if touches[pygame.K_q]:
+                self.vitesse_rotation = self.vitesse_rotation_max
+            elif touches[pygame.K_d]:
+                self.vitesse_rotation = -self.vitesse_rotation_max
 
-        vitesse_gauche = (2 * vitesse_lineaire - vitesse_rotation * self.robot_largeur) / (2 * self.robot_hauteur)
-        vitesse_droite = (2 * vitesse_lineaire + vitesse_rotation * self.robot_largeur) / (2 * self.robot_hauteur)
+            vitesse_gauche = (2 * self.vitesse_lineaire - self.vitesse_rotation * self.robot_largeur) / (2 * self.robot_hauteur)
+            vitesse_droite = (2 * self.vitesse_lineaire + self.vitesse_rotation * self.robot_largeur) / (2 * self.robot_hauteur)
 
-        vitesse_avance = (vitesse_gauche + vitesse_droite) / 2
-        vitesse_rotation = (vitesse_droite - vitesse_gauche) * (180 / math.pi)
+        vitesse_avance = (self.vitesse_gauche + self.vitesse_droite) / 2
+        vitesse_rotation = (self.vitesse_droite - self.vitesse_gauche) * (180 / math.pi)
 
         self.robot_angle += math.radians(vitesse_rotation)
         self.robot_x += vitesse_avance * math.cos(self.robot_angle)
@@ -92,10 +106,12 @@ class RobotDifferential:
         return True
 
     def run(self):
+        print("SimulationServer running")
         en_cours = True
         horloge = pygame.time.Clock()
 
         while en_cours:
+            self.serial_input()
             en_cours = self.control()
 
             self.fenetre.fill((255, 255, 255))

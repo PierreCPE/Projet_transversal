@@ -113,7 +113,7 @@ function gamepadHandler(event, connecting) {
       }
       lastJson = jsonData;
     }
-  }, 1000);
+  }, 100);
 }
 
 window.addEventListener("gamepadconnected", function (event) {

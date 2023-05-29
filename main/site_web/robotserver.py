@@ -444,7 +444,7 @@ class RobotServer:
                     self.manualControl()
                 self.updateRobot()
                 self.last_mode = self.sharedVariables['mode']
-                time.sleep(0.05)
+                #time.sleep(0.05)
             except Exception as e:
                 print("ERROR: ", e)
                 self.last_mode = self.sharedVariables['mode']

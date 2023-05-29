@@ -1,11 +1,10 @@
 
 import numpy as np
 import math
+import pygame
 
 class LidarSimulationSensor:
     def __init__(self, robotDiff):
-                
-        import pygame
         self.robotDiff = robotDiff
         self.scan_angle = []
         self.lidar_range = 300
