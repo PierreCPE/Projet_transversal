@@ -78,6 +78,7 @@ class FlaskServer:
             return render_template('login.html')
 
         @self.auth.login_required
+        #@self.limiter.limit(f"{self.limit_connection_amount} per day")
         def commandes():
             # print("commandes")
             print(request)
