@@ -33,6 +33,5 @@ _Il est possible d'envoyer plusieurs commandes séparées par des virgules_
 | 0 | int | int | Permet de définir la vitesse de rotation des roues |
 | 1 | int | - | angle axe lampe (degrée)|
 | 2 | int | - | angle axe capteurs (degrée)|
-| 3 | float | - | Description de la commande 3 |
-| 4 | float | - | Description de la commande 4 |
-| 5 | float | - | Description de la commande 5 |
+| 3 | int | - | état de la lampe (0 ou 1) |
+
