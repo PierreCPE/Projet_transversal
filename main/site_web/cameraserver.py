@@ -101,6 +101,7 @@ class CameraServer:
             if res == False:
                 break
             if 'capture_color' in self.sharedVariables:
+                print("capture_color")
                 h, l = image.shape[:2]
                 taille = 10
                 x = (l - taille) // 2
