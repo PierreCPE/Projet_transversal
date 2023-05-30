@@ -125,8 +125,8 @@ class RobotServer:
         self.messages_to_serial.clear()
         # Ajout de detection d'obstacle de check_obstacle if check_obstacle
         # Selon le mode stop le robot ou fait un son
-        obstacle = self.check_obstacle()
-        # obstacle = True
+        # obstacle = self.check_obstacle()
+        obstacle = True
         # print(obstacle)
         if not obstacle:
             # Config speciale en fonction du mode
