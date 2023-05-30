@@ -1,6 +1,6 @@
 import math
 from simulationsensor import LidarSimulationSensor
-import pygame
+#import pygame
 import time
 class RobotDifferential:
     def __init__(self, carte_largeur, carte_hauteur, robot_largeur, robot_hauteur, vitesse_max, vitesse_rotation_max, config, sharedVariables):
