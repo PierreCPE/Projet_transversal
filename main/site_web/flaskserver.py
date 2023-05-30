@@ -77,9 +77,9 @@ class FlaskServer:
                     flash('Erreur Username ou Mot de Passe. Veuillez réessayer.')
             return render_template('login.html')
         
-        self.app.add_url_rule("/camera.html", "/camera.html", self.auth.login_required(self.camera_page))   
+        self.app.add_url_rule("/camera.html", "/camera.html", self.camera_page)   
         
-        self.app.add_url_rule('/commandes', "/commandes",self.auth.login_required(self.commandes), methods=['POST'])
+        self.app.add_url_rule('/commandes', "/commandes",self.commandes, methods=['POST'])
 
         self.app.add_url_rule('/register', "/register", self.register, methods=['GET', 'POST'])
             
