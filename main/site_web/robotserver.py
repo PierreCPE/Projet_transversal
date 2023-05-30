@@ -197,7 +197,7 @@ class RobotServer:
                 # print("create serial_output")
             # print("write in fake serial:",message)
             self.sharedVariables['serial_output'].append(message)
-
+        self.messages_to_serial = []
     def read(self):
         if self.config['serial']:
             return self.ser.readline().decode('utf-8')
