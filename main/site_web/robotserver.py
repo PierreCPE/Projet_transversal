@@ -61,7 +61,7 @@ class RobotServer:
             self.lidar = RPLidar(PORT_NAME)
             #Params du robot pour le lidar
         self.flag_obstacle = False #mm
-        self.distance_min_obst = 300 #mm
+        self.distance_min_obst = 500 #mm
         self.angle_seuil = 30 # 30 degres
 
         self.led_statut = 0
