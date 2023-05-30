@@ -130,7 +130,8 @@ class RobotServer:
         if not obstacle:
             # Config speciale en fonction du mode
             self.direction = [0, 0]
-            pass
+            print("No obstacle")
+
         if self.lookDirection [0] < 0:
             self.lookDirection[0] = 0
         if self.lookDirection [0] > 180:
@@ -172,7 +173,6 @@ class RobotServer:
                 self.sendUART(cmd)
             else:
                 self.stopRobot()
-        self.write()
         self.last_led_statut = self.led_statut
         self.lastDirection = self.direction.copy()
         
