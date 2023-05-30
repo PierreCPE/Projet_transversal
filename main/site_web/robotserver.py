@@ -39,6 +39,7 @@ class RobotServer:
         # Recording duration
         self.duration = self.config['mode3_duration']
         
+        self.mode3_phase = 'record'
         # Mode 2 parameters
         self.freq_min = 500
         self.freq_max = 4000
