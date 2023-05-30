@@ -178,6 +178,7 @@ class RobotServer:
         
     def sendUART(self, cmd):
         self.messages_to_serial.append(cmd)
+        self.write(cmd)
 
     def write(self):
         if len(self.messages_to_serial) == 0:
