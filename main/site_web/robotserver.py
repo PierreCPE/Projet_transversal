@@ -173,12 +173,12 @@ class RobotServer:
                 self.sendUART(cmd)
             else:
                 self.stopRobot()
+        self.write()
         self.last_led_statut = self.led_statut
         self.lastDirection = self.direction.copy()
         
     def sendUART(self, cmd):
         self.messages_to_serial.append(cmd)
-        self.write(cmd)
 
     def write(self):
         if len(self.messages_to_serial) == 0:
