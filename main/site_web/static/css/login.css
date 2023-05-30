@@ -1,0 +1,135 @@
+@font-face {
+    font-family: 'Pixelogist';
+    src: url('../font/PixeloidSans.ttf') format('truetype');
+    }
+  
+body {
+    background-color: #f96c00;
+    font-family: 'Pixelogist';
+}
+
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+
+h1 {
+    text-align: center;
+    color: rgb(255, 0, 0);
+    font-size: 100px;
+    margin-top: 20px;
+    font-family: 'Pixelogist';
+    border-color: #fff;
+}
+
+
+form {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Pixelogist';
+}
+
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-family: 'Pixelogist';
+}
+
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: rgb(127, 79, 32);
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    text-decoration-color: aquamarine;
+    align-items: center;
+    font-family: 'Pixelogist';
+}
+
+
+button:hover {
+    background-color:#e0f900
+    
+}
+
+
+.error-message {
+    color: #ff0000;
+    margin-top: 10px;
+    font-family: 'Pixelogist';
+}
+
+
+img {
+    max-width: 15%;
+    height: auto;
+    display: block;
+    margin: 20px auto;
+}
+
+
+.title {
+    display: none;
+    text-align: center;
+    font-size: 24px;
+    color: #ff0000;
+    margin-bottom: 20px;
+    font-family: 'Pixelogist';
+}
+
+
+.welcome-message {
+    width: 70%; 
+    margin: 10px auto; 
+    margin-top: -20px; 
+    text-align: center;
+    font-size: 24px;
+    color: rgb(23, 13, 2);
+    padding: 10px;
+    border: 2px solid rgb(203, 179, 147);
+    border-radius: 5px;
+    max-width: 300px; 
+    background-color: bisque;
+    font-family: 'Pixelogist';
+ 
+    
+}
+
+.flash-messages {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Pixelogist';
+}
+
+
+.flash-message {
+    padding: 10px;
+    background-color: #ff0000;
+    color: #ffffff;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    font-family: 'Pixelogist';
+}
+

@@ -18,6 +18,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -64,7 +66,8 @@ const char *SepCommandes = ",";
 const char *SepValeurs = "&";
 const char *Fin = "$";
 const char *RetChariot = "\r";
-char cmd_id[] = "012345";
+char cmd_id[] = "012345"; // 0 est pour le serializer, 1 pour le servomoteur vertical,
+						  // 2 le servomoteur horizontal et 3 la LED
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -82,32 +85,77 @@ void CONTROL_Motor(int cmd[]){
 		HAL_UART_Transmit(&huart5,(uint8_t *) stop, strlen(stop), 50 );
 	}
 	else{
-		char buff[sizeof("mogo 1:00 2:00\r")];
+		char buff[sizeof("mogo 1:0 2:0\r")];
 		sprintf(buff, "mogo 1:%d 2:%d\r", cmd[0], cmd[1]);
 		HAL_UART_Transmit(&huart5,(uint8_t *) buff, strlen(buff), 50);
 		memset(buff, 0, sizeof(buff));
 	}
 }
 
-void SELEC_Commande(char cmd[]){
-	char *TokenCommandeComplete = strtok(cmd, SepCommandes);
-	if (*TokenCommandeComplete == cmd_id[0]){
-		char *TokenCommandeUnique = strtok(TokenCommandeComplete, SepValeurs);
-		int buff_int[2];
-		int *pt_buff_int = &buff_int;
-		int i = 0;
-		TokenCommandeUnique = strtok(NULL, SepValeurs);
-		while (TokenCommandeUnique != NULL){
-			*(pt_buff_int+i) = atoi(TokenCommandeUnique);//probleme lorsque l'on envoie 2 entier (14.15) et apres (0.0)
-			i++;
-			TokenCommandeUnique = strtok(NULL, SepValeurs);
-		}
-		CONTROL_Motor(buff_int);
+void CONTROL_Servo_V(int cmd){
+	int cmd_buff = cmd*200/18+500;
+	__HAL_TIM_SetCompare(&htim1,TIM_CHANNEL_1,cmd_buff);
+}
+
+void CONTROL_Servo_H(int cmd){
+	int cmd_buff = cmd*200/18+500;
+	__HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_1,cmd_buff);
+}
+
+void CONTROL_LED(int cmd){
+	if (cmd == 1){
+		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,9999);
 	}
-	else{
-		char buffer[sizeof("code incomplet")];
-		memcpy(buffer, "code incomplet", sizeof("code incomplet"));
-		HAL_UART_Transmit(&huart4,(uint8_t *) buffer ,4 ,50 );
+	else if (cmd == 0){
+		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,0);
+	}
+}
+
+void SELEC_Commande(char cmd[]){
+	char *saveptr1, *saveptr2;
+	char *TokenCommandeComplete = strtok_r(cmd, SepCommandes, &saveptr1);
+	while (TokenCommandeComplete != NULL){
+		if (*TokenCommandeComplete == cmd_id[0]){
+			char *TokenCommandeUnique = strtok_r(TokenCommandeComplete, SepValeurs, &saveptr2);
+			int buff_int[2];
+			int i = 0;
+			TokenCommandeUnique = strtok_r(NULL, SepValeurs, &saveptr2);
+			while (TokenCommandeUnique != NULL){
+				buff_int[i] = atoi(TokenCommandeUnique);//probleme lorsque l'on envoie 2 entier (14.15) et apres (0.0)
+				i++;
+
+				TokenCommandeUnique = strtok_r(NULL, SepValeurs, &saveptr2);
+			}
+			CONTROL_Motor(buff_int);
+		}
+
+		else if (*TokenCommandeComplete == cmd_id[1]){
+			char *TokenCommandeUnique = strtok_r(TokenCommandeComplete, SepValeurs, &saveptr2);
+			TokenCommandeUnique = strtok_r(NULL, SepValeurs, &saveptr2);
+			int buff_int = atoi(TokenCommandeUnique);
+			CONTROL_Servo_V(buff_int);
+		}
+
+		else if (*TokenCommandeComplete == cmd_id[2]){
+				char *TokenCommandeUnique = strtok_r(TokenCommandeComplete, SepValeurs, &saveptr2);
+				TokenCommandeUnique = strtok_r(NULL, SepValeurs, &saveptr2);
+				int buff_int = atoi(TokenCommandeUnique);
+				CONTROL_Servo_H(buff_int);
+			}
+
+		else if (*TokenCommandeComplete == cmd_id[3]){
+				char *TokenCommandeUnique = strtok_r(TokenCommandeComplete, SepValeurs, &saveptr2);
+				TokenCommandeUnique = strtok_r(NULL, SepValeurs, &saveptr2);
+				int buff_int = atoi(TokenCommandeUnique);
+				CONTROL_LED(buff_int);
+			}
+
+		else {
+			char buffer[sizeof("code_incomplet\r\n")];
+			memcpy(buffer, "code_incomplet\r\n", sizeof("code_incomplet\r\n"));
+			HAL_UART_Transmit(&huart4,(uint8_t *) buffer ,strlen(buffer) ,50 );
+		}
+		TokenCommandeComplete = strtok_r(NULL, SepCommandes, &saveptr1);
 	}
 }
 
@@ -122,7 +170,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 		else if (*ptrCharData4 == *Fin){
 			SELEC_Commande(RxChar4);
 			ptrRxChar4 = RxChar4;				// on reinitialise le pointeur de RxChar4
-			taille4 = 0;							// on reinitialise le vecteur taille
+			taille4 = 0;						// on reinitialise le vecteur taille
+			memset(RxChar4,0,sizeof(RxChar4));	// on reinitialise le vecteur RxChar4
 		}
 		HAL_UART_Receive_IT(&huart4,Rxuint4,1); // on reenable le Receive */
 	}
@@ -172,11 +221,22 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_UART4_Init();
   MX_UART5_Init();
+  MX_TIM1_Init();
+  MX_TIM2_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   HAL_UART_Receive_IT(&huart4, Rxuint4, 1);
   HAL_UART_Receive_IT(&huart5, Rxuint5, 1);
+
+  TIM1->CCR1 = 1300;
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+  TIM2->CCR1 = 722;
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+  TIM3->CCR1 = 0;
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -208,7 +268,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL12;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL16;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -220,16 +280,18 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV8;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV8;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_UART4|RCC_PERIPHCLK_UART5;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_UART4|RCC_PERIPHCLK_UART5
+                              |RCC_PERIPHCLK_TIM1;
   PeriphClkInit.Uart4ClockSelection = RCC_UART4CLKSOURCE_PCLK1;
   PeriphClkInit.Uart5ClockSelection = RCC_UART5CLKSOURCE_PCLK1;
+  PeriphClkInit.Tim1ClockSelection = RCC_TIM1CLK_HCLK;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
