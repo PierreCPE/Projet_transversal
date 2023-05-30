@@ -117,7 +117,7 @@ class RobotServer:
             return self.flag_obstacle
         except RPLidarException :
             self.lidar.clear_input()
-        self.direction = [0, 0]
+            self.direction = [0, 0]
         return True
     
 
