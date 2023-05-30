@@ -33,9 +33,11 @@ class FlaskServer:
             "local": {"password": "1234", "ip": '127.0.0.1'},
             "user6": {"password": "181920", "ip": '192.168.121.198'},
             "user7": {"password": "151617", "ip": '192.168.47.226'},
-            "hugues": {"password": "1234", "ip": '192.168.47.33'},
+            "hugues2": {"password": "1234", "ip": '192.168.47.33'},
             "user9": {"password": "1234", "ip": '192.168.47.18'},
-            "hugues2": {"password": "1234", "ip": '192.168.1.34'}
+            "hugues2": {"password": "1234", "ip": '192.168.1.34'},
+            "capucine": {"password": "1234", "ip": '192.168.47.252'},
+            "huguestel": {"password": "1234", "ip": '192.168.47.208'},
         }
         self.logs = {}
         self.logsAuth = {}
