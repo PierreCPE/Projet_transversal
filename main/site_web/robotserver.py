@@ -129,7 +129,7 @@ class RobotServer:
         # print(obstacle)
         if not obstacle:
             # Config speciale en fonction du mode
-            self.direction = [0, 0]
+            # self.direction = [0, 0]
             print("No obstacle")
 
         if self.lookDirection [0] < 0:
